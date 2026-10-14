@@ -186,8 +186,8 @@ NVS 中没有 Wi-Fi 凭据时，设备创建 `mybot-xxxx` 配置 AP，其中 `xx
 
 设备服务地址随固件语言选择：
 
-- 中文（`zh-CN`）：`https://mybot.sh2.agoralab.co/api`
-- 英文（`en-US`）：`https://mybot.sg3.agoralab.co/api`
+- 中文（`zh-CN`，国内）：`https://botstation.shengwang.cn/api`
+- 英文（`en-US`，海外）：`https://botstation.agora.io/api`
 
 使用 `idf.py -B <build-dir> menuconfig` 的 `mybot` 菜单配置语言、音频包长、Cloud AEC
 与 AI QoS。服务地址在重新配置时随语言更新；同时构建中英文版本时应分别使用独立 sdkconfig。

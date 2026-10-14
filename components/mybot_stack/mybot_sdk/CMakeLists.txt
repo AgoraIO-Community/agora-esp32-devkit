@@ -30,6 +30,7 @@ endif()
 
 set(MYBOT_SOURCES
     "${MYBOT_ROOT}/src/core/mybot_app.c"
+    "${MYBOT_ROOT}/src/core/mybot_device_command.c"
     "${MYBOT_ROOT}/src/core/mybot_device_lifecycle.c"
     "${MYBOT_ROOT}/src/core/mybot_presenter.c"
     "${MYBOT_ROOT}/src/core/mybot_state_model.c"

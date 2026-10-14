@@ -197,8 +197,8 @@ firmware starts mybot again.
 
 The device-service endpoint follows the firmware language:
 
-- Chinese (`zh-CN`): `https://mybot.sh2.agoralab.co/api`
-- English (`en-US`): `https://mybot.sg3.agoralab.co/api`
+- Chinese (`zh-CN`, mainland China): `https://botstation.shengwang.cn/api`
+- English (`en-US`, overseas): `https://botstation.agora.io/api`
 
 Use `idf.py -B <build-dir> menuconfig` and the `mybot` menu to select the language, audio
 packet duration, Cloud AEC, and AI QoS. The endpoint follows the language on reconfiguration;

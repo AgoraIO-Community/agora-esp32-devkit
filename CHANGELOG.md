@@ -67,6 +67,12 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Update the language-derived device-service addresses to `https://botstation.shengwang.cn/api`
+  for zh-CN and `https://botstation.agora.io/api` for en-US, matching the SDK's regional guidance.
+- Sync the MyBot SDK snapshot to `e7793eb` (1.2.0 plus post-release fixes), adding cloud
+  volume/mute commands and moving status polls and stop notifications off the control worker.
+  Register the new device-command source in ESP-IDF. The shared LVGL view continues to ignore
+  the new optional emotion indicators.
 - Sync the MyBot SDK snapshot to `0643978` (1.2.0 plus post-release fixes), preventing control
   queue stalls, clearing pending starts on re-pairing, discarding stale announcement PCM, and
   hardening HTTP and JSON boundaries. The RTC queue limit increases from 64 to 1000 pending calls.

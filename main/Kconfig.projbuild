@@ -18,8 +18,8 @@ menu "mybot"
 
     config MYBOT_SERVER_BASE
         string
-        default "https://mybot.sg3.agoralab.co/api" if MYBOT_LANGUAGE_EN_US
-        default "https://mybot.sh2.agoralab.co/api"
+        default "https://botstation.agora.io/api" if MYBOT_LANGUAGE_EN_US
+        default "https://botstation.shengwang.cn/api"
 
     choice MYBOT_AUDIO_PTIME
         prompt "Audio packet duration"
