@@ -6,6 +6,16 @@ This project follows Semantic Versioning.
 
 ### Added
 
+- Document globally unique, stable product-generated device IDs using a chip prefix and the first
+  24 hexadecimal characters of a MAC HMAC-SHA256 digest, with a maximum length of 32 characters
+  and distinct chip prefixes isolating platform ID namespaces.
+- Document regional device-service addresses for mainland China and overseas deployments.
+- Handle cloud MCP DeviceCommand v1 messages through the existing RTM/control path with exact
+  session checks and deduplication of the 16 most recently accepted command IDs. Reuse
+  hardware/software playback volume control and add independent speaker mute without stopping
+  microphone uplink.
+- Deliver happy, sad, angry, and surprised expressions as one-shot LCD indicator requests,
+  preserving voiceprint/server overlays and keeping expression rendering on the platform.
 - Expand unit coverage for protocol boundaries, allocation failures, callback ownership,
   partial-start cleanup and recovery, including a standalone KV facade test and video-disabled
   lifecycle checks.
@@ -14,6 +24,17 @@ This project follows Semantic Versioning.
 
 ### Fixed
 
+- Assert non-null arguments before dereferencing device-service mock inputs so whole-tree
+  static analysis does not combine invalid-input tests with unchecked mocks in other test programs.
+- Move binding-status polling and single-attempt HTTPS stop notifications to a background service
+  worker so slow requests do not delay local hangup or a new conversation trigger. Keep lifecycle
+  state on the control worker, discard stale polling results, and drain background requests before
+  releasing runtime resources. HTTPS adapters must support two independent concurrent connections.
+- Remove the UTC clock dependency from MCP device commands. `issued_at` and `expires_at` are
+  optional and currently ignored; a full command-ID cache replaces its oldest entry instead of
+  rejecting new commands.
+- Use atomic GCC coverage counters to prevent corrupt branch counts during concurrent worker
+  and test execution.
 - Avoid overflow when combining JSON fractional scale with extreme negative exponents,
   reject non-finite or unrepresentable numbers before integer conversion, and preserve
   signed 64-bit integer values when printing JSON.
@@ -22,8 +43,6 @@ This project follows Semantic Versioning.
 - Use all available HTTP receive-buffer space at the 32 KiB allocation limit, avoiding early
   rejection of responses split across receive calls. Check full-buffer closure or overflow with
   a one-byte receive probe under the existing request deadline.
-- Preserve the current conversation-stop reason during retry delays and rescheduling, so a
-  transport failure or HTTP 5xx does not by itself change `device_hangup` to `error`.
 - Reject Linux announcement assets when seeking back to the PCM data fails.
 - Discard software-buffered PCM from replaced or stopped pairing announcements, including
   unfinished short writes. Commit replacements only after asset loading succeeds, preserving
@@ -31,8 +50,10 @@ This project follows Semantic Versioning.
 - Reject control-event submissions without waiting when the queue is full, preventing an RTC
   callback from blocking token renewal or shutdown. Request application exit if a video-start
   event cannot be queued.
-- Complete local conversation cleanup before re-pairing when the device-service stop request
-  fails or is waiting for a retry, and avoid duplicate pair-code requests after auth rejection.
+- Stop local video/RTC, flush session PCM, and publish the online hangup's ready state before
+  sending a single HTTPS stop notification. Do not retry failed stop notifications; the compatible
+  service also ends the remote conversation when the device leaves RTC. Keep local-first teardown
+  for re-pairing and avoid duplicate pair-code requests after auth rejection.
 - Align public Wi-Fi comments and integration guides with product-owned provisioning, and
   correct the embedded notes on RTSA logging and per-frame heap allocations.
 - Serialize video startup and encoder control with shutdown on the application control worker,
@@ -42,6 +63,7 @@ This project follows Semantic Versioning.
 
 ### Changed
 
+- Log complete RTM string messages and RTC error text without SDK-side preview limits.
 - Reuse consumer-owned PCM buffers during session flush, removing temporary drain allocations.
 - Increase the RTC queue capacity from 64 to 1000 pending calls while retaining nonblocking
   submission and the existing event handling.

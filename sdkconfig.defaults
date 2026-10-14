@@ -9,7 +9,7 @@ CONFIG_MBEDTLS_DYNAMIC_BUFFER=y
 CONFIG_MBEDTLS_SSL_KEEP_PEER_CERTIFICATE=n
 CONFIG_MBEDTLS_SSL_RENEGOTIATION=n
 
-# Five mybot MPQs consume ten socket-backed AOSL wakeup pipe endpoints before
+# Six mybot MPQs consume twelve socket-backed AOSL wakeup pipe endpoints before
 # HTTPS and Agora allocate their own sockets.
 CONFIG_LWIP_MAX_SOCKETS=32
 
