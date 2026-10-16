@@ -9,7 +9,7 @@ profiles retain their existing UI and hardware behavior; see [Platform UI](PLATF
 
 This replaces CoreS3's earlier status-card view. Audio, camera/video policy, FT6336 touch gestures,
 power, pins, PSRAM and partitions retain their board configuration. Short touch still starts or
-stops a conversation; a three-second hold still requests Wi-Fi provisioning. The MyBot SDK,
+stops a conversation; a three-second hold still requests Wi-Fi provisioning. The agent-studio-device-firmware SDK,
 AOSL and Agora RTSA snapshots are unchanged.
 
 ## Displayed information
@@ -124,6 +124,8 @@ The display implementation and generators derive from the `bk_solution_ai` check
 `dc4c85492bcf00f780c92d56c6cba2a362f54f68`, preserving file-level MIT/Apache-2.0 notices and the
 existing display license. Geometry and colors refer to the user-provided threejs simulator;
 no separate simulator license declaration was found, and this does not assign one.
+The corresponding official firmware project is
+[agora-r2-standard-devkit](https://github.com/AgoraIO-Community/agora-r2-standard-devkit).
 See [dependency baselines](../VENDORED_SOURCES.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).
 
 ## Validation status

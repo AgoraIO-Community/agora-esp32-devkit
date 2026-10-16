@@ -8,7 +8,7 @@ CoreS3 LVGL适配器及公共LCD视图接口。不增加手工渲染器开关，
 [平台UI](PLATFORM_UI.zh-CN.md)。
 
 本视图替换CoreS3旧状态卡片。音频、摄像头/视频策略、FT6336触摸手势、电源、引脚、PSRAM
-和分区仍采用原板级配置；短触开始/结束会话、长按三秒配网保持。MyBot SDK、AOSL与Agora
+和分区仍采用原板级配置；短触开始/结束会话、长按三秒配网保持。agent-studio-device-firmware SDK、AOSL与Agora
 RTSA快照不变。
 
 ## 显示内容
@@ -107,6 +107,8 @@ alpha数据合计13,631字节，不含描述符。终端字库由DejaVu Sans Mon
 显示实现及生成器来源为 `mybot-bk7259` 中的 `bk_solution_ai`（`github.com/junlon2006/bk_solution_ai`）提交
 `dc4c85492bcf00f780c92d56c6cba2a362f54f68`，保留各文件MIT/Apache-2.0声明及既有显示许可。
 视觉/几何参考用户提供的threejs模拟器，未见模拟器独立许可证声明，不为其另行指定许可。
+对应的当前官方固件工程为
+[agora-r2-standard-devkit](https://github.com/AgoraIO-Community/agora-r2-standard-devkit)。
 详情见[依赖基线](../VENDORED_SOURCES.md)及[第三方声明](../THIRD_PARTY_NOTICES.md)。
 
 ## 验证状态

@@ -1,7 +1,8 @@
 # CoreS3 pixel-glasses renderer
 
-This renderer adapts the MyBot BK7259 pixel-glasses view for the existing
-CoreS3 320x240 LVGL display. The source's MIT copyright notices remain in
+This renderer adapts the BK7259 pixel-glasses view used by
+[agora-r2-standard-devkit](https://github.com/AgoraIO-Community/agora-r2-standard-devkit)
+for the existing CoreS3 320x240 LVGL display. The source's MIT copyright notices remain in
 `pixel_glasses_view.cc` and `pixel_expression_shapes.h`. Other board profiles
 retain the preceding shared `lvgl_view.cc`; this renderer does not initialize
 panels, change GPIO assignments, rotate pixels, own DMA buffers, or create a
