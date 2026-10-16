@@ -1,9 +1,9 @@
-# MyBot runtime bundle
+# agora-esp32-devkit runtime bundle
 
-This directory groups the three build inputs that make up the MyBot runtime:
+This directory groups the three build inputs that make up the agora-esp32-devkit runtime:
 
-- `mybot_sdk/` contains the read-only MyBot SDK snapshot and its ESP-IDF wrapper.
-- `aosl/` contains the pinned AOSL component used by MyBot and RTSA.
+- `mybot_sdk/` contains the read-only agent-studio-device-firmware SDK snapshot and its ESP-IDF wrapper.
+- `aosl/` contains the pinned AOSL component used by the SDK and RTSA.
 - `agora_rtc/` contains the separately licensed Agora RTSA component.
 
 The directories remain independent ESP-IDF components named `mybot_sdk`, `aosl`, and `agora_rtc`.

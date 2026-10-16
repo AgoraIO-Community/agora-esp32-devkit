@@ -17,7 +17,8 @@ CoreS3 将 PCM 接收到有界 FIFO，容量为 3,840 个采样点（7,680 字�
 
 普通 CoreS3 固件同样使用这条路径。`CONFIG_MYBOT_AUDIO_PLAYBACK_TEST` 只控制上电测试，
 不是播放缓冲的开关。所有板型均使用这套 PCM 缓冲，各板型负责自己的 I2S 格式转换，
-详见[音频播放缓冲](AUDIO_PLAYBACK.zh-CN.md)。SDK、16 kHz 采样率及 codec 配置保持不变。
+详见[音频播放缓冲](AUDIO_PLAYBACK.zh-CN.md)。
+agent-studio-device-firmware SDK、16 kHz 采样率及 codec 配置保持不变。
 预缓冲会增加播放延迟：离线测试后还需验证普通对话、尾音、打断/挂断及 Cloud AEC。
 
 增加缓冲后的三个阶段已通过 CoreS3 真机听音测试，普通对话在视频开启、关闭两种情况下
@@ -77,7 +78,7 @@ event=test action=complete
 
 `action=failed` 表示该阶段或整个测试失败，不能将未完成的阶段视为播放正常。
 
-最后一个阶段结束后清理音频资源，设备停留在测试模式，不自动启动 mybot。重启可重复测试。
+最后一个阶段结束后清理音频资源，设备停留在测试模式，不自动启动 SDK。重启可重复测试。
 恢复正常功能时，关闭 `CONFIG_MYBOT_AUDIO_PLAYBACK_TEST` 后重新编译烧录，或烧录原有的
 普通固件。
 

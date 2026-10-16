@@ -19,9 +19,10 @@ driver waits pacing output. This separates producer scheduling from hardware fee
 
 Normal CoreS3 firmware also uses this path. `CONFIG_MYBOT_AUDIO_PLAYBACK_TEST` only enables the
 boot test; it is not a switch for buffered playback. All board profiles use the same PCM buffer,
-with board-specific I2S formatting; see [buffered audio playback](AUDIO_PLAYBACK.md). The SDK,
-16 kHz sample rate, and codec settings remain unchanged. Buffering adds playback latency: after the offline
-test, verify normal conversations, end-of-speech tails, interruption/hangup, and Cloud AEC.
+with board-specific I2S formatting; see [buffered audio playback](AUDIO_PLAYBACK.md). The
+agent-studio-device-firmware SDK, 16 kHz sample rate, and codec settings remain unchanged.
+Buffering adds playback latency: after the offline test, verify normal conversations, end-of-speech
+tails, interruption/hangup, and Cloud AEC.
 
 The three buffered stages have already passed CoreS3 real-device listening tests, as have normal
 conversations with video enabled and disabled. The later shared-buffer extraction and platform/UI
@@ -90,7 +91,7 @@ event=test action=complete
 listening result.
 
 After the last stage, audio resources are cleaned up and the device stays in test mode. It does
-not start mybot automatically. Reboot to repeat the test. To restore normal operation, disable
+not start the SDK automatically. Reboot to repeat the test. To restore normal operation, disable
 `CONFIG_MYBOT_AUDIO_PLAYBACK_TEST`, rebuild and flash, or flash your regular firmware build.
 
 ## Interpret the comparison

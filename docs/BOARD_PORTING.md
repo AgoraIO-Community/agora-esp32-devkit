@@ -2,17 +2,18 @@
 
 > [English](BOARD_PORTING.md) | [简体中文](BOARD_PORTING.zh-CN.md)
 
-mybot firmware selects exactly one board profile at compile time. It does not switch profiles at
-runtime: the IDF target, Flash size and mode, PSRAM mode, and partition table must be known before
-components are configured. A profile may detect compatible hardware revisions, as ESP-VoCat does.
+agora-esp32-devkit firmware selects exactly one board profile at compile time. It does not switch
+profiles at runtime: the IDF target, Flash size and mode, PSRAM mode, and partition table must be
+known before components are configured. A profile may detect compatible hardware revisions, as
+ESP-VoCat does.
 
 ## Layout
 
 ```text
-main/                                      App startup, network prerequisite, MyBot start/stop
+main/                                      App startup, network prerequisite, SDK start/stop
 components/mybot_stack/
   mybot_sdk/CMakeLists.txt                  ESP-IDF wrapper for the SDK snapshot
-  mybot_sdk/mybot/                          Read-only MyBot SDK snapshot
+  mybot_sdk/mybot/                          Read-only agent-studio-device-firmware snapshot
   aosl/                                    AOSL component
   agora_rtc/                               Agora RTSA headers and library
 components/mybot_platform/
@@ -29,9 +30,9 @@ discovers them through `EXTRA_COMPONENT_DIRS`; the parent `mybot_stack` director
 Platform code includes only SDK public headers under `mybot_sdk/mybot/include/mybot/`, never SDK
 private headers or sources. Keep upstream revisions in [VENDORED_SOURCES.md](../VENDORED_SOURCES.md).
 
-The vendored mybot core remains board-independent. Every Board provides a process-lifetime
+The vendored SDK core remains board-independent. Every Board provides a process-lifetime
 `mybot_board_t`, owns the product network prerequisite and provisioning lifecycle, and registers one
-complete `mybot_platform_descriptor_t`. The mybot Wi-Fi adapter attaches to the already-connected
+complete `mybot_platform_descriptor_t`. The SDK Wi-Fi adapter attaches to the already-connected
 network and monitors runtime link changes; it does not own initial provisioning or shut down the
 Board network. `main/app_main.c` waits for usable networking before calling `mybot_start()`, and
 calls `mybot_stop()` before button-triggered provisioning. Board-owned display and input remain
@@ -136,7 +137,7 @@ When capture and playback share one physical I2S peripheral, keep the peripheral
 a ref-counted Board driver. The SDK initializes and destroys capture and playback independently,
 and the provisioning prompt can open playback before the first SDK start.
 
-An input source that must request provisioning while mybot is stopped may be owned by the Board for
+An input source that must request provisioning while the SDK is stopped may be owned by the Board for
 the process lifetime. In that case, the SDK key operations only attach and detach the event callback:
 the Board must prevent callbacks after detach and wait for any callback already in flight.
 
@@ -174,7 +175,7 @@ and GPIO42 LEDC backlight (5 kHz, 13-bit, 60% duty) are separate from the microp
 `panels/st7789/st7789_panel.c`, and the shared LVGL adapter with `partitions/v2/16m.csv`.
 
 Board-owned `boards/bread-compact-wifi-lcd/bread_input.c` provides only Boot GPIO0, including
-provisioning while mybot is stopped. Software speaker volume is persisted in NVS and defaults to
+provisioning while the SDK is stopped. Software speaker volume is persisted in NVS and defaults to
 70. The profile has no GPIO power hold, volume keys, touch, camera, GPIO48 LED, or GPIO18 lamp
 output. Its SDK boundary is 16 kHz mono signed-16 PCM; the physical standard-I2S link uses 16 kHz
 32-bit mono left slots. The reference output rate is 24 kHz; add stateful platform resampling only
@@ -197,7 +198,7 @@ Board LED/backlight wiring.
 ESP-VoCat capture and playback use identical two-slot standard-I2S clocks at the SDK's 16 kHz rate;
 capture extracts MIC1/slot0 and playback duplicates mono samples into both TX slots. Keep TX enabled
 during capture-only operation to supply shared clocks. If a release device cannot sustain 16 kHz,
-put stateful 24-to-16 and 16-to-24 kHz conversion inside this driver without changing the mybot
+put stateful 24-to-16 and 16-to-24 kHz conversion inside this driver without changing the SDK
 contract.
 
 The 360 x 360 ST77916 round display uses its Board-specific initialization sequence and the shared
@@ -205,7 +206,7 @@ LVGL view with partial RGB565 DMA updates. CST816S input uses GPIO10 any-edge in
 the controller only after an event; a 20 ms timer runs only while pressed to detect the 3-second
 hold. The profile disables
 CST816S ID reads because supported touch-firmware batches do not consistently answer that register.
-CST816S and Boot input remain Board-owned, allowing long-press provisioning while mybot is stopped.
+CST816S and Boot input remain Board-owned, allowing long-press provisioning while the SDK is stopped.
 Battery reporting, BMI270, PCB capacitive controls, SD, LED behavior, camera
 expansion, local AEC, reference audio, shutdown, and low-power behavior remain outside the initial
 profile.
@@ -241,12 +242,12 @@ Its ES7210 and ES8311 share one I2S0 clock domain. The initial implementation se
 primary microphone and configures identical two-slot 16 kHz standard-I2S TX/RX, extracts the left
 capture slot, duplicates mono playback into both slots, and keeps Cloud AEC enabled. Capture-only
 operation must keep TX running to supply MCLK/BCLK/WS. The playback-reference input and local AEC
-are not exposed through the mybot audio contract.
+are not exposed through the SDK audio contract.
 
 CO5300 QSPI rendering uses the shared LVGL view and a partial RGB565 DMA buffer. The 1.75 and
 1.75C panels use 466 x 466 with a (6, 0) gap; 2.16 uses 480 x 480, a (0, 0) gap, and 40 MHz QSPI.
 Every transfer region keeps even start/end pixel boundaries on both axes; no full-screen framebuffer
-is allocated. CST9217 and Boot input remain Board-owned so either can request provisioning while mybot
+is allocated. CST9217 and Boot input remain Board-owned so either can request provisioning while the SDK
 is stopped. Each profile is a build target only until power, audio-slot, display, and touch behavior
 are verified on its matching release device.
 The 2.16 reference uses 24 kHz audio; validate the inherited 16 kHz primary-mic and stereo physical
@@ -263,7 +264,7 @@ profile to prevent double processing. A build does not validate the XVF firmware
 channel routing, or acoustic performance; those require real-device tests.
 
 SenseCAP Watcher requires a dedicated partition table. Its `nvsfactory` partition starts at
-`0x9000`, is 200 KiB long, and must never be replaced with the common Board NVS layout. Keep mybot's
+`0x9000`, is 200 KiB long, and must never be replaced with the common Board NVS layout. Keep the SDK's
 normal `nvs` in a separate partition, never use `erase-flash`, and document a factory-partition
 backup before first flashing. Standard `idf.py flash` does not write `nvsfactory`.
 
@@ -279,5 +280,5 @@ play. Its physical I2S link is stereo while the SDK boundary remains 16 kHz mono
 capture selects the microphone slot and playback duplicates mono samples into both slots. The
 135 x 240 display uses a (52, 40) panel offset, so every label and pairing code must be measured
 against the 135-pixel logical width. The GPIO11 input remains Board-owned so a long press can request
-provisioning while mybot is stopped. Backlight uses the board-owned LEDC output at 60%; a display
+provisioning while the SDK is stopped. Backlight uses the board-owned LEDC output at 60%; a display
 adapter must not reconfigure that pin as a plain GPIO.

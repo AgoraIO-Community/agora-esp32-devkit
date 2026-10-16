@@ -7,8 +7,8 @@ Contributions are welcome. Firmware versions and public behavior follow Semantic
 ## Workflow
 
 1. Discuss large platform, dependency, protocol, partition, or security changes in an issue first.
-2. Keep application startup and MyBot lifecycle in `main/`, and board drivers and platform services
-   in `components/mybot_platform`. The read-only MyBot snapshot is
+2. Keep application startup and the agent-studio-device-firmware SDK lifecycle in `main/`, and board
+   drivers and platform services in `components/mybot_platform`. The read-only SDK snapshot is
    `components/mybot_stack/mybot_sdk/mybot`; platform code uses only its public `include/mybot/`
    headers. AOSL and Agora RTSA live beside it in `components/mybot_stack`, with independent
    component names and licenses.

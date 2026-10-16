@@ -7,8 +7,8 @@
 ## 工作流程
 
 1. 涉及平台、依赖、协议、分区或安全的大型改动，请先在 issue 中讨论。
-2. 应用启动与 MyBot 启停流程放在 `main/`，板级驱动和平台服务放在 `components/mybot_platform`。
-   MyBot 只读快照位于 `components/mybot_stack/mybot_sdk/mybot`，平台代码只能使用其公开的
+2. 应用启动与 agent-studio-device-firmware SDK 启停流程放在 `main/`，板级驱动和平台服务放在
+   `components/mybot_platform`。SDK 只读快照位于 `components/mybot_stack/mybot_sdk/mybot`，平台代码只能使用其公开的
    `include/mybot/` 头文件。AOSL 与 Agora RTSA 也位于 `components/mybot_stack`，各自保持独立的
    组件名称和许可证。
 3. 绝不提交凭据、设备 token、Wi-Fi 密码、客户数据、私有服务地址或未经批准的 SDK 构建。

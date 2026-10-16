@@ -3,8 +3,8 @@
 [English](CORES3_VIDEO.md) | [简体中文](CORES3_VIDEO.zh-CN.md)
 
 可选的 `m5stack-core-s3` 摄像头适配器采集 GC0308 QVGA YUYV 图像，软件编码完整 JPEG，
-通过 mybot 公开视频回调上传。发送最多 1 fps，RTC 拒绝帧时也不会加速重试。传感器保留
-20 fps 时序，平台每秒最多发起 5 次实际 DVP 采集，两次请求至少间隔 200 ms，同时只入队
+通过 agent-studio-device-firmware 公开视频回调上传。发送最多 1 fps，RTC 拒绝帧时也不会加速重试。
+传感器保留 20 fps 时序，平台每秒最多发起 5 次实际 DVP 采集，两次请求至少间隔 200 ms，同时只入队
 一张缓冲。每帧完成后，空队列使 DMA 和 PSRAM 复制停止，直到下次采样；传感器曝光和
 VSYNC 继续运行。只编码选中的样本，慢发送不会积压旧帧或触发补采。
 适配器位于

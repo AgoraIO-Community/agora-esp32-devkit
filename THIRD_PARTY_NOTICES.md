@@ -5,7 +5,7 @@ It does not replace third-party terms. This file is informational and is not leg
 
 | Component | Terms | Location |
 | --- | --- | --- |
-| mybot SDK 1.2.0 + post-release fixes (`e7793eb`) | Apache-2.0; bundled JSON parser portions MIT | `components/mybot_stack/mybot_sdk/mybot` |
+| agent-studio-device-firmware SDK 1.2.0 + post-release fixes (`e7793eb`) | Apache-2.0; bundled JSON parser portions MIT | `components/mybot_stack/mybot_sdk/mybot` |
 | AOSL (`84e0860`) | Bundled license: Apache-2.0 text plus additional deployment restrictions | `components/mybot_stack/aosl` |
 | Agora RTSA Lite for ESP32-S3 1.10.1 (build 1270872) | Separate Agora distribution terms | `components/mybot_stack/agora_rtc` |
 | esp-wifi-connect 3.2.2 | MIT | `components/esp-wifi-connect` |
@@ -178,9 +178,9 @@ notice is retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
 
 ## Vendored SDK Notice
 
-The original mybot SDK license and third-party notice are retained unchanged under
-`components/mybot_stack/mybot_sdk/mybot/`. That notice may describe packages used by other mybot targets; it is preserved
-as part of the immutable SDK snapshot and does not redefine this firmware's dependency set.
+The original SDK license and third-party notice are retained unchanged under
+`components/mybot_stack/mybot_sdk/mybot/`. That notice may describe packages used by other SDK targets;
+it is preserved as part of the immutable SDK snapshot and does not redefine this firmware's dependency set.
 
 Every component license file and file-level SPDX/copyright notice remains in force.
 

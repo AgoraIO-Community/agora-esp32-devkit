@@ -7,8 +7,8 @@
 - [ ] 确定语义化版本，并同步更新 `CMakeLists.txt` 中的 `PROJECT_VER` 与 `CHANGELOG.md`。
 - [ ] 确认 README、板卡支持、已知限制与配置文档符合当前实现。
 - [ ] 审查全部依赖版本、随附许可证与 `THIRD_PARTY_NOTICES.md`。
-- [ ] 核对 `components/mybot_stack` 中的 MyBot 快照、AOSL 源码及 RTSA 头文件/库与
-      `VENDORED_SOURCES.md` 一致；除明确同步上游版本外，不修改 SDK 快照。
+- [ ] 核对 `components/mybot_stack` 中的 agent-studio-device-firmware 快照、AOSL 源码及
+      RTSA 头文件/库与 `VENDORED_SOURCES.md` 一致；除明确同步上游版本外，不修改 SDK 快照。
 - [ ] 确认拥有重新分发每个内置二进制的书面权利，尤其是 Agora RTSA。
 - [ ] 确认未跟踪凭据、token、私有服务地址、客户数据、生成的 sdkconfig 或 NVS 数据。
 
@@ -51,21 +51,21 @@ git diff --check
 - [ ] 对行者 Cube，确认实际 Flash/PSRAM 容量、RTC hold 解除及 GPIO21 上电时序、ST7789
       mode 3 的颜色/方向/零偏移、GPIO13 60% PWM 背光和 Boot0/音量加40/音量减39。结合参考
       24 kHz 配置验证 16 kHz 播放速度/音调、双向音频、提示音排空、音量持久化、反复启停及
-      mybot 停止期间的配网。
+      SDK 停止期间的配网。
 - [ ] 对 Bread Compact Wi-Fi LCD，匹配固定 N16R8/240x320 接线并确认 16 MB Flash、8 MB
       Octal PSRAM，验证 ST7789 SPI3 mode 0 颜色/方向/反转/零偏移、GPIO42 PWM、Boot0 短长按、
-      默认和持久化软件音量、mybot 停止期间配网、提示音排空。结合参考 24 kHz 输出验证
+      默认和持久化软件音量、SDK 停止期间配网、提示音排空。结合参考 24 kHz 输出验证
       16 kHz 采集/播放速度和音调、并行音频、失败清理及反复启停；确认没有配置音量键、
       电源保持、GPIO48 LED 或 GPIO18 灯输出。
 - [ ] 对 ESP-VoCat，分别验证 PCB V1.0 与 V1.2。确认 GPIO48 探测、各版本 DIN/PA/LCD reset
       引脚与 reset 极性、GPIO9 外设电源、USB Serial/JTAG 日志、实际 Flash/PSRAM 容量、
-      ST77916 初始化/颜色/圆屏边缘/背光、CST816S 按下/释放中断且启动不读取 ID、mybot 停止
+      ST77916 初始化/颜色/圆屏边缘/背光、CST816S 按下/释放中断且启动不读取 ID、SDK 停止
       期间 Boot 配网、主麦 slot 路由、16 kHz 全双工、PA 爆音/噪声、Cloud AEC、音量持久化
       和反复启停。对需要厂商触摸固件升级的屏幕批次单独记录。
 - [ ] 对 Waveshare AMOLED 1.75，仅使用非 C profile；验证 USB 与电池启动、AXP2101 电源轨
       和充电配置、8 MB PSRAM、MCLK GPIO42、LCD reset GPIO39、触摸 reset GPIO40、可选
       TCA9554 探测、ES7210 主麦路由、16 kHz 全双工音频、PA 爆音/噪声、CO5300
-      gap/颜色/对齐/亮度、CST9217 方向，以及 mybot 停止期间触摸和 Boot 配网。
+      gap/颜色/对齐/亮度、CST9217 方向，以及 SDK 停止期间触摸和 Boot 配网。
 - [ ] 对 Waveshare AMOLED 1.75C，仅使用 C profile；验证 USB 与电池启动、AXP2101 电源轨、
       8 MB PSRAM、MCLK GPIO16、LCD reset GPIO1、触摸 reset GPIO2、不探测 TCA9554、主麦
       路由、全双工音频、PA 噪声、显示/触摸与配网。扩展安全的 16 MB 分区布局前，必须先确认
@@ -80,11 +80,11 @@ git diff --check
 - [ ] 对 SenseCAP Watcher，首次烧录前备份并校验 200 KiB `nvsfactory` 区域；确认正常烧录不
       改变该区域，且发布流程不得包含 `erase-flash`。
 - [ ] 对 M5Stack StickS3，验证 USB 与电池启动、M5PM1 G2/G3 时序、扬声器爆音/噪声、
-      16 kHz 采集 slot、ST7789P3 偏移与颜色、60% PWM 背光，以及 mybot 停止期间 GPIO11
+      16 kHz 采集 slot、ST7789P3 偏移与颜色、60% PWM 背光，以及 SDK 停止期间 GPIO11
       长按配网。
 - [ ] 对 M5Stack AtomEchoS3R，确认检测到 8 MB Flash 与 8 MB Octal PSRAM，验证 GPIO41
       按键极性和短/长按、首次配网热点及对应语言提示音、16 kHz 采集/播放的音调与噪声和全双工
-      质量、音量持久化及 mybot 停止/重启后的重复配网。确认无屏固件不编入 LVGL。
+      质量、音量持久化及 SDK 停止/重启后的重复配网。确认无屏固件不编入 LVGL。
 
 ## 发布
 

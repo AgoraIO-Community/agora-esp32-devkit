@@ -40,7 +40,8 @@ Versioning and Conventional Commits.
   CST816S touch input, and ES7210/ES8311 full-duplex audio.
 - Pinned ST77916 2.0.2 and CST816S 1.1.1~1 production components.
 - Pinned CO5300 2.1.0, LCD touch 1.2.1, and CST9217 1.0.4 production components.
-- mybot SDK 1.2.0 plus post-release fixes, Agora RTSA 1.10.1 and reference-counted AOSL integration.
+- agent-studio-device-firmware SDK 1.2.0 plus post-release fixes, Agora RTSA 1.10.1 and
+  reference-counted AOSL integration.
 - Wi-Fi provisioning/reconnect, NVS, verified HTTPS, I2S audio, buttons and LVGL status UI.
 - Persistent 0-100 speaker volume using the Zhengchen board's software I2S gain path.
 - Embedded Chinese and English Ogg/Opus pairing-code announcements decoded to PSRAM at runtime.
@@ -67,19 +68,21 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Align agora-esp32-devkit documentation with the official firmware and SDK repositories while
+  retaining original dependency provenance.
 - Update the language-derived device-service addresses to `https://botstation.shengwang.cn/api`
   for zh-CN and `https://botstation.agora.io/api` for en-US, matching the SDK's regional guidance.
-- Sync the MyBot SDK snapshot to `e7793eb` (1.2.0 plus post-release fixes), adding cloud
-  volume/mute commands and moving status polls and stop notifications off the control worker.
+- Sync the agent-studio-device-firmware SDK snapshot to `e7793eb` (1.2.0 plus post-release fixes),
+  adding cloud volume/mute commands and moving status polls and stop notifications off the control worker.
   Register the new device-command source in ESP-IDF. The shared LVGL view continues to ignore
   the new optional emotion indicators.
-- Sync the MyBot SDK snapshot to `0643978` (1.2.0 plus post-release fixes), preventing control
+- Sync the agent-studio-device-firmware SDK snapshot to `0643978` (1.2.0 plus post-release fixes), preventing control
   queue stalls, clearing pending starts on re-pairing, discarding stale announcement PCM, and
   hardening HTTP and JSON boundaries. The RTC queue limit increases from 64 to 1000 pending calls.
 - Direct pairing-code entry to the web console and scroll the instruction on narrow displays.
 - Select the device API region from the firmware language: zh-CN uses Shanghai (sh2), and en-US
   uses Singapore (sg3).
-- Sync the MyBot SDK snapshot to `83fbcb0` (1.2.0 plus post-release fixes), serializing video
+- Sync the agent-studio-device-firmware SDK snapshot to `83fbcb0` (1.2.0 plus post-release fixes), serializing video
   control with shutdown, retaining announcements until RTC callbacks stop, and consolidating
   RTM-to-LCD indicator handling and device-service response parsing.
 - Request CoreS3 DVP capture at most five times per second, holding capture buffers between
@@ -89,9 +92,9 @@ Versioning and Conventional Commits.
 - Count in-flight SPI callbacks across consecutive CoreS3 LVGL UI flushes so teardown waits
   for all pending transfers.
 
-- Refresh the mybot SDK to commit `4ae239c` (1.2.0 plus post-release fixes): set AOSL to NOTICE
-  at mybot startup, reduce routine RTM logging, and preserve the log level across RTSA initialization.
-- Group MyBot SDK, AOSL, and Agora RTSA under `components/mybot_stack`, retaining independent
+- Refresh the agent-studio-device-firmware SDK to commit `4ae239c` (1.2.0 plus post-release fixes): set
+  AOSL to NOTICE at SDK startup, reduce routine RTM logging, and preserve the log level across RTSA initialization.
+- Group the agent-studio-device-firmware SDK, AOSL, and Agora RTSA under `components/mybot_stack`, retaining independent
   ESP-IDF component names and registering them explicitly through `EXTRA_COMPONENT_DIRS`.
 - Organize the platform as board profiles, platform registration, services, drivers, internal
   headers, and assets. Separate display panel lifecycle, LVGL adapters, and the shared view.
@@ -99,11 +102,11 @@ Versioning and Conventional Commits.
   AtomEchoS3R and ReSpeaker Flex remain headless; theme and activity-animation settings remain
   configurable.
 - Set the ESP32 FreeRTOS tick rate to 1000 Hz so one operating-system tick is 1 ms.
-- Sync the vendored mybot SDK to Unreleased commit `27324e7`, adding RTM channel subscription for
+- Sync the vendored agent-studio-device-firmware SDK to Unreleased commit `27324e7`, adding RTM channel subscription for
   voice-print status.
-- Sync the vendored mybot SDK to v1.1.0 + Unreleased commit `e515f07`, including the serialized RTC
+- Sync the vendored agent-studio-device-firmware SDK to v1.1.0 + Unreleased commit `e515f07`, including the serialized RTC
   MPQ implementation, pairing-state projection, media-session cleanup, and bounded service parsing.
-- Sync the vendored mybot SDK to v1.2.0 (`674dcbf`), adding optional multimodal video uplink and
+- Sync the vendored agent-studio-device-firmware SDK to v1.2.0 (`674dcbf`), adding optional multimodal video uplink and
   mutually exclusive server-state LCD indicators while keeping video disabled on ESP32-S3 boards.
 - Enforce the bundled ESP32-S3 RTSA package's fixed 60 ms cadence at component configuration time;
   non-60 ms packet durations now require a matching RTSA package.
@@ -111,16 +114,16 @@ Versioning and Conventional Commits.
   adaptations.
 - Align the bilingual project, contribution, support, porting, and release documentation with the
   standalone ESP32 firmware scope.
-- Decouple network provisioning from mybot startup. Connectivity is now a prerequisite, and holding
-  Boot stops mybot before provisioning, shows the Wi-Fi setup screen, and restarts mybot after the
-  station obtains an IP address.
+- Decouple network provisioning from agent-studio-device-firmware startup. Connectivity is now a
+  prerequisite, and holding Boot stops the SDK before provisioning, shows the Wi-Fi setup screen,
+  and restarts the SDK after the station obtains an IP address.
 - Select the target Board at compile time and separate common platform services, reusable drivers,
   and the Zhengchen board profile without changing its runtime behavior.
 - Share the Zhengchen Board lifecycle between the ML307 and Wi-Fi profiles while keeping their
   compile-time hardware configuration isolated.
 - Log volume-up and volume-down button presses in the ESP32-S3 platform layer.
 - Shorten the provisioning AP SSID to `mybot-aabb`, using the first two STA MAC bytes.
-- Sync the vendored mybot SDK to the v1.0.0 release (`117a44d`), retaining the ESP32-S3 RTC and
+- Sync the vendored agent-studio-device-firmware SDK to the v1.0.0 release (`117a44d`), retaining the ESP32-S3 RTC and
   HTTPS-only compatibility patches.
 
 ### Removed
@@ -186,7 +189,7 @@ Versioning and Conventional Commits.
   pipe.
 - Preserve the requested AOSL thread stack size on ESP-IDF instead of dividing the byte count by
   `sizeof(StackType_t)`.
-- Increase the lwIP socket budget so mybot and Agora can open network sockets after AOSL creates
+- Increase the lwIP socket budget so agent-studio-device-firmware and Agora can open network sockets after AOSL creates
   its MPQ wakeup pipes.
 - Make ESP32-S3 AOSL millisecond sleeps block for at least one FreeRTOS tick so MPQ teardown cannot
   starve the task that releases its final queue reference.

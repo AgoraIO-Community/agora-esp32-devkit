@@ -1,14 +1,14 @@
-# mybot-esp32
+# agora-esp32-devkit
 
-[![CI](https://github.com/junlon2006/mybot-esp32/actions/workflows/ci.yml/badge.svg)](https://github.com/junlon2006/mybot-esp32/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/junlon2006/mybot-esp32)](LICENSE)
+[![CI](https://github.com/AgoraIO-Community/agora-esp32-devkit/actions/workflows/ci.yml/badge.svg)](https://github.com/AgoraIO-Community/agora-esp32-devkit/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/AgoraIO-Community/agora-esp32-devkit)](LICENSE)
 
 **[English](README.md) | [简体中文](README.zh-CN.md)**
 
-`mybot-esp32` is an independent ESP-IDF firmware project that brings the
-[mybot AI voice-chat SDK](https://github.com/junlon2006/mybot) to ESP32-S3 devices. It owns board
+`agora-esp32-devkit` is an independent ESP-IDF firmware project that brings the
+[agent-studio-device-firmware AI voice-chat SDK](https://github.com/AgoraIO-Community/agent-studio-device-firmware) to ESP32-S3 devices. It owns board
 initialization, Wi-Fi provisioning, persistent storage, secure HTTPS transport, audio
-capture/playback, input, display, and the firmware lifecycle around mybot.
+capture/playback, input, display, and the firmware lifecycle around the SDK.
 
 The current development baseline is **ESP-IDF v5.5.2**. Supported board profiles are the Zhengchen
 1.54 TFT ML307 and Wi-Fi variants, Xingzhi Cube 1.54 TFT Wi-Fi, Bread Compact Wi-Fi LCD,
@@ -23,7 +23,7 @@ Circular-4 with XIAO ESP32S3, and SenseCAP Watcher.
 
 ## Features
 
-- Native ESP-IDF component build of the pinned mybot SDK.
+- Native ESP-IDF component build of the pinned SDK.
 - Wi-Fi station reconnect and first-boot captive-portal provisioning.
 - NVS persistence for device credentials and 0-100 speaker volume.
 - HTTPS through `esp-tls` with the system CA bundle, SNI, and hostname verification.
@@ -166,7 +166,7 @@ service-recovery data.
 
 When NVS contains no Wi-Fi credentials, the device creates a configuration AP named `mybot-xxxx`,
 where `xxxx` is the first two station-MAC bytes in hexadecimal. Connect to it and open
-`http://192.168.4.1`. mybot starts only after the station has
+`http://192.168.4.1`. The SDK starts only after the station has
 a usable IP address. Display boards show the actual device AP name (`mybot-xxxx`) in the center
 and a Chinese/English connection hint below. Text scrolls only when it exceeds the available width;
 leaving provisioning stops the scrolling.
@@ -192,8 +192,8 @@ leaving provisioning stops the scrolling.
 - SenseCAP Watcher: rotate the encoder to adjust volume, short-press it to start/stop a conversation,
   and hold it for 3 seconds to provision.
 
-A provisioning request stops mybot first. After Wi-Fi reconnects and obtains an IP address, the
-firmware starts mybot again.
+A provisioning request stops the SDK first. After Wi-Fi reconnects and obtains an IP address, the
+firmware starts the SDK again.
 
 The device-service endpoint follows the firmware language:
 
@@ -240,7 +240,7 @@ The two profiles share the display, audio, buttons, and GPIO2 power-hold impleme
 profile leaves GPIO11 and GPIO12 unconfigured. Its defaults select 16 MB QIO Flash and Octal PSRAM
 at 80 MHz; confirm the physical PSRAM capacity from the startup log before release.
 
-The mybot boundary is 16 kHz mono signed-16 PCM; the initial physical I2S link uses 16 kHz mono
+The SDK boundary is 16 kHz mono signed-16 PCM; the initial physical I2S link uses 16 kHz mono
 32-bit left-slot words. The board's original speaker configuration uses 24 kHz output, so
 real-device validation must confirm playback speed, pitch, stability, and bidirectional audio. If
 the hardware requires 24 kHz output, keep the SDK boundary at 16 kHz and add stateful resampling
@@ -321,7 +321,7 @@ The 360 x 360 round display uses the panel-specific ST77916 initialization seque
 LVGL UI with partial DMA updates. USB Serial/JTAG owns the console because the normal ESP32-S3
 UART0 pins overlap the backlight and board LED.
 
-The physical audio link runs directly at mybot's 16 kHz boundary. Capture and playback share a
+The physical audio link runs directly at the SDK's 16 kHz boundary. Capture and playback share a
 two-slot standard-I2S clock domain; capture exposes only the primary microphone slot and playback
 duplicates mono samples into both output slots. The second microphone, playback-reference channel,
 local AEC, battery gauge, IMU, PCB capacitive slider, SD card, camera expansion, and low-power
@@ -364,7 +364,7 @@ targets 16 MB and available hardware materials conflict. Confirm the detected Fl
 startup log before adding a larger partition layout; the conservative profile is safe on either
 capacity.
 
-The initial audio path configures the physical link directly at mybot's 16 kHz mono signed-16
+The initial audio path configures the physical link directly at the SDK's 16 kHz mono signed-16
 boundary, captures the ES7210 primary microphone slot, and keeps Cloud AEC enabled. The playback
 reference channel and local AEC are not exposed. RTC, IMU, TF card, battery reporting, automatic
 sleep, and power-off gestures are outside the initial profiles. The 1.75C profile also has no
@@ -419,7 +419,7 @@ and low-power behavior unused.
 This ESP32-S3 profile has no display or LVGL runtime. It uses ES8311 audio, an 8 MB Flash layout,
 and 8 MB Octal PSRAM. First boot without saved Wi-Fi credentials starts the configuration AP and
 plays the localized provisioning prompt; holding the assumed GPIO41 user button requests
-reprovisioning after mybot stops. Physical button polarity and 16 kHz capture/playback quality have
+reprovisioning after the SDK stops. Physical button polarity and 16 kHz capture/playback quality have
 not yet been validated on the device.
 
 ### ReSpeaker Flex XVF3800 Circular-4 with XIAO ESP32S3
@@ -449,7 +449,7 @@ Cloud AEC is disabled for this profile to avoid applying AEC twice.
 | SPD2010 QSPI | CLK GPIO7, D0 GPIO9, D1 GPIO1, D2 GPIO14, D3 GPIO13, CS GPIO45 |
 | Input / backlight | Encoder GPIO41/GPIO42, encoder button on TCA9555 P0.3, backlight GPIO8 |
 
-The profile drives the codec bus directly at mybot's 16 kHz mono signed-16 boundary. TCA9555 owns
+The profile drives the codec bus directly at the SDK's 16 kHz mono signed-16 boundary. TCA9555 owns
 the system, LCD, and codec-amplifier power sequence. The dedicated 32 MB partition table preserves
 the factory-data region and provides two 4 MB OTA slots. Camera, touch, LED, battery reporting,
 power-off gestures, and automatic sleep are not part of the initial port.

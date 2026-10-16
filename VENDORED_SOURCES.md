@@ -3,6 +3,11 @@
 This file records only the revisions needed to reproduce the firmware build. License and
 redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
+The tables preserve original import locations and pinned revisions. Their corresponding current
+official repositories are [agent-studio-device-firmware](https://github.com/AgoraIO-Community/agent-studio-device-firmware)
+for the SDK and [agora-r1-devkit](https://github.com/AgoraIO-Community/agora-r1-devkit) for the BK7258
+asset source; these names do not change the recorded provenance.
+
 | Path | Source | Pinned revision |
 | --- | --- | --- |
 | `components/mybot_stack/mybot_sdk/mybot` | `github.com/junlon2006/mybot` | v1.2.0 + post-release fixes, commit `e7793eba88f721304dc00d421706d4d788b81a43` |

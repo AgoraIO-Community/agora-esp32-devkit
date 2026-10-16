@@ -3,9 +3,10 @@
 [English](CORES3_VIDEO.md) | [简体中文](CORES3_VIDEO.zh-CN.md)
 
 The optional `m5stack-core-s3` camera adapter captures GC0308 QVGA YUYV frames and encodes complete
-JPEG images for the mybot public video callback. Uplink is capped at one frame per second, including
-when RTC rejects a frame. The sensor retains its 20 fps timing, while the platform requests actual
-DVP capture at most five times per second. Only one buffer is queued at a time, with at least
+JPEG images for the agent-studio-device-firmware public video callback. Uplink is capped at one
+frame per second, including when RTC rejects a frame. The sensor retains its 20 fps timing, while
+the platform requests actual DVP capture at most five times per second. Only one buffer is queued
+at a time, with at least
 200 ms between requests. After a frame completes, the empty queue stops DMA and PSRAM copying
 until the next sample; sensor exposure and VSYNC continue. Only selected samples are encoded.
 Slow sending does not accumulate old frames or trigger catch-up capture.

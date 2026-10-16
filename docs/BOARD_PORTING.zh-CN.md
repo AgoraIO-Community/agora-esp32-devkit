@@ -2,17 +2,17 @@
 
 > [English](BOARD_PORTING.md) | [简体中文](BOARD_PORTING.zh-CN.md)
 
-mybot 固件在编译期只选择一个 Board profile，不在运行时切换 profile，因为 ESP-IDF target、
-Flash 大小与模式、PSRAM 模式和分区表都必须在组件配置前确定。同一个 profile 可以探测兼容的
-硬件版本，例如 ESP-VoCat。
+agora-esp32-devkit 固件在编译期只选择一个 Board profile，不在运行时切换 profile，因为
+ESP-IDF target、Flash 大小与模式、PSRAM 模式和分区表都必须在组件配置前确定。同一个 profile
+可以探测兼容的硬件版本，例如 ESP-VoCat。
 
 ## 目录布局
 
 ```text
-main/                                      应用启动、网络前置条件与 MyBot 启停
+main/                                      应用启动、网络前置条件与 SDK 启停
 components/mybot_stack/
   mybot_sdk/CMakeLists.txt                  SDK 快照的 ESP-IDF 构建封装
-  mybot_sdk/mybot/                          MyBot SDK 只读快照
+  mybot_sdk/mybot/                          agent-studio-device-firmware 只读快照
   aosl/                                    AOSL 组件
   agora_rtc/                               Agora RTSA 头文件和库
 components/mybot_platform/
@@ -29,9 +29,9 @@ components/mybot_platform/
 `mybot_sdk/mybot/include/mybot/` 下的公开头文件，不得引用 SDK 私有头文件或源码。上游版本
 记录在 [VENDORED_SOURCES.md](../VENDORED_SOURCES.md)。
 
-固定版本的 mybot core 保持与板卡无关。每个 Board 提供生命周期覆盖整个进程的
+固定版本的 SDK core 保持与板卡无关。每个 Board 提供生命周期覆盖整个进程的
 `mybot_board_t`，负责产品网络前置条件和配网流程，并注册一个完整的
-`mybot_platform_descriptor_t`。mybot Wi-Fi adapter 只连接已可用的网络并监听运行期链路变化；
+`mybot_platform_descriptor_t`。SDK Wi-Fi adapter 只连接已可用的网络并监听运行期链路变化；
 它不负责首次配网，也不关闭 Board 网络。`main/app_main.c` 等待网络可用后调用
 `mybot_start()`，按键触发配网时先调用 `mybot_stop()`；SDK 停止期间，Board 持有的显示和
 输入仍然可用。
@@ -128,7 +128,7 @@ indicator 时显示声纹注册中，收到该 indicator 后切换到注册完�
 采集与播放共用一个物理 I2S 外设时，Board driver 应通过引用计数管理外设和 codec 状态。
 SDK 会分别初始化和销毁采集与播放；配网提示音也可能在 SDK 首次启动前打开播放设备。
 
-如果输入源需要在 mybot 停止期间继续触发配网，可以由 Board 在进程生命周期内持有该输入源。
+如果输入源需要在 SDK 停止期间继续触发配网，可以由 Board 在进程生命周期内持有该输入源。
 此时 SDK key ops 只负责挂载和摘除事件回调；Board 必须保证摘除后不再发起新回调，并等待已经
 进入执行的回调结束。
 
@@ -161,7 +161,7 @@ Cube 使用 `partitions/v2/16m.csv`；实际 Flash/PSRAM 容量尚未确认。�
 （DOUT7/BCLK15/WS16）独立。复用 `raw_i2s_audio.c`、`panels/st7789/st7789_panel.c`、
 共享 LVGL 适配器与 `partitions/v2/16m.csv`。
 
-Board 常驻的 `boards/bread-compact-wifi-lcd/bread_input.c` 只提供 Boot GPIO0，支持 mybot
+Board 常驻的 `boards/bread-compact-wifi-lcd/bread_input.c` 只提供 Boot GPIO0，支持 SDK
 停止期间长按配网。软件扬声器音量通过 NVS 持久化，默认 70。profile 没有 GPIO 电源保持、
 音量键、触摸、摄像头、GPIO48 LED 或 GPIO18 灯输出。SDK 边界为 16 kHz 单声道 signed-16
 PCM，物理标准 I2S 使用 16 kHz、32-bit mono left slot。参考输出为 24 kHz，仅在真机验证
@@ -182,12 +182,12 @@ UART0 控制台及板载 LED/背光接线重叠，因此该 profile 使用 USB S
 ESP-VoCat 采集与播放使用相同的两槽标准 I2S 时钟，直接运行在 SDK 的 16 kHz 采样率。采集
 提取 MIC1/slot0，播放将单声道复制到两个 TX slot；仅采集时也必须保持 TX 运行以
 提供共享时钟。如果发布硬件无法稳定使用 16 kHz，应在该 driver 内实现有状态的 24 到 16 kHz
-与 16 到 24 kHz 转换，不改变 mybot 契约。
+与 16 到 24 kHz 转换，不改变 SDK 契约。
 
 360 x 360 ST77916 圆屏使用 Board 专用初始化序列与共享 LVGL 界面，通过 RGB565 DMA 局部
 刷新。CST816S 使用 GPIO10 任意沿中断，仅在事件后读取控制器；20 ms 定时检查只在按住期间运行，用于识别 3 秒
 长按。该 profile 禁止 CST816S ID 读取，因为已支持的触摸固件批次不保证响应该寄存器。
-CST816S 与 Boot 输入由 Board 常驻持有，使 mybot 停止期间仍可长按配网。电量、BMI270、
+CST816S 与 Boot 输入由 Board 常驻持有，使 SDK 停止期间仍可长按配网。电量、BMI270、
 PCB 电容控制、SD、LED 行为、摄像头扩展、本地 AEC、参考音频、关机与低功耗均不在首版范围。
 
 `esp32-s3-touch-amoled-1.75` 与 `esp32-s3-touch-amoled-1.75c` profile 共用 Board 生命周期、
@@ -215,12 +215,12 @@ TCA9554。
 
 ES7210 与 ES8311 共用 I2S0 时钟域。首版只选择主麦，TX/RX 统一配置为两槽 16 kHz 标准
 I2S；采集提取左 slot，播放将单声道复制到两个 slot，并保持 Cloud AEC。仅采集时也必须保持
-TX 运行以提供 MCLK/BCLK/WS。播放参考输入与本地 AEC 不通过 mybot 音频接口暴露。
+TX 运行以提供 MCLK/BCLK/WS。播放参考输入与本地 AEC 不通过 SDK 音频接口暴露。
 
 CO5300 QSPI 使用共享 LVGL 界面与 RGB565 局部 DMA 缓冲。1.75 与 1.75C 为 466 x 466、
 (6, 0) panel gap；2.16 为 480 x 480、(0, 0) gap 与 40 MHz QSPI。每次传输两个方向均保持
 偶数像素起止边界，不分配完整 framebuffer。CST9217 与 Boot 输入由 Board 常驻持有，使
-mybot 停止期间任一输入仍能请求配网。在各自匹配的发布硬件完成电源、音频 slot、显示和触摸
+SDK 停止期间任一输入仍能请求配网。在各自匹配的发布硬件完成电源、音频 slot、显示和触摸
 验证前，三个 profile 均仅属于构建支持。
 2.16 参考音频为 24 kHz，继承的 16 kHz 主麦和双声道物理 I2S 需要真机验证；如需重采样，
 应留在平台驱动内，并保持 Cloud AEC。摄像头、RTC、IMU、TF 卡、电量、关机与低功耗尚未支持。
@@ -233,7 +233,7 @@ profile 必须禁用 Cloud AEC，避免重复处理。构建成功无法验证 X
 或声学性能，这些项目必须通过真机测试确认。
 
 SenseCAP Watcher 必须使用专用分区表。其 `nvsfactory` 分区从 `0x9000` 开始，长度为
-200 KiB，不能替换为其他 Board 的通用 NVS 布局。mybot 的普通 `nvs` 必须位于独立分区；
+200 KiB，不能替换为其他 Board 的通用 NVS 布局。SDK 的普通 `nvs` 必须位于独立分区；
 禁止执行 `erase-flash`，并在首次烧录前备份出厂分区。标准 `idf.py flash` 不会写入
 `nvsfactory`。
 
@@ -246,5 +246,5 @@ M5Stack StickS3 的 M5PM1 G2 是 ST7789P3 显示屏与 ES8311 codec 共用的进
 运行期间保持开启；G3 归播放生命周期管理，codec 准备播放前不得开启。物理 I2S 链路使用
 双声道，但 SDK 边界仍为 16 kHz 单声道 signed-16 PCM：采集选择麦克风 slot，播放将单声道
 样本复制到两个 slot。135 x 240 显示区域使用 (52, 40) panel offset，所有状态文字与配对码
-必须按 135 像素逻辑宽度计算。GPIO11 由 Board 常驻持有，使 mybot 停止期间仍能长按请求配网。
+必须按 135 像素逻辑宽度计算。GPIO11 由 Board 常驻持有，使 SDK 停止期间仍能长按请求配网。
 背光由 Board 的 LEDC 输出控制，亮度为 60%；显示适配器不得将该引脚重新配置为普通 GPIO。

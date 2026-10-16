@@ -1,14 +1,14 @@
-# mybot-esp32
+# agora-esp32-devkit
 
-[![CI](https://github.com/junlon2006/mybot-esp32/actions/workflows/ci.yml/badge.svg)](https://github.com/junlon2006/mybot-esp32/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/junlon2006/mybot-esp32)](LICENSE)
+[![CI](https://github.com/AgoraIO-Community/agora-esp32-devkit/actions/workflows/ci.yml/badge.svg)](https://github.com/AgoraIO-Community/agora-esp32-devkit/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/AgoraIO-Community/agora-esp32-devkit)](LICENSE)
 
 **[English](README.md) | [简体中文](README.zh-CN.md)**
 
-`mybot-esp32` 是一个独立的 ESP-IDF 固件工程，将
-[mybot AI 语音对话 SDK](https://github.com/junlon2006/mybot) 运行在 ESP32-S3 设备上。工程
+`agora-esp32-devkit` 是一个独立的 ESP-IDF 固件工程，将
+[agent-studio-device-firmware AI 语音对话 SDK](https://github.com/AgoraIO-Community/agent-studio-device-firmware) 运行在 ESP32-S3 设备上。工程
 负责板级初始化、Wi-Fi 配网、持久化存储、安全 HTTPS、音频采集与播放、输入、显示，以及
-mybot 外围的固件生命周期。
+SDK 外围的固件生命周期。
 
 当前开发基线为 **ESP-IDF v5.5.2**，支持征辰 1.54 TFT ML307 与 Wi-Fi 版本、Bread Compact Wi-Fi LCD、行者 Cube
 1.54 TFT Wi-Fi、Espressif ESP-VoCat、Waveshare ESP32-S3 Touch AMOLED 1.75、1.75C 与 2.16、M5Stack CoreS3、M5Stack
@@ -20,7 +20,7 @@ StickS3、M5Stack AtomEchoS3R、搭配 XIAO ESP32S3 的 ReSpeaker Flex XVF3800 C
 
 ## 当前能力
 
-- 固定版本 mybot SDK 以原生 ESP-IDF component 方式构建。
+- 固定版本 SDK 以原生 ESP-IDF component 方式构建。
 - Wi-Fi STA 自动重连与首次启动配网页面。
 - NVS 持久化设备凭据和 0-100 扬声器音量。
 - 通过 `esp-tls`、系统 CA bundle、SNI 与 hostname 校验实现 HTTPS。
@@ -161,7 +161,7 @@ python -m esptool --chip esp32s3 --baud 2000000 --before default_reset \
 
 NVS 中没有 Wi-Fi 凭据时，设备创建 `mybot-xxxx` 配置 AP，其中 `xxxx` 是 STA MAC 前两个
 字节的十六进制表示。连接后打开
-`http://192.168.4.1` 完成配网。STA 获取可用 IP 后才启动 mybot；带屏板型在配网页面中央
+`http://192.168.4.1` 完成配网。STA 获取可用 IP 后才启动 SDK；带屏板型在配网页面中央
 显示实际设备热点名称（`mybot-xxxx`），底部显示中英文连接提示。文字仅在超出可用宽度时
 循环滚动，退出配网后停止滚动。
 
@@ -182,7 +182,7 @@ NVS 中没有 Wi-Fi 凭据时，设备创建 `mybot-xxxx` 配置 AP，其中 `xx
   按键 3 秒进入配网。
 - SenseCAP Watcher：旋转编码器调节音量，短按开始/结束对话，长按 3 秒进入配网。
 
-请求配网时固件会先停止 mybot；Wi-Fi 重新连接并获取 IP 后自动再次启动。
+请求配网时固件会先停止 SDK；Wi-Fi 重新连接并获取 IP 后自动再次启动。
 
 设备服务地址随固件语言选择：
 
@@ -226,7 +226,7 @@ CPU 和内存诊断可在 menuconfig 的 `mybot → Enable debug CPU and memory 
 GPIO12；其 defaults 使用 16 MB QIO Flash 和 80 MHz Octal PSRAM，发布前需通过启动日志
 确认实际 PSRAM 容量。
 
-mybot 边界为 16 kHz 单声道 signed-16 PCM；首版物理 I2S 使用 16 kHz 单声道 32-bit left
+SDK 边界为 16 kHz 单声道 signed-16 PCM；首版物理 I2S 使用 16 kHz 单声道 32-bit left
 slot。板卡原始扬声器配置使用 24 kHz 输出，因此必须通过真机确认播放速度、音调、稳定性和
 双向音频。如果硬件必须使用 24 kHz 输出，应保持 SDK 侧 16 kHz 边界，并在 Board 音频驱动
 内加入有状态重采样。
@@ -300,7 +300,7 @@ GPIO48 两种电源状态都无法探测到 `0x18` 的 ES8311，Board prepare �
 ESP32-S3 默认 UART0 引脚与背光及板载 LED 重叠，因此控制台使用 USB
 Serial/JTAG。
 
-物理音频链路直接使用 mybot 的 16 kHz 边界。采集与播放共享两槽标准 I2S 时钟域；采集仅向
+物理音频链路直接使用 SDK 的 16 kHz 边界。采集与播放共享两槽标准 I2S 时钟域；采集仅向
 SDK 暴露主麦 slot，播放将单声道复制到两个输出 slot。第二麦克风、播放参考通道、本地 AEC、
 电量计、IMU、PCB 电容滑条、SD 卡、摄像头扩展和低功耗不在首版范围。当前生产资料标识
 16 MB PSRAM 模组，但发布前仍需通过启动日志确认实际 PSRAM 容量和两个 PCB 版本的引脚映射。
@@ -338,7 +338,7 @@ Flash/PSRAM 容量仍待核对。TCA9554 为可选探测，实物是否搭载需
 资料也存在冲突。扩展分区前必须先通过启动日志确认实际 Flash 容量；当前保守配置可安全用于
 两种容量。
 
-首版物理音频链路直接使用 mybot 的 16 kHz 单声道 signed-16 边界，采集 ES7210 主麦 slot，
+首版物理音频链路直接使用 SDK 的 16 kHz 单声道 signed-16 边界，采集 ES7210 主麦 slot，
 并保持 Cloud AEC。播放参考通道与本地 AEC 不向上暴露。RTC、IMU、TF 卡、电池状态、自动
 休眠与关机手势不在三个首版 profile 范围；1.75C 也不集成 TCA9554。
 
@@ -387,7 +387,7 @@ M5PM1 G2 同时为显示屏和 codec 供电，在固件运行期间保持开启�
 
 此 ESP32-S3 profile 不带屏幕，不编入 LVGL；采用 ES8311 音频、8 MB Flash 分区与 8 MB
 Octal PSRAM。首次启动没有已保存的 Wi-Fi 凭据时，固件启动配置热点并播放对应语言的配网
-提示音；假定的 GPIO41 用户按键长按会先停止 mybot，再请求重新配网。按键极性及 16 kHz
+提示音；假定的 GPIO41 用户按键长按会先停止 SDK，再请求重新配网。按键极性及 16 kHz
 采集/播放质量尚未在真机验证。
 
 ### ReSpeaker Flex XVF3800 Circular-4 与 XIAO ESP32S3
@@ -415,7 +415,7 @@ USB Serial/JTAG。声学处理由 XVF3800 完成，因此该 profile 禁用 Clou
 | SPD2010 QSPI | CLK GPIO7、D0 GPIO9、D1 GPIO1、D2 GPIO14、D3 GPIO13、CS GPIO45 |
 | 输入 / 背光 | 编码器 GPIO41/GPIO42、TCA9555 P0.3 编码器按键、背光 GPIO8 |
 
-此 profile 直接以 mybot 的 16 kHz 单声道 signed-16 边界驱动 codec。TCA9555 管理系统、LCD
+此 profile 直接以 SDK 的 16 kHz 单声道 signed-16 边界驱动 codec。TCA9555 管理系统、LCD
 与 codec 功放的上电时序。专用 32 MB 分区表保留出厂数据区，并提供两个 4 MB OTA slot。
 首版不包含摄像头、触摸、LED、电池状态、关机手势和自动休眠。
 

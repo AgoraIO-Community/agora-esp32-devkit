@@ -1,4 +1,4 @@
-# mybot-esp32 agent guide
+# agora-esp32-devkit agent guide
 
 This file applies to the whole repository. Follow it together with the user's request. User
 instructions have priority when they conflict with this guide. Keep changes small, preserve
@@ -6,13 +6,13 @@ unrelated worktree changes, and report validation results with the final handoff
 
 ## Project boundary
 
-`mybot-esp32` is an ESP-IDF 5.5.2 firmware project for ESP32-S3. Its platform code lives in
+`agora-esp32-devkit` is an ESP-IDF 5.5.2 firmware project for ESP32-S3. Its platform code lives in
 `components/mybot_platform`; the runtime inputs are grouped under `components/mybot_stack`:
 
 ```text
 components/mybot_stack/
   mybot_sdk/CMakeLists.txt       ESP-IDF wrapper
-  mybot_sdk/mybot/               immutable MyBot SDK snapshot
+  mybot_sdk/mybot/               immutable agent-studio-device-firmware SDK snapshot
   aosl/                          immutable AOSL component
   agora_rtc/                     immutable Agora RTSA component
 components/mybot_platform/
@@ -44,7 +44,7 @@ An agent must not edit, patch, reformat, or add files under:
 - `components/mybot_stack/agora_rtc/`;
 - any external reference repository.
 
-Platform code may include MyBot only through public headers under
+Platform code may include the agent-studio-device-firmware SDK only through public headers under
 `components/mybot_stack/mybot_sdk/mybot/include/mybot/`. Never include SDK private headers,
 private sources, or undeclared SDK symbols. Do not add ESP-IDF, FreeRTOS, GPIO, I2S, LCD, NVS, or
 socket details to the SDK snapshot.
@@ -86,7 +86,7 @@ a new SDK interface.
 4. Keep lifecycle ownership in the board or reusable platform driver. `prepare()` must initialize
    hardware before registering the platform. `ensure_network()` returns only after usable IP
    connectivity; `provision_wifi()` returns after provisioning reconnects the station;
-   `shutdown_network()` tears down the network. `main/app_main.c` starts MyBot only after the
+   `shutdown_network()` tears down the network. `main/app_main.c` starts the SDK only after the
    network prerequisite and stops it before button-triggered provisioning.
 
 5. Preserve the SDK audio contract: 16 kHz, mono, signed 16-bit PCM and frame counts, never byte
@@ -146,7 +146,8 @@ generated sdkconfigs, and confirm:
 - video is enabled only on a board with a validated `mybot_video_ops_t` implementation;
 - Flash, PSRAM, console, codec and partition checks pass for the selected profile;
 - provisioning, Wi-Fi reconnect, HTTPS, pairing, bidirectional audio, volume persistence,
-  input, display colors/orientation, repeated MyBot start/stop, and failure cleanup are tested;
+  input, display colors/orientation, repeated agent-studio-device-firmware start/stop, and failure
+  cleanup are tested;
 - video tests include camera format, frame cadence, server reception, stop/restart and concurrent
   audio; resource logs record per-core CPU, internal heap and PSRAM;
 - hardware results are labeled as real-device results. A host test or successful build does not

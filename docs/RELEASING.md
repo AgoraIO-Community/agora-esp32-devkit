@@ -7,7 +7,7 @@
 - [ ] Choose a Semantic Version and update `PROJECT_VER` in `CMakeLists.txt` and `CHANGELOG.md`.
 - [ ] Confirm README, board support, known limitations, and configuration documentation are current.
 - [ ] Review all dependency revisions, bundled licenses, and `THIRD_PARTY_NOTICES.md`.
-- [ ] Verify the MyBot snapshot, AOSL sources, and RTSA headers/library in
+- [ ] Verify the agent-studio-device-firmware snapshot, AOSL sources, and RTSA headers/library in
       `components/mybot_stack` match `VENDORED_SOURCES.md`; keep the SDK snapshot unchanged
       except for an explicit upstream synchronization.
 - [ ] Confirm written rights to redistribute every bundled binary, especially Agora RTSA.
@@ -57,17 +57,17 @@ git diff --check
       sequencing, ST7789 mode-3 colors/orientation/zero offsets, GPIO13 60% PWM backlight, and
       Boot0/volume-up40/volume-down39. Verify 16 kHz playback speed/pitch against the reference
       24 kHz setting, bidirectional audio, prompt drain, volume persistence, repeated start/stop,
-      and provisioning while mybot is stopped.
+      and provisioning while the SDK is stopped.
 - [ ] For Bread Compact Wi-Fi LCD, match the fixed N16R8/240x320 wiring and confirm 16 MB Flash,
       8 MB Octal PSRAM, ST7789 SPI3 mode-0 colors/orientation/inversion/zero offsets, GPIO42 PWM,
-      Boot0 short/long presses, default/persisted software volume, provisioning while mybot is
+      Boot0 short/long presses, default/persisted software volume, provisioning while the SDK is
       stopped, prompt drain, 16 kHz capture/playback speed/pitch against the reference 24 kHz output,
       concurrent audio, failure cleanup, and repeated start/stop. Verify no volume-key, power-hold,
       GPIO48 LED, or GPIO18 lamp output is configured.
 - [ ] For ESP-VoCat, test PCB V1.0 and V1.2 separately. Verify GPIO48 detection, revision-specific
       DIN/PA/LCD-reset pins and reset polarity, GPIO9 peripheral power, USB Serial/JTAG logging,
       detected Flash/PSRAM capacity, the ST77916 initialization/colors/round edges/backlight,
-      CST816S press/release interrupt edges without startup ID reads, Boot provisioning while mybot
+      CST816S press/release interrupt edges without startup ID reads, Boot provisioning while the SDK
       is stopped, primary-mic slot routing, 16 kHz full-duplex audio, PA pop/noise, Cloud AEC,
       volume persistence, and repeated start/stop.
       Record any display-touch batch that requires the vendor touch-firmware update.
@@ -75,7 +75,7 @@ git diff --check
       rails and charger settings, 8 MB PSRAM detection, MCLK GPIO42, LCD reset GPIO39, touch reset
       GPIO40, optional TCA9554 detection, ES7210 primary-mic routing, 16 kHz full-duplex audio, PA
       pop/noise, CO5300 gap/colors/alignment/brightness, CST9217 orientation, and provisioning from
-      both touch and Boot while mybot is stopped.
+      both touch and Boot while the SDK is stopped.
 - [ ] For Waveshare AMOLED 1.75C, use only the C profile; test USB and battery boot, AXP2101 rails,
       8 MB PSRAM detection, MCLK GPIO16, LCD reset GPIO1, touch reset GPIO2, absence of TCA9554
       probing, primary-mic routing, full-duplex audio, PA noise, display/touch, and provisioning.
@@ -92,11 +92,11 @@ git diff --check
       verify normal flashing leaves it unchanged and never publish an `erase-flash` procedure.
 - [ ] For M5Stack StickS3, test USB and battery boot, M5PM1 G2/G3 sequencing, speaker pop/noise,
       16 kHz capture slot routing, ST7789P3 offsets/colors, 60% PWM backlight, and GPIO11 provisioning
-      while mybot is stopped.
+      while the SDK is stopped.
 - [ ] For M5Stack AtomEchoS3R, confirm 8 MB Flash and 8 MB Octal PSRAM detection, GPIO41 button
       polarity and short/long presses, first-boot Wi-Fi AP and localized prompt, 16 kHz capture and
       playback pitch/noise and full-duplex quality, volume persistence, and repeated provisioning
-      after mybot stop/start. Confirm the headless build omits LVGL.
+      after SDK stop/start. Confirm the headless build omits LVGL.
 
 ## Publish
 

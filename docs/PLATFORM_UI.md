@@ -4,8 +4,9 @@
 
 All supported display boards use the shared LVGL workflow view. The board profile automatically
 sets the hidden `CONFIG_MYBOT_LVGL_UI` symbol; there is no renderer selection switch or legacy
-renderer. Do not add a manual `CONFIG_MYBOT_LVGL_UI` override to sdkconfig. The SDK LCD contract,
-audio path, camera path, and touch/key ownership do not change.
+renderer. Do not add a manual `CONFIG_MYBOT_LVGL_UI` override to sdkconfig. The
+agent-studio-device-firmware SDK LCD contract, audio path, camera path, and touch/key ownership do
+not change.
 
 ## Current adapters
 
@@ -90,5 +91,5 @@ variants (30 configurations).
 These are build checks only. No new board is claimed to have passed real-device color, touch, audio,
 provisioning, or teardown validation. Complete hardware testing must cover all workflow screens,
 orientation and colors, Chinese/English small-screen text, SSID and hint scrolling with activity
-animation disabled, touch/buttons, Wi-Fi recovery, repeated mybot stop/start, full-duplex audio,
+animation disabled, touch/buttons, Wi-Fi recovery, repeated SDK stop/start, full-duplex audio,
 and memory/CPU measurements.
