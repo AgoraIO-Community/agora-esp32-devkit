@@ -2,11 +2,11 @@
 
 [English](PLATFORM_UI.md) | [简体中文](PLATFORM_UI.zh-CN.md)
 
-All supported display boards use the shared LVGL workflow view. The board profile automatically
-sets the hidden `CONFIG_MYBOT_LVGL_UI` symbol; there is no renderer selection switch or legacy
-renderer. Do not add a manual `CONFIG_MYBOT_LVGL_UI` override to sdkconfig. The
-agent-studio-device-firmware SDK LCD contract, audio path, camera path, and touch/key ownership do
-not change.
+All supported display boards use LVGL. `m5stack-core-s3` selects the process-gray pixel-glasses
+view; the other display boards keep the shared workflow view. Selection follows `MYBOT_BOARD`
+automatically and sets the hidden `CONFIG_MYBOT_LVGL_UI` symbol. There is no manual renderer
+switch or sdkconfig override. The agent-studio-device-firmware SDK LCD contract, audio/camera
+paths and touch/key ownership retain their existing board behavior.
 
 ## Current adapters
 
@@ -16,7 +16,7 @@ not change.
 | `zhengchen-1.54tft-wifi` | ST7789, 240 × 240 | shared ST7789 adapter | existing buttons |
 | `xingzhi-cube-1.54tft-wifi` | ST7789, 240 × 240 | shared panel adapter | Boot and volume buttons |
 | `bread-compact-wifi-lcd` | ST7789, 240 × 320 | shared panel adapter | Boot only |
-| `m5stack-core-s3` | ILI9342, 320 × 240 | CoreS3 adapter | existing FT6336 gestures |
+| `m5stack-core-s3` | ILI9342, 320 × 240 | CoreS3 adapter, pixel-glasses view | existing FT6336 gestures |
 | `m5stack-stick-s3` | ST7789P3, 135 × 240 | shared ST7789 adapter | existing main button |
 | `esp-vocat` | ST77916, 360 × 360 | shared panel adapter | existing CST816S/Boot path |
 | `esp32-s3-touch-amoled-1.75` | CO5300, 466 × 466 | shared panel adapter | existing touch/key path |
@@ -37,7 +37,22 @@ AMOLED 2.16 uses a zero panel gap and 40 MHz QSPI. Its CO5300 transfer regions r
 boundaries on both axes, and touch/panel orientation must be verified on the physical board.
 Chinese and English 2.16 build support has been validated; real-device testing remains pending.
 
-## Shared behavior
+## CoreS3 pixel-glasses view
+
+CoreS3 alone uses the fixed process-gray skin, 23 expressions and four terminal rows with 9 px
+text and a 10 px signature. Six-digit numeric pairing codes remain 32 px. READY shows NEUTRAL;
+entering a conversation shows SURPRISED for 300 ms plus its entering transition. LISTENING and
+THINKING select their faces, continuous THINKING becomes PROCESSING after three seconds, and
+SPEAKING/no phase uses NEUTRAL. Four MCP emotions temporarily override the face and replay for a
+new same-name command, with 2000/3000/1200/800 ms holds plus a 250 ms enabled entering transition.
+These are LCD-only changes. See [CoreS3 UI](CORES3_UI.md) for timing, resources and validation.
+
+CoreS3's legacy light-theme setting is retained but does not change the pixel skin. Its animation
+option controls expression motion and transitions; disabling it retains state/hold progression
+and necessary guidance scrolling. The other twelve profiles retain their existing UI/hardware;
+SDK, AOSL, RTSA, camera/video policy, input, power and memory configuration are unchanged.
+
+## Shared workflow view on other display boards
 
 The view receives semantic SDK LCD content: the ten workflow screens, pairing code, voiceprint
 indicator, and listening/thinking/speaking state. Coordinates are derived from each panel's
@@ -78,17 +93,21 @@ idf.py -B build/esp-vocat-lvgl \
 ```
 
 Theme and activity-animation settings remain build options; no runtime theme gesture is
-introduced. Append `ci/lvgl-ui-light.defaults` for the light theme or `ci/lvgl-ui-static.defaults`
-for static activity indicators. Use a new sdkconfig when changing defaults, because defaults do
-not override values saved in an existing sdkconfig.
+introduced. On the shared workflow view, append `ci/lvgl-ui-light.defaults` for the light theme
+or `ci/lvgl-ui-static.defaults` for static activity indicators. CoreS3 keeps process gray even
+with the light-theme defaults; static defaults disable its expression animations. Use a new
+sdkconfig when changing defaults, because defaults do not override saved configuration.
 
 ## Validation status
 
-The earlier CoreS3 LVGL UI passed real-device testing; the LVGL-only cleanup, provisioning SSID
-display/scrolling, and narrow-screen font changes still need hardware regression. CI covers all
-thirteen board profiles in both languages, CoreS3 video in both languages, and two theme/animation
-variants (30 configurations).
-These are build checks only. No new board is claimed to have passed real-device color, touch, audio,
+The earlier CoreS3 status-card UI passed real-device testing. The new CoreS3 pixel-glasses view
+passed its initial Chinese/English ESP-IDF v5.5.2 standard-builder video builds and still needs
+host/real-device validation; previous results do not
+validate its layout, expression timing or resource load. The shared-view cleanup, provisioning
+SSID display/scrolling and narrow-screen font changes retain their existing regression needs.
+CI defines all thirteen profiles in both languages, CoreS3 video in both languages and two
+theme/animation variants (30 configurations); that matrix is not a claim that this change has
+completed all builds. No new board is claimed to have passed real-device color, touch, audio,
 provisioning, or teardown validation. Complete hardware testing must cover all workflow screens,
 orientation and colors, Chinese/English small-screen text, SSID and hint scrolling with activity
 animation disabled, touch/buttons, Wi-Fi recovery, repeated SDK stop/start, full-duplex audio,

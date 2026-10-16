@@ -33,7 +33,8 @@ Circular-4 with XIAO ESP32S3, and SenseCAP Watcher.
 - Agora RTSA full-duplex audio, Cloud AEC, AI QoS, RTM channel subscription, and voice-print status.
 - Chinese and English local pairing-code and Wi-Fi provisioning prompts.
 - Compile-time board profiles with isolated Flash, PSRAM, partition, driver, and pin configuration.
-- Shared LVGL workflow UI for every display board, enabled automatically by the board profile.
+- Automatic LVGL UI selection by board: process-gray pixel glasses on CoreS3, the existing
+  shared workflow view on other display boards.
 - Provisioning screens show the actual device hotspot name and scroll overflowing text.
 
 ## Supported Boards
@@ -128,7 +129,9 @@ idf.py -B build/sensecap-watcher \
 The default profile is `zhengchen-1.54tft-ml307`, but explicit board selection is recommended.
 Board defaults supply the required Flash, PSRAM, and partition settings.
 All eleven display profiles use LVGL automatically; AtomEchoS3R and ReSpeaker Flex remain headless.
-There is no renderer enable switch. Theme and activity-animation options remain in menuconfig.
+There is no renderer enable switch. CoreS3 selects its pixel-glasses view automatically;
+other profiles retain their existing UI. Theme options apply to the shared view; CoreS3 keeps
+its fixed process-gray skin and supports expression-animation configuration.
 
 To build all supported profiles with the automatic capabilities, use:
 
@@ -139,9 +142,9 @@ python3 scripts/build_all.py
 The script places merged firmware images in `releases/` and per-variant build directories in
 `build/` by default, and builds both Chinese and English images. Use `--language zh-CN` or
 `--language en-US` for one language, `--board <board-id>` to select profiles,
-`--build-root <dir>` to place intermediate builds elsewhere, and
-`--video off` to disable the default CoreS3 video build. Each run cleans `build/` and `releases/`
-first; pass `--no-clean` for an incremental build. Display profiles select LVGL through
+`--build-root <dir>` to place intermediate builds elsewhere, `--output-root <dir>` for merged
+firmware, and `--video off` to disable the default CoreS3 video build. Each run cleans the selected
+build/output roots first; pass `--no-clean` for an incremental build. Display profiles select LVGL through
 their board capability; CoreS3 automatically receives the video defaults. The script prints each
 variant's elapsed time and the total batch duration.
 
@@ -386,17 +389,21 @@ CoreS3 playback uses a bounded PCM FIFO and independent I2S writer to absorb pro
 variation. The optional [offline audio comparison](docs/CORES3_AUDIO_TEST.md) tests timed and
 continuous feeding with and without capture; normal firmware uses the same buffered path.
 
-The [LVGL UI](docs/CORES3_UI.md) provides Chinese/English workflow screens, pairing codes,
-persistent voiceprint status, local state emoji, and listening/thinking/speaking indicators.
-It uses partial redraws and a 10 KiB DMA buffer. Light/dark themes and optional 5-fps activity
-animations are configured in menuconfig; necessary provisioning text scrolling remains enabled
-when activity animation is off. Touch gestures remain unchanged.
+The [CoreS3 pixel-glasses UI](docs/CORES3_UI.md) uses the fixed process-gray skin on its 320x240
+screen, with 23 expressions, four 9 px terminal rows, a 10 px signature and fixed 32 px six-digit
+pairing codes. Automatic READY/conversation faces follow SDK phases; four MCP emotions trigger
+temporary LCD-only expressions, including replay for a new same-name command. Voiceprint/session
+text and bilingual operational guidance remain available. The view reuses partial redraws and
+the 10 KiB DMA stripe; no renderer-selection flag is needed. The old light-theme field is kept
+for compatibility; expression animation remains configurable. Touch, audio, camera, power,
+pins, PSRAM and partitions retain their existing board configuration.
 
 All supported display boards automatically use LVGL as their only rendering backend. See
 [platform UI](docs/PLATFORM_UI.md) for panel sizes, adapter coverage, build variants, and validation limits.
 
 CoreS3 also provides optional GC0308 camera uplink: 320 x 240 software JPEG, at most 1 fps while
-RTC is connected. It is disabled by default; see [CoreS3 video](docs/CORES3_VIDEO.md) for building,
+RTC is connected. Direct profile builds leave it disabled unless configured; the normal
+`build_all.py --video auto` policy enables it on CoreS3. See [CoreS3 video](docs/CORES3_VIDEO.md) for building,
 diagnostic logs, and hardware acceptance checks. The CoreS3 camera path has been brought up on
 real hardware; regressions must still be checked with audio and UI running together.
 
@@ -472,9 +479,9 @@ main/                        Firmware entry point and project Kconfig
 
 ## Validation and Limitations
 
-CI builds 30 configurations covering all board profiles, both languages, and the bundled RTSA
-60 ms cadence. Six CoreS3 configurations cover the language/video combinations, light theme,
-and disabled activity animations. All display-board builds use LVGL, as described in
+The CI matrix defines 30 configurations covering all board profiles, both languages, and the bundled RTSA
+60 ms cadence. Six CoreS3 configurations cover language/video combinations, compatibility with
+the light-theme setting and disabled animations. All display-board builds use LVGL, as described in
 [Platform LVGL UI](docs/PLATFORM_UI.md).
 
 The Xingzhi Cube, Waveshare AMOLED 2.16, and Bread Compact Wi-Fi LCD ports passed Chinese and
@@ -483,8 +490,11 @@ build results; all three still require real-device validation. Bread's N16R8 lab
 fixed firmware profile, not a measured module capacity.
 
 Earlier CoreS3 firmware has passed hardware tests for
-provisioning, bidirectional audio, camera uplink, and LVGL UI, including audio with video on and off.
-The shared LVGL cleanup and provisioning SSID/scrolling changes still need hardware regression.
+provisioning, bidirectional audio, camera uplink, and the previous status-card LVGL UI, including
+audio with video on and off. These results do not validate the new CoreS3 pixel-glasses view;
+its initial Chinese/English ESP-IDF v5.5.2 standard-builder video builds passed, while host
+previews and real-device regression remain pending. The shared-view
+cleanup and provisioning SSID/scrolling changes still need hardware regression.
 The Zhengchen Wi-Fi, Xingzhi Cube, Bread Compact Wi-Fi LCD, ESP-VoCat, all three Waveshare AMOLED profiles, M5Stack
 StickS3, AtomEchoS3R, ReSpeaker Flex, and SenseCAP Watcher profiles have not yet completed real-device
 validation; a successful build is not a substitute for hardware validation on a release device.

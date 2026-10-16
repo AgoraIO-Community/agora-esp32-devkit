@@ -9,6 +9,16 @@ function(mybot_display_add_panel source_var source_name)
 endfunction()
 
 function(mybot_display_add_lvgl_sources source_var adapter_name)
+    if(MYBOT_BOARD STREQUAL "m5stack-core-s3")
+        list(APPEND ${source_var}
+            "${MYBOT_DISPLAY_ROOT}/adapters/lvgl/${adapter_name}"
+            "${MYBOT_DISPLAY_ROOT}/renderers/lvgl/pixel_glasses_view.cc"
+            "${MYBOT_DISPLAY_ROOT}/renderers/lvgl/pixel_expressions.c"
+            "${MYBOT_DISPLAY_ROOT}/renderers/lvgl/pixel_fonts.c"
+            "${MYBOT_DISPLAY_ROOT}/renderers/lvgl/lvgl_fonts.c")
+        set(${source_var} "${${source_var}}" PARENT_SCOPE)
+        return()
+    endif()
     list(APPEND ${source_var}
         "${MYBOT_DISPLAY_ROOT}/adapters/lvgl/${adapter_name}"
         "${MYBOT_DISPLAY_ROOT}/renderers/lvgl/lvgl_view.cc"

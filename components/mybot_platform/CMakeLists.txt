@@ -107,3 +107,6 @@ idf_component_register(
 )
 
 target_compile_features(${COMPONENT_LIB} PRIVATE c_std_99 cxx_std_17)
+if(MYBOT_BOARD STREQUAL "m5stack-core-s3")
+    target_compile_definitions(${COMPONENT_LIB} PUBLIC MYBOT_CORES3_PIXEL_UI=1)
+endif()

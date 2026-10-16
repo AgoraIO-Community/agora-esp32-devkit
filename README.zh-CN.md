@@ -28,7 +28,7 @@ StickS3、M5Stack AtomEchoS3R、搭配 XIAO ESP32S3 的 ReSpeaker Flex XVF3800 C
   集成者提供匹配的 RTSA 构建。
 - Agora RTSA 全双工音频、Cloud AEC、AI QoS、RTM 频道订阅与声纹状态显示。
 - 所有 Board profile 共用有界 PCM 播放缓冲和独立 I2S 播放任务。
-- 所有带屏板型自动启用共享 LVGL 流程界面。
+- 带屏板型自动选择LVGL界面：CoreS3使用工艺灰像素眼镜，其他板型保留共享流程视图。
 - 配网页面显示实际设备热点名称，超宽文字按需滚动。
 - 中英文配对码与 Wi-Fi 配网本地提示音。
 - 编译期 Board profile，隔离 Flash、PSRAM、分区、驱动和引脚配置。
@@ -124,7 +124,8 @@ idf.py -B build/sensecap-watcher \
 默认 profile 是 `zhengchen-1.54tft-ml307`，但建议始终显式选择 Board。Board defaults 会
 提供所需的 Flash、PSRAM 和分区配置。
 十一种带屏 profile 自动使用 LVGL，AtomEchoS3R 与 ReSpeaker Flex 保持无屏；不提供渲染器启用开关。
-主题和状态活动动画仍可通过 menuconfig 配置。
+CoreS3自动选择像素眼镜，其他profile保留原UI；共享视图继续提供主题选项，CoreS3固定
+工艺灰皮肤并支持表情动画配置。
 
 构建全部已支持的 profile，并自动启用带屏 LVGL 及 CoreS3 视频：
 
@@ -136,8 +137,9 @@ python3 scripts/build_all.py
 使用
 默认构建中英文；使用 `--language zh-CN` 或 `--language en-US` 只构建一种语言，使用
 `--board <board-id>` 选择板型，使用
-`--build-root <dir>` 将中间构建目录放到其他位置，使用 `--video off` 关闭默认的 CoreS3 视频构建。
-每次运行前默认清理 `build/` 和 `releases/`；增量构建可追加 `--no-clean`。
+`--build-root <dir>`选择中间构建位置，`--output-root <dir>`选择合并固件输出位置，
+`--video off`关闭默认CoreS3视频构建。每次运行默认清理所选构建/输出根目录；
+增量构建可追加 `--no-clean`。
 带屏 profile 由板级能力自动选择 LVGL，CoreS3 自动追加视频配置。脚本会打印每个变体的
 编译耗时和整批构建总耗时。
 
@@ -358,16 +360,18 @@ CoreS3 播放使用有界 PCM FIFO 和独立 I2S 播放任务，缓冲供数调�
 [离线音频对照测试](docs/CORES3_AUDIO_TEST.zh-CN.md) 对比定时/连续供数及采集开启/关闭；
 普通固件使用相同的缓冲播放路径。
 
-[LVGL UI](docs/CORES3_UI.zh-CN.md) 提供中英文流程页面、配对码、常驻声纹状态、
-本地状态表情及聆听/思考/说话指示，采用局部刷新和 10 KiB DMA 缓冲。
-明暗主题和可选的 5 fps 状态动画通过 menuconfig 选择；关闭状态活动动画后仍保留必要的
-配网文字滚动，触摸手势保持不变。
+[CoreS3像素眼镜UI](docs/CORES3_UI.zh-CN.md)在320x240屏使用固定工艺灰皮肤、23表情、
+四行9 px终端、10 px签名和固定32 px六位数字配对码。READY/会话自动表情跟随SDK阶段，
+四种MCP情绪触发临时LCD表情，同名新命令重播；会话/声纹文字与中英文必要引导保留。
+复用局部刷新和10 KiB DMA条带，不增加渲染器选择开关。旧浅色主题字段保留兼容，
+表情动画可配置；触摸、音频、摄像头、电源、引脚、PSRAM及分区保留原板级配置。
 
 所有支持的带屏板型自动使用 LVGL 作为唯一渲染后端，面板尺寸、适配范围、
 构建变体和验证边界见[平台 UI](docs/PLATFORM_UI.zh-CN.md)。
 
 CoreS3 另提供可选的 GC0308 视频上行：320 x 240 软件 JPEG，仅在 RTC 连接期间以最多
-1 fps 发送，默认关闭。构建、诊断日志与验收步骤见 [CoreS3 视频](docs/CORES3_VIDEO.zh-CN.md)。
+1 fps发送；直接profile构建需配置开启，标准 `build_all.py --video auto` 策略会为CoreS3
+自动开启。构建、诊断日志与验收步骤见 [CoreS3 视频](docs/CORES3_VIDEO.zh-CN.md)。
 CoreS3 摄像头路径已完成真机调通，后续回归仍需同时开启音频和 UI 验证。
 
 ### M5Stack StickS3
@@ -437,8 +441,8 @@ main/                        固件入口与工程 Kconfig
 
 ## 验证与限制
 
-CI 共构建 30 项配置，覆盖全部 Board profile、两种语言，以及随附 RTSA 的 60 ms 音频包长；
-六项 CoreS3 配置覆盖中英文/视频组合、浅色主题及关闭状态动画。所有带屏板型构建均使用
+CI矩阵定义30项配置，覆盖全部Board profile、两种语言及随附RTSA的60 ms音频包长；
+六项CoreS3配置覆盖中英文/视频组合、浅色配置兼容及关闭动画。所有带屏板型构建均使用
 LVGL，详见[平台 UI](docs/PLATFORM_UI.zh-CN.md)。
 
 行者 Cube、Waveshare AMOLED 2.16 和 Bread Compact Wi-Fi LCD 三个移植均已通过中英文
@@ -446,8 +450,10 @@ ESP-IDF v5.5.2 的 `reconfigure`、`build`、`size` 与 `merge-bin` 验证。这
 三个板型的真机验证仍未完成。Bread 的 N16R8 是固定固件 profile 的名称，不是实测模组容量。
 
 此前 CoreS3 固件已完成配网、双向音频、
-摄像头上行及 LVGL UI 真机测试，视频开启和关闭时的音频播放也已验证。
-共享 LVGL 清理及配网热点名称/滚动改动仍需本轮真机回归。征辰 Wi-Fi、行者 Cube、Bread Compact Wi-Fi LCD、ESP-VoCat、三个 Waveshare AMOLED
+摄像头上行及旧状态卡片LVGL UI真机测试，视频开启和关闭时的音频播放也已验证。
+这些旧结果不代表新CoreS3像素眼镜通过。新视图已通过首轮中英文ESP-IDF v5.5.2标准脚本
+视频构建，宿主预览与真机回归仍待完成。
+共享LVGL清理及配网热点名称/滚动改动仍需本轮真机回归。征辰 Wi-Fi、行者 Cube、Bread Compact Wi-Fi LCD、ESP-VoCat、三个 Waveshare AMOLED
 profile、M5Stack StickS3、AtomEchoS3R、ReSpeaker Flex 与 SenseCAP Watcher profile 尚未完成真机验证；
 编译成功不能替代发布硬件上的真实设备验证。
 

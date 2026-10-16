@@ -1,132 +1,149 @@
-# CoreS3 LVGL UI (shared view reference)
+# CoreS3 Pixel-Glasses UI
 
 [English](CORES3_UI.md) | [简体中文](CORES3_UI.zh-CN.md)
 
-`m5stack-core-s3` uses LVGL as its only display backend. The same semantic view is reused by all
-supported panel adapters; see [Platform LVGL UI](PLATFORM_UI.md). The board profile automatically
-sets the hidden `CONFIG_MYBOT_LVGL_UI` symbol; no renderer selection or separate enable flag is
-required. Theme and activity-animation settings remain configurable.
+`MYBOT_BOARD=m5stack-core-s3` automatically selects the process-gray pixel-glasses view on the
+320 × 240 ILI9342 display. It uses the existing CoreS3 LVGL adapter and common LCD-view API.
+There is no manual renderer switch or `CONFIG_MYBOT_LVGL_UI` override. The other twelve board
+profiles retain their existing UI and hardware behavior; see [Platform UI](PLATFORM_UI.md).
+
+This replaces CoreS3's earlier status-card view. Audio, camera/video policy, FT6336 touch gestures,
+power, pins, PSRAM and partitions retain their board configuration. Short touch still starts or
+stops a conversation; a three-second hold still requests Wi-Fi provisioning. The MyBot SDK,
+AOSL and Agora RTSA snapshots are unchanged.
 
 ## Displayed information
 
-The UI covers the ten existing workflow screens: startup, Wi-Fi provisioning,
-Wi-Fi disconnected, service startup, pairing, pairing code, ready, conversation, failure, and
-shutdown. Rounded status cards and local emoji distinguish workflow states. During conversations,
-voiceprint registration stays visible alongside listening/thinking/speaking status. Static labels
-follow the firmware's Chinese/English language setting. Pairing codes remain dynamic.
+The simulator-inspired `process` skin and `geek` face use a fixed `#050708` black-glass background,
+gray decorations and pixel glasses. Four terminal rows show the product label, selected mood,
+runtime/session state and the realtime signature. The terminal uses a 9 px bitmap font and the
+`</>` signature uses 10 px. During conversations, the state row includes listening/thinking/
+speaking and `vp:ok` or `vp:pending`; voiceprint changes do not show a separate notification.
+The artwork does not measure microphone amplitude or change the SDK runtime state.
 
-During Wi-Fi provisioning, the central title shows the actual device SoftAP SSID (`mybot-xxxx`).
-The lower hint remains "Connect to device Wi-Fi" or "请连接设备热点" according to the language.
-LVGL scrolls the title and hint in a loop only when they exceed the available width; short text
-stays still. Leaving the provisioning screen stops text scrolling.
-The SSID comes from the active AP, not a second UI-side MAC calculation. If it is unavailable,
-the title remains "Wi-Fi setup" (or "Wi-Fi 配网"); the serial log reports
-`event=provision_ap action=read_ssid result=unavailable`.
+All ten SDK workflow screens remain supported. Startup, provisioning, network loss, service
+startup, pairing, pairing code, errors and shutdown show Chinese/English operational guidance.
+Provisioning uses the actual active SoftAP SSID, with a generic setup label if unavailable.
+Necessary overflowing SSID/instruction scrolling remains available when expression animations
+are disabled and stops when its guidance page is left.
 
-Pairing success, voiceprint registration, and network recovery can show a notification for up to two seconds
-in the header when the corresponding state transition is observed. Notifications do not cover
-pairing digits or replace the conversation voiceprint indicator. Repeated unchanged states do
-not repeatedly trigger notifications. Moving to another workflow screen clears the previous notification.
+The pairing page directs users to the web console. A six-digit numeric pairing code uses a
+fixed 32 px font on CoreS3; it does not shrink to fit. Chinese guidance reuses the existing
+20 px Source Han Sans subset. That subset covers product UI text, not arbitrary Chinese chat.
 
-Listening/thinking/speaking activity uses small, local dot/bar animations capped at 5 fps
-(one animation step every 200 ms). State changes and provisioning text scrolling retain their
-existing refresh behavior.
-These indicate the SDK state and do not measure audio amplitude. Activity animation stops when
-leaving the active state; provisioning text can still scroll when needed.
+## Automatic faces and MCP commands
 
-The UI receives existing public SDK LCD content and board provisioning state. It does not add
-conversation transcripts, cloud emotion messages, GIF animation, battery reporting, or new
-network/SDK protocols. The bundled font covers the interface's static text rather than arbitrary
-Chinese conversation text. Short touch still starts/stops a conversation; holding the screen for
-three seconds still enters Wi-Fi provisioning.
+| State or new accepted command | Face and hold |
+| --- | --- |
+| READY / return from a conversation | NEUTRAL |
+| Enter a conversation | SURPRISED for 300 ms, plus entering transition |
+| LISTENING | LISTENING |
+| THINKING | THINKING; PROCESSING after three continuous seconds |
+| SPEAKING / no active phase | NEUTRAL |
+| MCP `emotion.happy` | HAPPY for 2000 ms |
+| MCP `emotion.sad` | SAD for 3000 ms |
+| MCP `emotion.angry` | ANNOYED for 1200 ms |
+| MCP `emotion.surprised` | SURPRISED for 800 ms |
+
+With animations enabled, each entering transition adds 250 ms before its hold, including the
+conversation opener. With animations disabled, only the hold remains. A new accepted MCP command
+replaces the unfinished foreground and replays even the same expression name. SDK command-ID
+deduplication still applies. Ordinary phase/voiceprint updates do not restart the hold.
+Expiry restores the latest automatic face, including PROCESSING if thinking has continued for
+three seconds in the background. Leaving a conversation or detaching the SDK cancels its
+expression timers. Operational guidance takes precedence. All expressions are LCD-only and send
+no motor commands.
+
+The complete artwork set contains 23 names:
+
+```text
+NEUTRAL, GREETING, HAPPY, EXCITED, CURIOUS, CONFUSED, THINKING, LISTENING,
+SURPRISED, SHY, PROUD, LOVE, SLEEPY, BORED, SAD, PLEADING, APOLOGY, WORRIED,
+ANNOYED, REFUSE, PROCESSING, ERROR, SLEEP
+```
+
+GREETING and the other prepared artwork remain available without automatic demo cycling.
+ERROR and SLEEP artwork do not enter an SDK error state or put the board to sleep. The CoreS3
+adapter owns expression timing alongside its existing copied LCD-state submissions; rendering
+stays in the existing LVGL task, without an extra UI thread or UTC dependency.
 
 ## Theme and animation settings
 
-These options appear under `mybot` in menuconfig for display boards:
+| Setting | CoreS3 behavior |
+| --- | --- |
+| `CONFIG_MYBOT_LVGL_UI_LIGHT_THEME` | Retained for saved-config compatibility; the pixel view always uses process gray |
+| `CONFIG_MYBOT_LVGL_UI_ANIMATIONS` | Enables expression motion, 250 ms transitions and cursor animation; disabling it preserves state changes, hold expiry and necessary guidance scrolling |
 
-| Setting | Default | Effect |
-| --- | --- | --- |
-| `CONFIG_MYBOT_LVGL_UI_LIGHT_THEME` | `n` | Dark theme by default; `y` selects the light theme |
-| `CONFIG_MYBOT_LVGL_UI_ANIMATIONS` | `y` | Enables state activity animation; `n` keeps the indicators static |
-
-Both choices are fixed at build time. No new touch gesture changes themes or animation settings.
-`CONFIG_MYBOT_LVGL_UI_ANIMATIONS` controls only state activity animation. Disabling it preserves
-state changes, local emoji, event notifications, and necessary provisioning text scrolling.
+The other display boards keep the shared workflow view's existing light/dark theme and activity
+animation behavior. No new theme or expression-selection touch gesture is introduced.
 
 ## Build and flash
 
-Use ESP-IDF v5.5.2 and a separate build directory and sdkconfig:
+Use ESP-IDF v5.5.2. The normal builder selects CoreS3 and both languages, and its default
+`--video auto` policy enables CoreS3 video through the existing board capability:
 
 ```sh
-idf.py -B build/cores3-lvgl-ui \
-  -DMYBOT_BOARD=m5stack-core-s3 \
-  -DSDKCONFIG=build/cores3-lvgl-ui/sdkconfig \
-  -DSDKCONFIG_DEFAULTS=sdkconfig.defaults build
-idf.py -B build/cores3-lvgl-ui -p <PORT> flash monitor
+python3 scripts/build_all.py --board m5stack-core-s3 --language both \
+  --build-root /tmp/mybot-cores3-pixel-build \
+  --output-root /tmp/mybot-cores3-pixel-firmware
 ```
 
-Chinese, video-off, dark theme, and enabled activity animation are the defaults. Keep separate
-directories when comparing these variants:
+Build and firmware outputs stay in those isolated roots. The script cleans its selected output
+roots unless `--no-clean` is supplied. Use `--dry-run` to inspect commands or `--video off` for an
+audio/UI comparison; neither option selects another renderer.
 
-| Variant | Suggested build directory | `SDKCONFIG_DEFAULTS` |
-| --- | --- | --- |
-| Chinese, video off | `build/cores3-lvgl-ui` | `sdkconfig.defaults` |
-| English, video off | `build/cores3-lvgl-ui-en` | `sdkconfig.defaults;ci/en-us.defaults` |
-| Chinese, video on | `build/cores3-lvgl-ui-video` | `sdkconfig.defaults;ci/video.defaults` |
-| English, video on | `build/cores3-lvgl-ui-video-en` | `sdkconfig.defaults;ci/en-us.defaults;ci/video.defaults` |
-| English, light theme, video off | `build/cores3-lvgl-ui-light-en` | `sdkconfig.defaults;ci/lvgl-ui-light.defaults;ci/en-us.defaults` |
-| Chinese, static indicators, video on | `build/cores3-lvgl-ui-static-video` | `sdkconfig.defaults;ci/lvgl-ui-static.defaults;ci/video.defaults` |
+A direct IDF build uses its selected sdkconfig/defaults, without the builder's automatic video
+addition. For example:
 
-Change both `-B` and `-DSDKCONFIG` to the chosen directory and use the matching defaults list.
-All display boards include this UI automatically. Changing defaults does not overwrite an existing
-generated sdkconfig; use a new sdkconfig or change theme/animation settings through `menuconfig`.
-The light/static defaults files change only their respective option.
+```sh
+idf.py -B build/cores3-pixel \
+  -DMYBOT_BOARD=m5stack-core-s3 \
+  -DSDKCONFIG=build/cores3-pixel/sdkconfig \
+  -DSDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build/cores3-pixel -p <PORT> flash monitor
+```
 
-## Rendering and resources
+Use separate sdkconfigs for language, video and animation comparisons; defaults do not overwrite
+saved configuration values. Build validation is recorded separately below.
 
-The UI task runs on Core 1 at priority 1. LVGL objects use PSRAM; SPI transfers use a single
-320 × 16 RGB565 buffer, or 10,240 bytes of internal DMA memory. Partial redraws update invalidated
-regions instead of copying complete cached screens. No image or full-screen page cache is allocated.
-The DMA buffer is not the total display memory: the UI task has a 7 KiB stack, and objects,
-rendering scratch space, synchronization objects, and bus descriptors need additional memory.
+## Rendering, resources and provenance
 
-Four 64 × 64 local emoji are stored as predecoded constant images in Flash, totaling approximately
-64 KiB of pixel data. Rendering needs no PNG/GIF decoder or large decoded-image cache. Activity
-indicators and overflowing provisioning text may animate; the emoji images themselves are static.
+The existing LVGL task runs on Core 1 at priority 1. Objects and drawing scratch space use PSRAM;
+SPI transfers retain a 320 × 16 RGB565 stripe, or 10,240 bytes of internal DMA memory. The UI task
+stack and driver/synchronization allocations are additional memory. Partial redraws avoid a
+full-screen page cache or decoded full-face buffer.
 
-State submissions copy the latest LCD content and wake the UI task. A 50-ms LVGL timer applies
-pending content; rapid intermediate updates can be combined. SDK callbacks do not draw or wait
-for SPI transfers. Board and SDK references share the display across provisioning and conversation.
+Fixed LVGL widgets and curves draw the face. Five immutable A8 masks contribute 13,631 alpha
+bytes for hearts, stars, ellipses, cheeks and tears, excluding descriptor overhead. The terminal
+font is a renamed DejaVu Sans Mono Bold subset under its retained Bitstream Vera terms; the
+Source Han Sans UI subset retains SIL OFL 1.1. The masks and terminal fonts are compiled only for
+the CoreS3 pixel renderer; other boards retain their existing state-card images.
 
-Shared layouts adapt to each panel's dimensions and select smaller English fonts on narrow
-screens while retaining Chinese glyph coverage. Provisioning SSIDs use the readable 20 px font;
-pairing digits shrink to fit their available width. See [platform UI](PLATFORM_UI.md) for the
-StickS3 details. The public SDK interface remains unchanged.
+The display implementation and generators derive from the `bk_solution_ai` checkout in
+`mybot-bk7259` (`github.com/junlon2006/bk_solution_ai`), commit
+`dc4c85492bcf00f780c92d56c6cba2a362f54f68`, preserving file-level MIT/Apache-2.0 notices and the
+existing display license. Geometry and colors refer to the user-provided threejs simulator;
+no separate simulator license declaration was found, and this does not assign one.
+See [dependency baselines](../VENDORED_SOURCES.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).
 
-Lifecycle logs use `event=lcd` and `backend=lvgl`. Use CPU/heap statistics, lifecycle logs, and
-visual checks to assess the UI. LVGL render/flush timing is not included in the playback statistics.
+## Validation status
 
-## Hardware validation
+The first Chinese and English CoreS3 builds passed with ESP-IDF v5.5.2 through the standard
+builder, using automatic video and 60 ms audio packet time: 38 s for zh-CN, 37 s for en-US,
+1 min 16 s for the batch. This is build validation, not a hardware result. Host previews and
+device regression remain separate checks.
 
-The earlier CoreS3 LVGL UI passed real-device testing. The LVGL-only cleanup and provisioning
-SSID display/scrolling still need hardware regression testing. CI covers the four language/video combinations plus light-theme
-and static-indicator variants. Successful builds and host checks do not establish the audible
-or visual result on the device.
+Earlier CoreS3 hardware tests cover the previous status-card UI and established audio/camera/
+input paths. They do not validate this new pixel renderer. Real-device testing remains required.
 
-Verify the following before selecting it for a release:
+- Check all ten guidance screens and 23 expressions in both languages on the 320 × 240 panel.
+- Verify four separate terminal rows, the signature and full-size six-digit pairing codes.
+- Verify the SURPRISED opener, phase changes, three-second thinking timeout, MCP replacement,
+  same-name new-command replay and expiry; phase/voiceprint updates must preserve hold timing.
+- Test animation enabled/disabled, overflowing SSID/instructions, and web-console pairing.
+- Regress short touch, three-second provisioning, Wi-Fi recovery and repeated SDK stop/start.
+- Run full-duplex audio with video off and with the existing 1 fps camera uplink enabled.
+- Record CPU load, internal/PSRAM peaks, minimum free heap and largest blocks; repeat sessions
+  to check resource lifetime and sustained memory growth.
 
-- Check orientation, red/green/blue colors, small text, large pairing digits, and all ten screens.
-- Test voiceprint and listening/thinking/speaking changes, including rapid transitions and hangup.
-- Check both themes and animation settings. Confirm activity indicators stop outside conversations, event
-  notifications expire within two seconds or on a workflow transition, and pairing codes and
-  voiceprint status stay readable.
-- Confirm short touch and three-second provisioning gestures, first-boot provisioning, Wi-Fi
-  loss/recovery, and repeated SDK stop/start without stale screens or blank output.
-- Match the displayed provisioning SSID to the device hotspot. Check that overflowing title/hint
-  text scrolls, short text stays still, and scrolling stops on exit, including with activity animation disabled.
-- Listen for crackle during continuous full-duplex audio while the UI changes. Repeat with 1 fps
-  video enabled, using the same volume and network.
-- Record per-core CPU load, peak internal/PSRAM usage, minimum free heap and largest free blocks
-  with `CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR`; repeat sessions to detect sustained memory growth.
-
-Record firmware language, board, video/theme/animation settings, volume, and complete serial logs with each result.
+Include board, firmware language, video/animation settings, volume and serial logs with results.
