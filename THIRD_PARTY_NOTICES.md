@@ -34,6 +34,8 @@ It does not replace third-party terms. This file is informational and is not leg
 | Source Han Sans UI glyph subset | SIL Open Font License 1.1 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` |
 | Noto Color Emoji rasterized glyphs | SIL Open Font License 1.1 | `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` |
 | Shared LVGL view (`1d5eeb2` reference) | MIT | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_view.cc`, `components/mybot_platform/src/internal/display/lvgl_view.h` |
+| CoreS3 pixel-glasses renderer, geometry/mask generators (`dc4c854` BK reference) | MIT; expression helpers/policy retain their file-level Apache-2.0 notices | `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, pixel geometry/masks/generators and private expression support |
+| MyBot Terminal bitmap subsets derived from DejaVu Sans Mono Bold | Bitstream Vera font terms, with public-domain DejaVu changes | `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c`, `TERMINAL_FONT_LICENSE.txt` |
 | Project-maintained shared LVGL panel adapters | Apache-2.0 unless file SPDX says otherwise | `components/mybot_platform/src/drivers/display/adapters/lvgl/st7789_lvgl_adapter.cc`, `components/mybot_platform/src/drivers/display/adapters/lvgl/shared_lvgl_adapter.cc` |
 | M5Stack CoreS3-derived implementation | MIT | Paths listed under MIT Attributions |
 | ReSpeaker Flex XVF3800-derived implementation (`b060243`) | MIT | Paths listed under MIT Attributions |
@@ -49,7 +51,7 @@ The built-in LVGL UI fonts retain their separate Montserrat OFL and Font Awesome
 `components/lvgl/scripts/built_in_font/font_license/Montserrat/OFL.txt` and
 `components/lvgl/scripts/built_in_font/font_license/FontAwesome5/LICENSE.txt`.
 
-The four local UI emoji are rasterized Noto Color Emoji font glyphs, supplied by the pinned
+The shared workflow view's four local UI emoji are rasterized Noto Color Emoji font glyphs, supplied by the pinned
 `78/noto-fonts` package and converted into constant pixels for this firmware. They retain
 Google's copyright and the font's SIL OFL 1.1 terms in
 `components/mybot_platform/assets/ui/noto_emoji/LICENSE.txt`. Source PNG hashes, Unicode glyphs,
@@ -97,6 +99,22 @@ The shared LVGL view adapts the status/content/notification layout from the MIT-
 are retained in `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_LICENSE.txt`.
 Its generated Source Han Sans glyph subset retains Adobe's copyright and SIL OFL 1.1 text in
 `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt`; it is not MIT-licensed.
+
+CoreS3's pixel-glasses display implementation and generators are adapted from the BK7259
+Solution commit `dc4c85492bcf00f780c92d56c6cba2a362f54f68` in `github.com/junlon2006/bk_solution_ai`,
+the Solution checkout within `mybot-bk7259`.
+The MIT renderer/geometry/generator notices and existing display permission text in
+`components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_LICENSE.txt` are retained;
+expression helper and policy files retain their Apache-2.0 SPDX notices. The user-provided
+threejs simulator supplies visual/geometry reference; no independent simulator license declaration
+was found, and this notice does not assign the simulator an MIT license.
+
+The CoreS3 MyBot Terminal subsets are renamed derivatives of DejaVu Sans Mono Bold, preserving
+the Bitstream copyright/trademark notice, font permission conditions and public-domain status of
+DejaVu changes in `components/mybot_platform/src/drivers/display/renderers/lvgl/TERMINAL_FONT_LICENSE.txt`.
+Font data is not covered by the renderer's MIT declaration. The existing Source Han Sans 20 px
+subset is reused for Chinese guidance under its SIL OFL 1.1 license. Other board profiles retain
+their existing font and emoji notices.
 
 The ReSpeaker Flex hardware mapping, AIC3104 initialization, XVF3800 control and button polling,
 and I2S conversion are derived in part from the MIT-licensed

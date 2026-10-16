@@ -15,6 +15,7 @@
 #include "mbedtls/md.h"
 #include "nvs_flash.h"
 #include "mybot_platform/board.h"
+#include "mybot_platform/display_status.h"
 #if CONFIG_MYBOT_AUDIO_PLAYBACK_TEST
 #include "mybot_platform/audio_playback_test.h"
 #endif
@@ -31,6 +32,48 @@
 #define DEVICE_ID_DIGEST_BYTES 12
 
 static const char k_device_id_hmac_key[] = "mybot-esp32-device-id-v1";
+
+/* The application publishes a presentation-only copy of the SDK state.
+ * Boards without this UI keep the same control loop and compile this away. */
+static void publish_display_state(void) {
+#if defined(MYBOT_CORES3_PIXEL_UI) && MYBOT_CORES3_PIXEL_UI
+    const mybot_state_t state = mybot_get_state();
+    const char *name;
+    switch (state) {
+    case MYBOT_STATE_STOPPED:
+        name = "stopped";
+        break;
+    case MYBOT_STATE_WIFI_PROVISIONING:
+        name = "wifi_provisioning";
+        break;
+    case MYBOT_STATE_STARTING_SERVICES:
+        name = "starting_services";
+        break;
+    case MYBOT_STATE_READY:
+        name = "ready";
+        break;
+    case MYBOT_STATE_WIFI_DISCONNECTED:
+        name = "wifi_disconnected";
+        break;
+    case MYBOT_STATE_FAILED:
+        name = "failed";
+        break;
+    case MYBOT_STATE_STOPPING:
+        name = "stopping";
+        break;
+    case MYBOT_STATE_IN_CONVERSATION:
+        name = "in_conversation";
+        break;
+    case MYBOT_STATE_PAIRING:
+        name = "pairing";
+        break;
+    default:
+        name = "unknown";
+        break;
+    }
+    (void)mybot_display_set_runtime_status(name, state == MYBOT_STATE_IN_CONVERSATION);
+#endif
+}
 
 static int build_device_id(char *device_id, size_t capacity, const uint8_t mac[6]) {
     uint8_t digest[32];
@@ -157,6 +200,7 @@ void app_main(void) {
     if (mybot_board_register() < 0) {
         return;
     }
+    publish_display_state();
 #if CONFIG_MYBOT_AUDIO_PLAYBACK_TEST
     (void)mybot_audio_playback_test_run();
     return;
@@ -191,20 +235,24 @@ void app_main(void) {
         ESP_LOGI(TAG, "event=control state=starting_mybot network_elapsed_ms=%" PRId64,
                  (mybot_started_us - network_started_us) / 1000);
         if (mybot_start(&config) < 0) {
+            publish_display_state();
             ESP_LOGE(TAG, "event=control state=starting_mybot elapsed_ms=%" PRId64 " result=error",
                      (esp_timer_get_time() - mybot_started_us) / 1000);
             break;
         }
+        publish_display_state();
         ESP_LOGI(TAG, "event=control state=mybot_running start_elapsed_ms=%" PRId64 " device=%s",
                  (esp_timer_get_time() - mybot_started_us) / 1000, config.device_id);
 
         bool provisioning_requested = false;
         while (mybot_is_running()) {
+            publish_display_state();
             if (mybot_board_wait_wifi_provisioning_request(CONTROL_EVENT_WAIT_MS)) {
                 provisioning_requested = true;
                 break;
             }
         }
+        publish_display_state();
         if (!provisioning_requested) {
             provisioning_requested = mybot_board_wait_wifi_provisioning_request(0);
         }
@@ -213,6 +261,7 @@ void app_main(void) {
                  (int)mybot_get_state(), mybot_is_running() ? 1 : 0,
                  provisioning_requested ? "provision_request" : "sdk_stopped");
         mybot_stop();
+        publish_display_state();
         if (!provisioning_requested) {
             provisioning_requested = mybot_board_wait_wifi_provisioning_request(0);
         }

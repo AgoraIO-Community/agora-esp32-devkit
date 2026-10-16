@@ -41,6 +41,8 @@ are not vendored into this repository.
 | Paths | Source | Pinned revision |
 | --- | --- | --- |
 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_view.cc`, `components/mybot_platform/src/internal/display/lvgl_view.h` | `github.com/junlon2006/xiaozhi-esp32`, `main/display/lcd_display.cc` and LVGL theme layout | commit `1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d` |
+| CoreS3 `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, expression geometry/masks/generators, `pixel_expressions.c`, and private expression headers/policy | `github.com/junlon2006/bk_solution_ai`, Solution checkout in `mybot-bk7259` | commit `dc4c85492bcf00f780c92d56c6cba2a362f54f68`; adapted to the existing ESP32 display API and CoreS3 320x240 geometry |
+| CoreS3 terminal subsets in `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c` and `TERMINAL_FONT_LICENSE.txt` | DejaVu Sans Mono Bold, renamed MyBot Terminal | Source TTF SHA-256 `3a3c502eeff669a231549e80df9f7c49de109bafe303170409e905d0b31a38fe`; 9 px terminal and 10 px signature subsets, with retained Bitstream Vera terms |
 | `components/mybot_platform/src/drivers/display/adapters/lvgl/shared_lvgl_adapter.cc`, `components/mybot_platform/src/internal/display/display_panel.h` | Project-maintained shared adapter for ST7789, CO5300, SPD2010, and ST77916 panels | Uses the board panel drivers; no new upstream source |
 | `components/mybot_platform/boards/respeaker-flex-xvf3800-circular4-xiao`, `components/mybot_platform/src/drivers/audio/xvf3800_audio.c`, `partitions/v2/8m.csv` | `github.com/qiuyanli1990/respeaker-flex-circle-Agora-mybot` | commit `b06024382eb104c998aead4841e1df647193065b` |
 | `components/mybot_platform/boards/sensecap-watcher`, `components/mybot_platform/src/drivers/audio/sensecap_codec_audio.c`, `components/mybot_platform/src/drivers/display/panels/spd2010/spd2010_panel.c`, `partitions/v2/32m-sensecap.csv` | `github.com/junlon2006/xiaozhi-esp32` | commit `2b9b4e3bf93c76fdfca1249ce0f7ed0bf546aaa0` |
@@ -57,6 +59,17 @@ are not vendored into this repository.
 
 Firmware integration differences are limited to the active ESP32-S3 build:
 
+- Only `m5stack-core-s3` selects the process-gray pixel-glasses view. CMake chooses it from
+  `MYBOT_BOARD`, with no manual renderer flag; the other twelve profiles retain their current
+  UI/hardware. The original Source Han Sans 20 px UI subset is reused, while the CoreS3 path
+  uses fixed widgets/curves, five immutable A8 masks (13,631 alpha bytes), and the terminal
+  subsets above instead of the shared view's four emoji. Audio, camera/video policy, input,
+  power, PSRAM, partitions, SDK, AOSL and RTSA inputs are unchanged.
+  Geometry and colors refer to the user-provided threejs simulator. The reference hashes are
+  `1d51ca444e69a39da5b2feedc38d543aea362433184e89a76a825e757b684e31` (`expressions.js`) and
+  `2b0cf05ffceb91f079d1cd542a982622e9c44c882ff84ac98a84b9a90bfa0646` (`reference-style.js`).
+  No independent simulator license declaration was found; MIT/Apache-2.0 notices apply to the
+  reused BK display sources/generators as stated in their files, not to an invented simulator license.
 - The Xingzhi Cube port reuses project audio/input/LVGL drivers and introduces no new vendored
   dependency. Its Board lifecycle is project-maintained; the reference supplies hardware facts.
   The 16 MB Flash and 80 MHz Octal PSRAM profile requires real-device capacity confirmation.
@@ -81,7 +94,7 @@ Firmware integration differences are limited to the active ESP32-S3 build:
   details are in `components/lvgl/README.integration.md`. The ESP-IDF port's runtime, display
   rollback, and deinit contract are adapted for repeated initialization and teardown; the exact
   local corrections are recorded in `components/esp_lvgl_port/PATCHES.md`.
-  The UI enables the unchanged upstream LVGL image widget. Four pinned local emoji PNGs
+  The shared workflow view on other display boards enables the unchanged upstream LVGL image widget. Four pinned local emoji PNGs
   are converted by `scripts/generate-lvgl-ui-assets.py` with Pillow 10.2.0 into 64x64 straight-alpha
   ARGB8888 constants (BGRA byte order), totaling 65,536 pixel bytes in Flash. The script pads the
   64x61 source images without scaling; the firmware does not include PNG/GIF decoding or an image

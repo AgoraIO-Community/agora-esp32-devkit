@@ -3,16 +3,25 @@
 Display code is organized by responsibility:
 
 - `panels/` owns controller and bus setup. It exposes only the internal panel lifecycle needed by a renderer.
-- `renderers/lvgl/` contains the shared semantic status view, fonts, and image assets.
+- `renderers/lvgl/` contains the shared semantic status view and the CoreS3-only pixel-glasses
+  view, with their respective fonts and assets.
 - `adapters/lvgl/` connects panel profiles to the shared LVGL runtime.
 - `assets/licenses/` keeps licenses beside generated display assets.
 
 Board profiles include `display.cmake` and declare a panel and LVGL adapter through
-the helper functions there. Common LVGL sources are added once by `mybot_display_add_lvgl_sources()`.
+the helper functions there. `mybot_display_add_lvgl_sources()` automatically selects
+`pixel_glasses_view.cc` for `MYBOT_BOARD=m5stack-core-s3`, including its expression policy,
+geometry/masks and terminal fonts; other display profiles keep `lvgl_view.cc` and the existing
+workflow assets. Both implement the common internal LVGL-view API. No manual renderer option
+is added, and headless profiles still omit LVGL.
 The renderer consumes semantic `mybot_lcd_content_t`; it does not own Wi-Fi, audio, or SDK state.
 For the provisioning title it copies the active SoftAP name through the Wi-Fi service's internal
 snapshot getter. The getter does not acquire the provisioning-operation lock or call the display.
 LVGL scrolls overflowing provisioning labels and stops their animations when leaving that screen.
+The CoreS3 adapter also owns copied one-shot expression requests and monotonic hold/phase timing;
+the existing LVGL task performs all drawing. Expressions are LCD-only. CoreS3's light-theme
+option remains compatible but its appearance is fixed process gray. See
+[`docs/CORES3_UI.md`](../../../../../docs/CORES3_UI.md) for all 23 faces and MCP timing.
 
 LVGL is the only renderer for all display boards; AtomEchoS3R and ReSpeaker Flex remain headless.
 `CONFIG_MYBOT_LVGL_UI` is derived from the selected board and is not a user-facing switch.

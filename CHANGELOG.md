@@ -7,7 +7,12 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Shared LVGL status UI for all eleven display-board profiles, with Chinese/English text,
+- CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
+  a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
+  Automatic faces follow READY/conversation phases; four MCP emotions use bounded holds,
+  replacement and same-name new-command replay. Expressions affect only the LCD.
+  `MYBOT_BOARD` selects the view automatically; other twelve profiles retain their UI/hardware.
+- Shared LVGL status UI for the other display-board profiles, with Chinese/English text,
   pairing codes, voiceprint status, and listening/thinking/speaking indicators.
 - LVGL light/dark themes, local state emoji, rounded status cards, persistent voiceprint
   indicators, and brief pairing/voiceprint/network notifications. Optional activity animations
@@ -51,7 +56,8 @@ Versioning and Conventional Commits.
   and main-button input.
 - M5Stack AtomEchoS3R headless Board profile with ES8311 audio and GPIO41 user-button input;
   hardware button mapping and 16 kHz audio remain unverified.
-- Real-device CoreS3 provisioning, bidirectional voice, 1 fps camera uplink, and LVGL UI validation.
+- Real-device CoreS3 provisioning, bidirectional voice, 1 fps camera uplink, and earlier
+  status-card LVGL UI validation; these results do not validate the new pixel-glasses view.
 - Agora RTM login and voice-print registration status displayed during active conversations.
 - RTM channel subscription support paired with Agora RTSA 1.10.1 build 1270872.
 - AOSL socket DSCP support required by the RTSA 1.10.1 network implementation.
@@ -67,12 +73,18 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Replace only the CoreS3 status-card renderer with the BK7259 `dc4c854` display implementation,
+  adapted to the existing ESP32 adapter/API. READY uses NEUTRAL; conversation entry uses
+  SURPRISED for 300 ms plus its 250 ms enabled transition, continuous thinking becomes
+  PROCESSING after three seconds, and MCP holds are 2/3/1.2/0.8 seconds plus transition.
+  CoreS3 keeps a fixed process-gray skin; its legacy light-theme field remains compatible.
+  Existing touch, audio, video auto-selection, power, memory and immutable SDK inputs are retained.
 - Update the language-derived device-service addresses to `https://botstation.shengwang.cn/api`
   for zh-CN and `https://botstation.agora.io/api` for en-US, matching the SDK's regional guidance.
 - Sync the MyBot SDK snapshot to `e7793eb` (1.2.0 plus post-release fixes), adding cloud
   volume/mute commands and moving status polls and stop notifications off the control worker.
-  Register the new device-command source in ESP-IDF. The shared LVGL view continues to ignore
-  the new optional emotion indicators.
+  Register the new device-command source in ESP-IDF. The shared workflow view on other boards
+  continues to ignore optional emotion indicators; CoreS3 maps them to pixel expressions.
 - Sync the MyBot SDK snapshot to `0643978` (1.2.0 plus post-release fixes), preventing control
   queue stalls, clearing pending starts on re-pairing, discarding stale announcement PCM, and
   hardening HTTP and JSON boundaries. The RTC queue limit increases from 64 to 1000 pending calls.

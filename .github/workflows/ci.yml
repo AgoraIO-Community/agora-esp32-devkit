@@ -19,7 +19,8 @@ jobs:
       - name: Format check
         run: |
           find main components/mybot_platform tests/atom_echos3r \
-            tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd -type f \
+            tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
+            tests/cores3_pixel_ui -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -exec clang-format --dry-run --Werror {} +
       - name: Whitespace check
@@ -38,7 +39,8 @@ jobs:
       - name: SPDX check
         run: |
           find main components/mybot_platform tests/atom_echos3r \
-            tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd -type f \
+            tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
+            tests/cores3_pixel_ui -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -print0 | while IFS= read -r -d '' file; do
               head -n 5 "$file" | grep -q 'SPDX-License-Identifier:' || {
@@ -54,6 +56,8 @@ jobs:
         run: sh tests/co5300_lifecycle/run.sh
       - name: Bread Compact Wi-Fi LCD host lifecycle tests
         run: sh tests/bread_compact_wifi_lcd/run.sh
+      - name: CoreS3 pixel UI host lifecycle tests
+        run: sh tests/cores3_pixel_ui/run.sh
       - name: Validate commit messages
         run: |
           set -e
