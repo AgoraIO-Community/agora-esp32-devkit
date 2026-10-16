@@ -4,6 +4,12 @@
 #include "cores3_hardware.h"
 #include "display/ili9342_panel.h"
 #include "display/lvgl_view.h"
+#if MYBOT_CORES3_PIXEL_UI
+#include "display/expression_policy.h"
+#include "display/pixel_glasses.h"
+#include "network/wifi_control.h"
+#include <mybot_platform/display_status.h>
+#endif
 
 #include <mybot/platform/mybot_lcd.h>
 
@@ -33,6 +39,13 @@ struct Context {
     bool cleanup_pending = false;
     unsigned users = 0;
     uint32_t flushing = 0;
+#if MYBOT_CORES3_PIXEL_UI
+    mybot_expression_policy_t policy{};
+    mybot_display_runtime_status_t runtime{};
+    /* Only new foreground commands/workflow changes advance this generation.
+     * Overlay refreshes must not affect the foreground display clock. */
+    uint32_t expression_generation = 0;
+#endif
 };
 
 Context context;
@@ -87,16 +100,57 @@ bool flush_completed(esp_lcd_panel_io_handle_t io, esp_lcd_panel_io_event_data_t
 void apply_snapshot(lv_timer_t *timer) {
     (void)timer;
     mybot_lcd_content_t snapshot{};
+#if MYBOT_CORES3_PIXEL_UI
+    mybot_display_runtime_status_t runtime{};
+    mybot_expression_t expression = MYBOT_EXPRESSION_NEUTRAL;
+    bool replay = false;
+    uint32_t generation;
+#if CONFIG_MYBOT_LVGL_UI_ANIMATIONS
+    constexpr uint32_t transition_ms = MYBOT_EXPRESSION_TRANSITION_MS;
+#else
+    constexpr uint32_t transition_ms = 0;
+#endif
+    const uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
+#endif
     portENTER_CRITICAL(&snapshot_lock);
     bool update = context.accepting && context.pending;
     if (update) {
         snapshot = context.latest;
         context.pending = false;
     }
+#if MYBOT_CORES3_PIXEL_UI
+    runtime = context.runtime;
+    generation = context.expression_generation;
+    const bool show =
+        context.accepting &&
+        mybot_expression_policy_select(&context.policy, now, transition_ms, &expression, &replay);
+#endif
     portEXIT_CRITICAL(&snapshot_lock);
     if (update) {
+#if MYBOT_CORES3_PIXEL_UI
+        char ssid[MYBOT_WIFI_PROVISIONING_SSID_CAPACITY]{};
+        if (snapshot.screen == MYBOT_LCD_SCREEN_WIFI_PROVISIONING)
+            (void)mybot_wifi_get_provisioning_ssid(ssid, sizeof(ssid));
+        mybot_pixel_glasses_update(&snapshot, ssid, &runtime);
+#else
         mybot_lvgl_view_update(&snapshot);
+#endif
     }
+#if MYBOT_CORES3_PIXEL_UI
+    /* The existing LVGL timer owns these calls. No critical section contains
+     * LVGL work, a Wi-Fi lock, allocation, or a blocking driver operation. */
+    if (show) {
+        const int result = replay ? mybot_pixel_glasses_replay_expression(expression)
+                                  : mybot_pixel_glasses_show_expression(expression);
+        if (result == 0) {
+            const uint32_t displayed_at = (uint32_t)(esp_timer_get_time() / 1000);
+            portENTER_CRITICAL(&snapshot_lock);
+            if (context.accepting && generation == context.expression_generation)
+                mybot_expression_policy_displayed(&context.policy, displayed_at);
+            portEXIT_CRITICAL(&snapshot_lock);
+        }
+    }
+#endif
 }
 
 /* Called with the lifecycle mutex, without the LVGL mutex. Board/SDK reference
@@ -106,6 +160,10 @@ int release_display() {
     portENTER_CRITICAL(&snapshot_lock);
     context.accepting = false;
     context.pending = false;
+#if MYBOT_CORES3_PIXEL_UI
+    mybot_expression_policy_cancel(&context.policy);
+    ++context.expression_generation;
+#endif
     portEXIT_CRITICAL(&snapshot_lock);
     if (context.display) {
         if (!lvgl_port_lock(UI_LOCK_TIMEOUT_MS)) {
@@ -229,6 +287,12 @@ int initialize(void **out_ctx) {
     portENTER_CRITICAL(&snapshot_lock);
     context.latest = {};
     context.latest.screen = MYBOT_LCD_SCREEN_STARTING;
+#if MYBOT_CORES3_PIXEL_UI
+    mybot_expression_policy_init(&context.policy);
+    context.runtime = {};
+    strcpy(context.runtime.state, "stopped");
+    ++context.expression_generation;
+#endif
     context.pending = true;
     context.accepting = true;
     portEXIT_CRITICAL(&snapshot_lock);
@@ -274,12 +338,48 @@ int render(void *opaque, const mybot_lcd_content_t *content) {
         }
         memcpy(snapshot.pair_code, content->pair_code, length);
     }
+#if MYBOT_CORES3_PIXEL_UI
+    mybot_expression_t expression = MYBOT_EXPRESSION_NEUTRAL;
+    const uint32_t emotion = snapshot.indicators & MYBOT_LCD_INDICATOR_EMOTION_MASK;
+    switch (emotion) {
+    case MYBOT_LCD_INDICATOR_NONE:
+        break;
+    case MYBOT_LCD_INDICATOR_HAPPY:
+        expression = MYBOT_EXPRESSION_HAPPY;
+        break;
+    case MYBOT_LCD_INDICATOR_SAD:
+        expression = MYBOT_EXPRESSION_SAD;
+        break;
+    case MYBOT_LCD_INDICATOR_ANGRY:
+        expression = MYBOT_EXPRESSION_ANNOYED;
+        break;
+    case MYBOT_LCD_INDICATOR_SURPRISED:
+        expression = MYBOT_EXPRESSION_SURPRISED;
+        break;
+    default:
+        return -1;
+    }
+    const uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
+#endif
     if (!lock_lifecycle()) {
         return -1;
     }
     int result = -1;
     portENTER_CRITICAL(&snapshot_lock);
     if (context.accepting && context.users) {
+#if MYBOT_CORES3_PIXEL_UI
+        const bool screen_changed = context.policy.screen != snapshot.screen;
+        mybot_expression_policy_update(&context.policy, &snapshot, now);
+        if (emotion) {
+            (void)mybot_expression_policy_mcp(&context.policy, expression);
+        }
+        if (screen_changed || emotion) {
+            ++context.expression_generation;
+            context.pending = true;
+        }
+        /* Consume one-shot commands before retaining the coalesced snapshot. */
+        snapshot.indicators &= ~MYBOT_LCD_INDICATOR_EMOTION_MASK;
+#endif
         if (memcmp(&snapshot, &context.latest, sizeof(snapshot)) != 0) {
             context.latest = snapshot;
             context.pending = true;
@@ -300,6 +400,14 @@ void destroy(void *opaque) {
     }
     if (context.users > 1) {
         --context.users;
+#if MYBOT_CORES3_PIXEL_UI
+        portENTER_CRITICAL(&snapshot_lock);
+        mybot_expression_policy_cancel(&context.policy);
+        ++context.expression_generation;
+        context.latest.indicators = MYBOT_LCD_INDICATOR_NONE;
+        context.pending = true;
+        portEXIT_CRITICAL(&snapshot_lock);
+#endif
         ESP_LOGI(TAG, "event=lcd action=detach backend=lvgl references=%u", context.users);
     } else if (context.users || context.cleanup_pending) {
         if (release_display() < 0) {
@@ -317,3 +425,27 @@ const mybot_lcd_ops_t ops = {initialize, render, destroy};
 extern "C" const mybot_lcd_ops_t *mybot_cores3_lcd_ops(void) {
     return &ops;
 }
+
+#if MYBOT_CORES3_PIXEL_UI
+extern "C" int mybot_display_set_runtime_status(const char *state, bool in_conversation) {
+    if (!state || !state[0] ||
+        strnlen(state, MYBOT_DISPLAY_STATE_CAPACITY) >= MYBOT_DISPLAY_STATE_CAPACITY ||
+        !lock_lifecycle()) {
+        return -1;
+    }
+    int result = -1;
+    portENTER_CRITICAL(&snapshot_lock);
+    if (context.accepting && context.users) {
+        if (strcmp(context.runtime.state, state) != 0 ||
+            context.runtime.in_conversation != in_conversation) {
+            strcpy(context.runtime.state, state);
+            context.runtime.in_conversation = in_conversation;
+            context.pending = true;
+        }
+        result = 0;
+    }
+    portEXIT_CRITICAL(&snapshot_lock);
+    unlock_lifecycle();
+    return result;
+}
+#endif

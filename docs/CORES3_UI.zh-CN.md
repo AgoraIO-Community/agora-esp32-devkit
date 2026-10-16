@@ -1,117 +1,127 @@
-# CoreS3 LVGL UI（共享界面参考）
+# CoreS3 工艺灰像素眼镜 UI
 
 [English](CORES3_UI.md) | [简体中文](CORES3_UI.zh-CN.md)
 
-`m5stack-core-s3` 统一使用 LVGL 显示后端，其他 LCD 板型复用同一语义界面，详见
-[平台 UI](PLATFORM_UI.zh-CN.md)。板级配置自动设置隐藏的 `CONFIG_MYBOT_LVGL_UI`。
-无需选择渲染器或额外启用 UI，主题及状态活动动画仍可配置。
+`MYBOT_BOARD=m5stack-core-s3` 自动为320 × 240 ILI9342屏选择工艺灰像素眼镜界面，复用原
+CoreS3 LVGL适配器及公共LCD视图接口。不增加手工渲染器开关，无需覆盖隐藏的
+`CONFIG_MYBOT_LVGL_UI`。其他十二个Board profile保留原UI与硬件行为，见
+[平台UI](PLATFORM_UI.zh-CN.md)。
+
+本视图替换CoreS3旧状态卡片。音频、摄像头/视频策略、FT6336触摸手势、电源、引脚、PSRAM
+和分区仍采用原板级配置；短触开始/结束会话、长按三秒配网保持。MyBot SDK、AOSL与Agora
+RTSA快照不变。
 
 ## 显示内容
 
-界面覆盖现有十种流程页面：启动、Wi-Fi 配网、Wi-Fi 断开、服务启动、配对、配对码、
-就绪、对话、失败及停止，通过圆角状态卡和本地表情区分不同状态。对话过程中常驻显示
-声纹注册状态，同时显示聆听/思考/说话状态。
-静态文案跟随固件的中英文语言设置，配对码仍动态显示。
+外观参考模拟器 `process`（工艺灰）皮肤与 `geek`（像素眼镜），使用固定 `#050708` 黑色
+玻璃底、灰色装饰及像素镜框。四行终端显示产品标识、表情名称、运行/会话状态及realtime
+签名，正文使用9 px字库，`</>`使用10 px。会话状态行显示聆听/思考/说话及
+`vp:ok`或`vp:pending`；声纹变化不额外弹通知。图案表示语义状态，不测量麦克风幅度。
 
-Wi-Fi 配网页面中央显示实际设备 SoftAP 名称（`mybot-xxxx`），底部根据语言显示
-“请连接设备热点”或“Connect to device Wi-Fi”。标题与提示仅在超出可用宽度时由 LVGL
-循环滚动，短文字保持静止，离开配网页面后停止滚动。
-SSID 读取自实际启用的 AP，UI 不再自行计算 MAC。若名称不可用，标题保留“Wi-Fi 配网”
-或“Wi-Fi setup”，串口打印 `event=provision_ap action=read_ssid result=unavailable`。
+仍支持SDK全部十种流程页。启动、配网、断网、服务启动、配对、配对码、错误和停止保留
+中英文必要引导。配网显示实际启用的SoftAP SSID，无法取得时使用通用配网标题。
+超宽SSID/提示仍按需滚动，关闭表情动画后也可滚动，离开对应引导页面停止。
 
-观察到配对成功、声纹注册或网络恢复的状态变化时，顶部会显示最多两秒的短时通知，不遮挡
-配对数字，也不替换对话中的声纹指示。重复的相同状态不会反复触发通知，切换到其他流程
-页面时会提前清除上一条通知。
+配对页提示在网页控制台输入配对码。CoreS3六位数字配对码固定使用32 px字体，不缩小适配。
+中文引导复用原20 px思源黑体子集，字形覆盖产品文案，不覆盖任意中文聊天正文。
 
-聆听/思考/说话通过小范围点状或条状动画指示活动，最高 5 fps（每 200 ms 更新一步）。
-状态切换和配网字幕保留原有刷新行为。这些动画表示 SDK 状态，
-不测量实际音频幅度。退出活动状态时停止状态动画；配网文字仍可按需滚动。
+## 自动表情与MCP命令
 
-UI 接收现有 SDK 公共 LCD 内容及板级配网状态，不增加聊天正文、云端情绪消息、GIF 动画、
-电量显示或新的网络/SDK 协议。内置字库覆盖静态界面文案，不用于任意中文聊天文本。
-短触屏幕仍开始/结束对话，长按屏幕三秒仍进入 Wi-Fi 配网。
+| 状态或受理的新命令 | 表情与保持时间 |
+| --- | --- |
+| READY / 挂断返回 | NEUTRAL |
+| 进入会话 | SURPRISED保持300 ms，另计进入过渡 |
+| LISTENING | LISTENING |
+| THINKING | THINKING；连续三秒后PROCESSING |
+| SPEAKING / 无阶段 | NEUTRAL |
+| MCP `emotion.happy` | HAPPY，2000 ms |
+| MCP `emotion.sad` | SAD，3000 ms |
+| MCP `emotion.angry` | ANNOYED，1200 ms |
+| MCP `emotion.surprised` | SURPRISED，800 ms |
 
-## 主题与动画设置
+开启动画时，每次保持另加250 ms进入过渡，会话开场同样另计；关闭动画时只有保持时间。
+新受理MCP命令替换未结束的前景，同名新命令也重播；SDK原有command ID去重仍生效。
+普通阶段/声纹更新不重置保持计时，到期恢复最新自动表情；后台思考已满三秒时恢复
+PROCESSING。离开会话或SDK解挂会清除表情计时，必要引导优先。全部表情仅控制LCD，
+不发送电机命令。
 
-带屏板型可在 menuconfig 的 `mybot` 菜单调整：
+完整23表情如下：
 
-| 配置 | 默认值 | 作用 |
-| --- | --- | --- |
-| `CONFIG_MYBOT_LVGL_UI_LIGHT_THEME` | `n` | 默认深色主题，设为 `y` 使用浅色主题 |
-| `CONFIG_MYBOT_LVGL_UI_ANIMATIONS` | `y` | 开启状态活动动画，设为 `n` 保持静态指示 |
+```text
+NEUTRAL, GREETING, HAPPY, EXCITED, CURIOUS, CONFUSED, THINKING, LISTENING,
+SURPRISED, SHY, PROUD, LOVE, SLEEPY, BORED, SAD, PLEADING, APOLOGY, WORRIED,
+ANNOYED, REFUSE, PROCESSING, ERROR, SLEEP
+```
 
-两项均在编译时确定，不增加切换主题或动画的新触摸手势。
-`CONFIG_MYBOT_LVGL_UI_ANIMATIONS` 只控制状态活动动画，关闭后仍保留状态切换、本地表情、
-事件通知及必要的配网文字滚动。
+GREETING及其余预置图案保留，不自动演示轮播。ERROR和SLEEP图案不改变SDK运行状态，也不
+使设备休眠。CoreS3适配器在原有复制投递LCD状态流程中维护表情计时，现有LVGL任务渲染，
+不新增UI线程或UTC时钟依赖。
+
+## 主题与动画
+
+| 配置 | CoreS3行为 |
+| --- | --- |
+| `CONFIG_MYBOT_LVGL_UI_LIGHT_THEME` | 保留已有配置兼容；像素视图始终使用工艺灰 |
+| `CONFIG_MYBOT_LVGL_UI_ANIMATIONS` | 控制表情运动、250 ms切换及光标动画；关闭后保留状态变化、保持到期和必要引导滚动 |
+
+其他带屏板型继续使用共享流程视图的明暗主题与活动动画规则。不增加切换主题或选择表情的
+触摸手势。
 
 ## 编译与烧录
 
-使用 ESP-IDF v5.5.2，并创建独立构建目录和 sdkconfig：
+使用ESP-IDF v5.5.2。标准构建脚本选择CoreS3与中英文，默认 `--video auto` 根据既有板级
+能力开启CoreS3视频：
 
 ```sh
-idf.py -B build/cores3-lvgl-ui \
-  -DMYBOT_BOARD=m5stack-core-s3 \
-  -DSDKCONFIG=build/cores3-lvgl-ui/sdkconfig \
-  -DSDKCONFIG_DEFAULTS=sdkconfig.defaults build
-idf.py -B build/cores3-lvgl-ui -p <PORT> flash monitor
+python3 scripts/build_all.py --board m5stack-core-s3 --language both \
+  --build-root /tmp/mybot-cores3-pixel-build \
+  --output-root /tmp/mybot-cores3-pixel-firmware
 ```
 
-默认使用中文、关闭视频、深色主题并开启状态动画。比较不同组合时，请使用独立目录：
+中间产物与固件写入上述独立目录；脚本默认清理所选输出目录，增量构建可加 `--no-clean`。
+`--dry-run`仅打印计划，`--video off`用于无视频对比；这些选项均不切换渲染器。
 
-| 组合 | 建议构建目录 | `SDKCONFIG_DEFAULTS` |
-| --- | --- | --- |
-| 中文、视频关闭 | `build/cores3-lvgl-ui` | `sdkconfig.defaults` |
-| 英文、视频关闭 | `build/cores3-lvgl-ui-en` | `sdkconfig.defaults;ci/en-us.defaults` |
-| 中文、视频开启 | `build/cores3-lvgl-ui-video` | `sdkconfig.defaults;ci/video.defaults` |
-| 英文、视频开启 | `build/cores3-lvgl-ui-video-en` | `sdkconfig.defaults;ci/en-us.defaults;ci/video.defaults` |
-| 英文、浅色主题、视频关闭 | `build/cores3-lvgl-ui-light-en` | `sdkconfig.defaults;ci/lvgl-ui-light.defaults;ci/en-us.defaults` |
-| 中文、静态指示、视频开启 | `build/cores3-lvgl-ui-static-video` | `sdkconfig.defaults;ci/lvgl-ui-static.defaults;ci/video.defaults` |
+直接使用IDF时按所选sdkconfig/defaults构建，不包含脚本额外追加的自动视频配置，例如：
 
-将命令中的 `-B`、`-DSDKCONFIG` 同时改为选定目录，并使用对应的 defaults 列表。
-所有带屏板型自动编入此 UI。修改 defaults 不会覆盖已生成的 sdkconfig，请使用新的
-sdkconfig，或通过 `menuconfig` 修改主题和动画选项。浅色/静态 defaults 文件仅修改对应选项。
+```sh
+idf.py -B build/cores3-pixel \
+  -DMYBOT_BOARD=m5stack-core-s3 \
+  -DSDKCONFIG=build/cores3-pixel/sdkconfig \
+  -DSDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build/cores3-pixel -p <PORT> flash monitor
+```
 
-## 渲染与资源
+语言、视频、动画对比使用独立sdkconfig，defaults不会覆盖已保存值；构建验证单独记录于下文。
 
-UI 任务运行于 Core 1，优先级为 1。LVGL 对象使用 PSRAM，SPI 使用单个 320 × 16 的
-RGB565 内部 DMA 缓冲，共 10,240 字节。通过局部刷新更新变化区域，不再复制完整缓存页，
-也不分配图像缓存或全屏页面缓存。
-DMA 缓冲并非显示模块的总内存：UI 任务另有 7 KiB 栈，对象、绘制临时空间、同步对象及
-总线描述符也需要内存。
+## 渲染、资源与来源
 
-四个 64 × 64 本地表情预先解码为常量图像保存在 Flash，像素数据合计约 64 KiB。
-运行时不需要 PNG/GIF 解码器或大幅解码图像缓存；活动效果限于状态指示与超宽配网文字，
-表情图像本身保持静态。
+现有LVGL任务运行于Core 1、优先级1。对象与绘制临时空间使用PSRAM，SPI继续使用
+320 × 16 RGB565条带，即10,240字节内部DMA内存；UI线程栈、驱动和同步资源另计。
+局部刷新不增加全屏页面缓存或整脸解码缓冲。
 
-提交状态时只复制最新 LCD 内容并唤醒 UI 任务，由 50 ms 的 LVGL 定时器应用待更新内容，
-快速连续变化的中间状态可能合并。SDK 回调不执行绘图或等待 SPI 传输，板级配网和 SDK
-对话通过引用计数共用显示资源。
+固定LVGL控件和曲线绘制表情，五个不可变A8蒙版保存心形、星形、椭圆、脸颊与眼泪，
+alpha数据合计13,631字节，不含描述符。终端字库由DejaVu Sans Mono Bold派生并重命名，
+保留Bitstream Vera许可；思源黑体UI子集仍为SIL OFL 1.1。蒙版与终端字库仅编入CoreS3
+像素渲染器，其他板型仍用原状态卡片图像。
 
-共享布局适应各面板尺寸，窄屏英文使用小字体，中文保留对应字形。配网 SSID 使用易读的
-20 px 字体，配对数字根据可用宽度缩小。StickS3 的具体规则见[平台 UI](PLATFORM_UI.zh-CN.md)。
-SDK 公共接口保持不变。
+显示实现及生成器来源为 `mybot-bk7259` 中的 `bk_solution_ai`（`github.com/junlon2006/bk_solution_ai`）提交
+`dc4c85492bcf00f780c92d56c6cba2a362f54f68`，保留各文件MIT/Apache-2.0声明及既有显示许可。
+视觉/几何参考用户提供的threejs模拟器，未见模拟器独立许可证声明，不为其另行指定许可。
+详情见[依赖基线](../VENDORED_SOURCES.md)及[第三方声明](../THIRD_PARTY_NOTICES.md)。
 
-生命周期日志使用 `event=lcd` 和 `backend=lvgl`。通过 CPU/堆统计、生命周期日志及实际
-显示效果评估 UI；播放统计不包含 LVGL 的绘制/刷新耗时。
+## 验证状态
 
-## 真机验收
+首轮CoreS3中英文通过ESP-IDF v5.5.2标准脚本构建，自动开启视频、60 ms音频包长：
+zh-CN耗时38秒、en-US耗时37秒，总计1分16秒。这是构建验证，不是硬件结果；宿主预览与
+真机回归仍需分别检查。此前CoreS3真机结果属于旧状态卡片及已有音频/摄像头/输入通路，
+不代表新像素渲染器通过。仍需完成：
 
-此前的 CoreS3 LVGL UI 已通过真机测试，仅保留 LVGL 的清理及配网热点名称/滚动改动仍需真机回归。
-CI 覆盖四种中英文/视频组合及浅色主题、静态指示变体；编译和主机检查
-不能证明真实设备上的听音或显示效果。
+- 在320 × 240屏上检查两种语言、十种引导页面及23个表情。
+- 检查四行独立终端、签名及固定大号六位配对码。
+- 验证SURPRISED开场、阶段变化、三秒思考超时、MCP替换、同名新命令重播及保持到期。
+- 开关动画，检查超宽SSID/提示滚动及网页控制台配对。
+- 回归短触、三秒配网、断网恢复和反复SDK启停。
+- 视频关闭及原1 fps摄像头上行开启时分别验证全双工音频。
+- 记录CPU、内部/PSRAM峰值、最小空闲堆及最大连续块，多轮会话观察资源释放和内存增长。
 
-用于发布前，请完成以下验证：
-
-- 检查方向、红绿蓝颜色、小字、大号配对数字及全部十种页面。
-- 验证声纹及聆听/思考/说话状态，包括快速切换和挂断。
-- 验证明暗主题及动画开关，确认非对话页面停止状态活动动画、事件通知两秒内或流程切换时消失，
-  配对码和声纹状态始终可读。
-- 验证短触及长按三秒配网、首次启动配网、Wi-Fi 断线恢复，以及反复 SDK 停止/启动，
-  确认没有旧画面残留或黑屏。
-- 确认显示的配网 SSID 与实际热点一致，超宽标题/提示滚动、短文字静止、退出配网停止滚动；
-  关闭状态活动动画后重复验证。
-- 界面更新时持续进行全双工语音，检查沙沙声；保持相同音量、网络，开启 1 fps 视频后重复测试。
-- 通过 `CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR` 记录每核 CPU、内部 RAM/PSRAM 峰值、
-  最低剩余堆及最大连续空闲块，多轮会话确认内存没有持续增长。
-
-每份结果记录固件语言、板型、视频/主题/动画配置、音量和完整串口日志。
+结果需包含板型、固件语言、视频/动画配置、音量及串口日志。
