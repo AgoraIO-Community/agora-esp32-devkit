@@ -9,6 +9,9 @@
 compile_commands.json
 *.bin
 
+# Python host-test caches
+__pycache__/
+
 # Compiled objects and libraries
 *.d
 *.o

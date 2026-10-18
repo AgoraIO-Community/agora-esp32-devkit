@@ -93,9 +93,17 @@ python3 scripts/build_all.py --board m5stack-core-s3 --language both \
   --output-root /tmp/mybot-cores3-pixel-firmware
 ```
 
-Build and firmware outputs stay in those isolated roots. The script cleans its selected output
-roots unless `--no-clean` is supplied. Use `--dry-run` to inspect commands or `--video off` for an
-audio/UI comparison; neither option selects another renderer.
+Build and firmware outputs stay in those dedicated, separate roots; they must not contain each
+other, `..` path components, or symbolic-link components. On macOS use `/private/tmp/` instead of
+the `/tmp/` alias. Repository-local roots must stay within `build/` or `releases/`.
+
+The script marks new or empty roots with `.mybot-generated-root.json` and cleans them by default.
+Existing nonempty roots without a matching marker are refused, even with `--no-clean`. Inspect and
+move older directories aside or choose fresh roots; do not create markers manually. `--no-clean`
+preserves data while still checking ownership. `--dry-run` validates the same restrictions without
+creating directories or markers. Cleanup requires POSIX safe directory handling and Python 3.11+
+and is refused otherwise. Use `--video off` for an audio/UI comparison; these options do not select
+another renderer.
 
 A direct IDF build uses its selected sdkconfig/defaults, without the builder's automatic video
 addition. For example:
