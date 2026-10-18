@@ -183,6 +183,9 @@ Versioning and Conventional Commits.
 
 ### Fixed
 
+- Restrict batch-builder cleanup to dedicated, owned generated directories. Reject repository
+  ancestors, source directories, symlink components, traversal and overlapping roots before any
+  cleanup; preserve unmarked existing data and anchor child deletion to directory descriptors.
 - Keep AMOLED 2.16 preparation idempotent and retry pending input/hardware cleanup before a
   new initialization attempt.
 - Register the nested runtime components so clean CI builds resolve `mybot_sdk`, AOSL, and RTSA.

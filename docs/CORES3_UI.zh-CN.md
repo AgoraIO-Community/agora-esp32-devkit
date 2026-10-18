@@ -82,8 +82,15 @@ python3 scripts/build_all.py --board m5stack-core-s3 --language both \
   --output-root /tmp/mybot-cores3-pixel-firmware
 ```
 
-中间产物与固件写入上述独立目录；脚本默认清理所选输出目录，增量构建可加 `--no-clean`。
-`--dry-run`仅打印计划，`--video off`用于无视频对比；这些选项均不切换渲染器。
+中间产物与固件写入上述专用且互不嵌套的目录；路径不得包含 `..` 或符号链接分量。
+macOS 请将示例中的 `/tmp/` 别名换成 `/private/tmp/`。仓库内的根目录仅允许位于
+`build/` 或 `releases/` 目录树中。
+
+脚本为新建或空目录写入 `.mybot-generated-root.json` 标记，默认先清理这些目录。
+已有非空目录若缺少匹配的标记，即使使用 `--no-clean` 也会拒绝。请检查旧目录并将其移到
+其他位置，或使用新目录，不要手工创建标记。`--no-clean` 保留数据但仍检查归属；
+`--dry-run` 执行相同检查，不创建目录或标记。清理需要 POSIX 安全目录操作和 Python 3.11
+及以上版本，不满足时拒绝清理。`--video off` 用于无视频对比；这些选项均不切换渲染器。
 
 直接使用IDF时按所选sdkconfig/defaults构建，不包含脚本额外追加的自动视频配置，例如：
 
