@@ -73,6 +73,9 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Sync the MyBot SDK snapshot to `39d5ed1` (1.2.0 plus post-release fixes), accepting cloud
+  `message.user` envelopes with absolute and relative volume commands. Remove MCP mute,
+  expression, and bare-command parsing upstream; retain the platform's LCD emotion rendering.
 - Replace only the CoreS3 status-card renderer with the BK7259 `dc4c854` display implementation,
   adapted to the existing ESP32 adapter/API. READY uses NEUTRAL; conversation entry uses
   SURPRISED for 300 ms plus its 250 ms enabled transition, continuous thinking becomes

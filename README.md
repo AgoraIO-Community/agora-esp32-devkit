@@ -391,12 +391,13 @@ continuous feeding with and without capture; normal firmware uses the same buffe
 
 The [CoreS3 pixel-glasses UI](docs/CORES3_UI.md) uses the fixed process-gray skin on its 320x240
 screen, with 23 expressions, four 9 px terminal rows, a 10 px signature and fixed 32 px six-digit
-pairing codes. Automatic READY/conversation faces follow SDK phases; four MCP emotions trigger
-temporary LCD-only expressions, including replay for a new same-name command. Voiceprint/session
-text and bilingual operational guidance remain available. The view reuses partial redraws and
-the 10 KiB DMA stripe; no renderer-selection flag is needed. The old light-theme field is kept
-for compatibility; expression animation remains configurable. Touch, audio, camera, power,
-pins, PSRAM and partitions retain their existing board configuration.
+pairing codes. Automatic READY/conversation faces follow SDK phases; four optional one-shot LCD
+emotion indicators trigger temporary expressions, including replay of the same indicator. The
+current SDK MCP path accepts only volume commands and does not emit emotion indicators.
+Voiceprint/session text and bilingual operational guidance remain available. The view reuses
+partial redraws and the 10 KiB DMA stripe; no renderer-selection flag is needed. The old
+light-theme field is kept for compatibility; expression animation remains configurable. Touch,
+audio, camera, power, pins, PSRAM and partitions retain their existing board configuration.
 
 All supported display boards automatically use LVGL as their only rendering backend. See
 [platform UI](docs/PLATFORM_UI.md) for panel sizes, adapter coverage, build variants, and validation limits.

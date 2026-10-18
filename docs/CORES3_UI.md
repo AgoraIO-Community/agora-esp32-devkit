@@ -31,24 +31,29 @@ The pairing page directs users to the web console. A six-digit numeric pairing c
 fixed 32 px font on CoreS3; it does not shrink to fit. Chinese guidance reuses the existing
 20 px Source Han Sans subset. That subset covers product UI text, not arbitrary Chinese chat.
 
-## Automatic faces and MCP commands
+## Automatic faces and optional LCD indicators
 
-| State or new accepted command | Face and hold |
+The public LCD interface retains four optional one-shot emotion indicators. The current SDK MCP
+path accepts only `audio.set_volume` and `audio.adjust_volume` inside a `message.user` envelope;
+it does not emit these emotion indicators. The table describes renderer behavior when indicators
+are submitted, as exercised by the LCD adapter host tests.
+
+| State or submitted LCD indicator | Face and hold |
 | --- | --- |
 | READY / return from a conversation | NEUTRAL |
 | Enter a conversation | SURPRISED for 300 ms, plus entering transition |
 | LISTENING | LISTENING |
 | THINKING | THINKING; PROCESSING after three continuous seconds |
 | SPEAKING / no active phase | NEUTRAL |
-| MCP `emotion.happy` | HAPPY for 2000 ms |
-| MCP `emotion.sad` | SAD for 3000 ms |
-| MCP `emotion.angry` | ANNOYED for 1200 ms |
-| MCP `emotion.surprised` | SURPRISED for 800 ms |
+| `MYBOT_LCD_INDICATOR_HAPPY` | HAPPY for 2000 ms |
+| `MYBOT_LCD_INDICATOR_SAD` | SAD for 3000 ms |
+| `MYBOT_LCD_INDICATOR_ANGRY` | ANNOYED for 1200 ms |
+| `MYBOT_LCD_INDICATOR_SURPRISED` | SURPRISED for 800 ms |
 
 With animations enabled, each entering transition adds 250 ms before its hold, including the
-conversation opener. With animations disabled, only the hold remains. A new accepted MCP command
-replaces the unfinished foreground and replays even the same expression name. SDK command-ID
-deduplication still applies. Ordinary phase/voiceprint updates do not restart the hold.
+conversation opener. With animations disabled, only the hold remains. Each submitted emotion
+indicator replaces the unfinished foreground and replays even the same expression name.
+Ordinary phase/voiceprint updates do not restart the hold.
 Expiry restores the latest automatic face, including PROCESSING if thinking has continued for
 three seconds in the background. Leaving a conversation or detaching the SDK cancels its
 expression timers. Operational guidance takes precedence. All expressions are LCD-only and send
@@ -138,8 +143,9 @@ input paths. They do not validate this new pixel renderer. Real-device testing r
 
 - Check all ten guidance screens and 23 expressions in both languages on the 320 × 240 panel.
 - Verify four separate terminal rows, the signature and full-size six-digit pairing codes.
-- Verify the SURPRISED opener, phase changes, three-second thinking timeout, MCP replacement,
-  same-name new-command replay and expiry; phase/voiceprint updates must preserve hold timing.
+- Verify the SURPRISED opener, phase changes and three-second thinking timeout. Inject optional
+  LCD emotion indicators to test replacement, same-indicator replay and expiry; phase/voiceprint
+  updates must preserve hold timing. The SDK MCP path cannot trigger these expression tests.
 - Test animation enabled/disabled, overflowing SSID/instructions, and web-console pairing.
 - Regress short touch, three-second provisioning, Wi-Fi recovery and repeated SDK stop/start.
 - Run full-duplex audio with video off and with the existing 1 fps camera uplink enabled.
