@@ -58,6 +58,8 @@ jobs:
         run: sh tests/bread_compact_wifi_lcd/run.sh
       - name: CoreS3 pixel UI host lifecycle tests
         run: sh tests/cores3_pixel_ui/run.sh
+      - name: Build output cleanup safety tests
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/build_all -p 'test_*.py' -v
       - name: Validate commit messages
         run: |
           set -e

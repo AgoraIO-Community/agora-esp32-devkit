@@ -25,22 +25,26 @@ RTSA快照不变。
 配对页提示在网页控制台输入配对码。CoreS3六位数字配对码固定使用32 px字体，不缩小适配。
 中文引导复用原20 px思源黑体子集，字形覆盖产品文案，不覆盖任意中文聊天正文。
 
-## 自动表情与MCP命令
+## 自动表情与可选LCD指示
 
-| 状态或受理的新命令 | 表情与保持时间 |
+公共LCD接口保留四种可选的一次性情绪指示。当前SDK MCP通路仅接受`message.user`封装内的
+`audio.set_volume`与`audio.adjust_volume`，不产生这些情绪指示。下表描述提交指示时的
+渲染器行为，LCD适配器宿主测试通过直接提交指示验证。
+
+| 状态或提交的LCD指示 | 表情与保持时间 |
 | --- | --- |
 | READY / 挂断返回 | NEUTRAL |
 | 进入会话 | SURPRISED保持300 ms，另计进入过渡 |
 | LISTENING | LISTENING |
 | THINKING | THINKING；连续三秒后PROCESSING |
 | SPEAKING / 无阶段 | NEUTRAL |
-| MCP `emotion.happy` | HAPPY，2000 ms |
-| MCP `emotion.sad` | SAD，3000 ms |
-| MCP `emotion.angry` | ANNOYED，1200 ms |
-| MCP `emotion.surprised` | SURPRISED，800 ms |
+| `MYBOT_LCD_INDICATOR_HAPPY` | HAPPY，2000 ms |
+| `MYBOT_LCD_INDICATOR_SAD` | SAD，3000 ms |
+| `MYBOT_LCD_INDICATOR_ANGRY` | ANNOYED，1200 ms |
+| `MYBOT_LCD_INDICATOR_SURPRISED` | SURPRISED，800 ms |
 
 开启动画时，每次保持另加250 ms进入过渡，会话开场同样另计；关闭动画时只有保持时间。
-新受理MCP命令替换未结束的前景，同名新命令也重播；SDK原有command ID去重仍生效。
+每次提交情绪指示都会替换未结束的前景，重复提交同一指示也会重播。
 普通阶段/声纹更新不重置保持计时，到期恢复最新自动表情；后台思考已满三秒时恢复
 PROCESSING。离开会话或SDK解挂会清除表情计时，必要引导优先。全部表情仅控制LCD，
 不发送电机命令。
@@ -78,8 +82,15 @@ python3 scripts/build_all.py --board m5stack-core-s3 --language both \
   --output-root /tmp/mybot-cores3-pixel-firmware
 ```
 
-中间产物与固件写入上述独立目录；脚本默认清理所选输出目录，增量构建可加 `--no-clean`。
-`--dry-run`仅打印计划，`--video off`用于无视频对比；这些选项均不切换渲染器。
+中间产物与固件写入上述专用且互不嵌套的目录；路径不得包含 `..` 或符号链接分量。
+macOS 请将示例中的 `/tmp/` 别名换成 `/private/tmp/`。仓库内的根目录仅允许位于
+`build/` 或 `releases/` 目录树中。
+
+脚本为新建或空目录写入 `.mybot-generated-root.json` 标记，默认先清理这些目录。
+已有非空目录若缺少匹配的标记，即使使用 `--no-clean` 也会拒绝。请检查旧目录并将其移到
+其他位置，或使用新目录，不要手工创建标记。`--no-clean` 保留数据但仍检查归属；
+`--dry-run` 执行相同检查，不创建目录或标记。清理需要 POSIX 安全目录操作和 Python 3.11
+及以上版本，不满足时拒绝清理。`--video off` 用于无视频对比；这些选项均不切换渲染器。
 
 直接使用IDF时按所选sdkconfig/defaults构建，不包含脚本额外追加的自动视频配置，例如：
 
@@ -120,7 +131,8 @@ zh-CN耗时38秒、en-US耗时37秒，总计1分16秒。这是构建验证，不
 
 - 在320 × 240屏上检查两种语言、十种引导页面及23个表情。
 - 检查四行独立终端、签名及固定大号六位配对码。
-- 验证SURPRISED开场、阶段变化、三秒思考超时、MCP替换、同名新命令重播及保持到期。
+- 验证SURPRISED开场、阶段变化、三秒思考超时；注入可选LCD情绪指示，检查替换、同一指示
+  重播及保持到期，阶段/声纹更新不得重置保持计时。SDK MCP通路不能触发这些表情测试。
 - 开关动画，检查超宽SSID/提示滚动及网页控制台配对。
 - 回归短触、三秒配网、断网恢复和反复SDK启停。
 - 视频关闭及原1 fps摄像头上行开启时分别验证全双工音频。

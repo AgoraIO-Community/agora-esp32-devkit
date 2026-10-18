@@ -40,8 +40,10 @@ AMOLED 2.16 使用零 panel gap 与 40 MHz QSPI；CO5300 传输区域两个方�
 仅CoreS3使用固定工艺灰皮肤、23表情及四行终端，正文9 px、签名10 px，六位数字配对码
 固定32 px。READY为NEUTRAL；进入会话SURPRISED保持300 ms并另计进入过渡。LISTENING、
 THINKING显示对应表情，连续思考三秒后转PROCESSING，SPEAKING/无阶段时NEUTRAL。
-四种MCP情绪临时覆盖当前图案，同名新命令重播，分别保持2000/3000/1200/800 ms；
-开启动画时另加250 ms进入过渡。仅控制LCD，具体规则、资源与验证见[CoreS3 UI](CORES3_UI.zh-CN.md)。
+四种可选的一次性LCD情绪指示临时覆盖当前图案，每次提交都会重播，分别保持
+2000/3000/1200/800 ms；开启动画时另加250 ms进入过渡。当前SDK MCP通路仅接受
+`message.user`封装内的`audio.set_volume`与`audio.adjust_volume`，不产生情绪指示。
+仅控制LCD，具体规则、资源与验证见[CoreS3 UI](CORES3_UI.zh-CN.md)。
 
 CoreS3保留浅色主题字段兼容但不改变像素皮肤；动画开关控制表情运动/切换，关闭后仍推进
 状态与保持到期，并保留必要的引导文字滚动。其他十二个profile保留原UI/硬件；SDK、AOSL、

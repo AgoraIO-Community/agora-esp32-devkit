@@ -10,7 +10,7 @@ asset source; these names do not change the recorded provenance.
 
 | Path | Source | Pinned revision |
 | --- | --- | --- |
-| `components/mybot_stack/mybot_sdk/mybot` | `github.com/junlon2006/mybot` | v1.2.0 + post-release fixes, commit `e7793eba88f721304dc00d421706d4d788b81a43` |
+| `components/mybot_stack/mybot_sdk/mybot` | `github.com/junlon2006/mybot` | v1.2.0 + post-release fixes, commit `39d5ed122aab51d90c1c531298c4ead8dc35b104` |
 | `components/mybot_stack/aosl` | `github.com/AgoraIO-Community/aosl` | v1.0.4 + post-release fixes, commit `84e086084ebcd0ae2455a0ce5721950c5fe2e656` |
 | `components/mybot_stack/agora_rtc` | Agora RTSA Lite package archive | v1.10.1, build 1270872 (`20260828_194128`) |
 | `components/esp-wifi-connect` | `github.com/78/esp-wifi-connect` | 3.2.2, commit `c24b97c194e6b4a1d7be0237b3c28980661cac1e` |

@@ -143,10 +143,21 @@ The script places merged firmware images in `releases/` and per-variant build di
 `build/` by default, and builds both Chinese and English images. Use `--language zh-CN` or
 `--language en-US` for one language, `--board <board-id>` to select profiles,
 `--build-root <dir>` to place intermediate builds elsewhere, `--output-root <dir>` for merged
-firmware, and `--video off` to disable the default CoreS3 video build. Each run cleans the selected
-build/output roots first; pass `--no-clean` for an incremental build. Display profiles select LVGL through
-their board capability; CoreS3 automatically receives the video defaults. The script prints each
-variant's elapsed time and the total batch duration.
+firmware, and `--video off` to disable the default CoreS3 video build. Display profiles select LVGL
+through their board capability; CoreS3 automatically receives the video defaults. The script prints
+each variant's elapsed time and the total batch duration.
+
+Each run cleans the selected build/output roots first. Use dedicated, separate roots that do not
+contain each other, `..` path components, or symbolic-link components. Roots inside the repository
+must be within its `build/` or `releases/` trees. New or empty roots receive an ownership marker,
+`.mybot-generated-root.json`; an existing nonempty root without a matching marker is refused,
+including with `--no-clean`. Inspect older build/output directories and move them aside, or select
+fresh dedicated roots; there is no automatic migration, and markers must not be created manually.
+
+`--no-clean` preserves existing outputs but still checks path safety and ownership. `--dry-run`
+performs the same validation without creating directories or markers. Cleanup requires POSIX safe
+directory handling and Python 3.11 or newer; unsupported cleanup fails closed. On macOS, `/tmp` and
+`/var` are symbolic-link aliases: use a canonical custom path such as `/private/tmp/mybot-build`.
 
 Flash and monitor the selected build:
 
@@ -391,12 +402,13 @@ continuous feeding with and without capture; normal firmware uses the same buffe
 
 The [CoreS3 pixel-glasses UI](docs/CORES3_UI.md) uses the fixed process-gray skin on its 320x240
 screen, with 23 expressions, four 9 px terminal rows, a 10 px signature and fixed 32 px six-digit
-pairing codes. Automatic READY/conversation faces follow SDK phases; four MCP emotions trigger
-temporary LCD-only expressions, including replay for a new same-name command. Voiceprint/session
-text and bilingual operational guidance remain available. The view reuses partial redraws and
-the 10 KiB DMA stripe; no renderer-selection flag is needed. The old light-theme field is kept
-for compatibility; expression animation remains configurable. Touch, audio, camera, power,
-pins, PSRAM and partitions retain their existing board configuration.
+pairing codes. Automatic READY/conversation faces follow SDK phases; four optional one-shot LCD
+emotion indicators trigger temporary expressions, including replay of the same indicator. The
+current SDK MCP path accepts only volume commands and does not emit emotion indicators.
+Voiceprint/session text and bilingual operational guidance remain available. The view reuses
+partial redraws and the 10 KiB DMA stripe; no renderer-selection flag is needed. The old
+light-theme field is kept for compatibility; expression animation remains configurable. Touch,
+audio, camera, power, pins, PSRAM and partitions retain their existing board configuration.
 
 All supported display boards automatically use LVGL as their only rendering backend. See
 [platform UI](docs/PLATFORM_UI.md) for panel sizes, adapter coverage, build variants, and validation limits.
