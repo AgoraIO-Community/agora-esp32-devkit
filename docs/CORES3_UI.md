@@ -14,7 +14,7 @@ AOSL and Agora RTSA snapshots are unchanged.
 
 ## Displayed information
 
-The simulator-inspired `process` skin and `geek` face use a fixed `#050708` black-glass background,
+The `process` skin and `geek` face use a fixed `#050708` black-glass background,
 gray decorations and pixel glasses. Four terminal rows show the product label, selected mood,
 runtime/session state and the realtime signature. The terminal uses a 9 px bitmap font and the
 `</>` signature uses 10 px. During conversations, the state row includes listening/thinking/
@@ -132,11 +132,10 @@ font is a renamed DejaVu Sans Mono Bold subset under its retained Bitstream Vera
 Source Han Sans UI subset retains SIL OFL 1.1. The masks and terminal fonts are compiled only for
 the CoreS3 pixel renderer; other boards retain their existing state-card images.
 
-The display implementation and generators derive from the `bk_solution_ai` checkout in
-`mybot-bk7259` (`github.com/junlon2006/bk_solution_ai`), commit
+The display implementation and generators derive from `github.com/junlon2006/bk_solution_ai`, commit
 `dc4c85492bcf00f780c92d56c6cba2a362f54f68`, preserving file-level MIT/Apache-2.0 notices and the
-existing display license. Geometry and colors refer to the user-provided threejs simulator;
-no separate simulator license declaration was found, and this does not assign one.
+existing display license. The delivered [renderer and resource guide](../components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md)
+links the geometry, colors, masks and generators and provides a read-only resource check.
 The corresponding official firmware project is
 [agora-r2-standard-devkit](https://github.com/AgoraIO-Community/agora-r2-standard-devkit).
 See [dependency baselines](../VENDORED_SOURCES.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).

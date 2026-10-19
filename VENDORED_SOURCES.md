@@ -37,7 +37,7 @@ asset source; these names do not change the recorded provenance.
 | `components/m5pm1` | ESP Component Registry `m5stack/m5pm1` | 1.0.7, content hash `731f79d0629e245787440f5419aac5d7a82befeb25f97689d6a2d0331a24a72d` |
 | `components/mybot_platform/assets/locales` | `github.com/junlon2006/mybot-bk7258` | commit `2577b5977a9f137855a7acf1fcdcd4040c5db2ea` |
 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` | `github.com/lvgl/lvgl`, `scripts/built_in_font/SourceHanSansSC-Normal.otf` | LVGL 9.5.0 source font SHA-256 `1ee89e1669362dee13851129c0a8a791a87521eb4148e5efbf5d26596738e25b`; generated 20 px, 4 bpp static UI subset |
-| `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` | Noto Color Emoji font glyphs rasterized by `github.com/78/noto-fonts`, `png/noto-color-emoji_64` | 2.0.0, commit `d45dbc64052d57048f20ab1770074172ce9eb53b`; per-image SHA-256 values and glyph provenance in `assets/ui/noto_emoji/SOURCES.json` |
+| `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` | Noto Color Emoji font glyphs rasterized by `github.com/78/noto-fonts`, `png/noto-color-emoji_64` | 2.0.0, commit `d45dbc64052d57048f20ab1770074172ce9eb53b`; per-image SHA-256 values and glyph provenance in `components/mybot_platform/assets/ui/noto_emoji/SOURCES.json` |
 
 External implementation references and hardware-mapping verification baselines used for
 project-maintained board ports are pinned separately; their application layer and dependency set
@@ -46,7 +46,7 @@ are not vendored into this repository.
 | Paths | Source | Pinned revision |
 | --- | --- | --- |
 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_view.cc`, `components/mybot_platform/src/internal/display/lvgl_view.h` | `github.com/junlon2006/xiaozhi-esp32`, `main/display/lcd_display.cc` and LVGL theme layout | commit `1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d` |
-| CoreS3 `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, expression geometry/masks/generators, `pixel_expressions.c`, and private expression headers/policy | `github.com/junlon2006/bk_solution_ai`, Solution checkout in `mybot-bk7259` | commit `dc4c85492bcf00f780c92d56c6cba2a362f54f68`; adapted to the existing ESP32 display API and CoreS3 320x240 geometry |
+| CoreS3 `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, expression geometry/masks/generators, `pixel_expressions.c`, and private expression headers/policy | `github.com/junlon2006/bk_solution_ai` | commit `dc4c85492bcf00f780c92d56c6cba2a362f54f68`; adapted to the existing ESP32 display API and CoreS3 320x240 geometry |
 | CoreS3 terminal subsets in `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c` and `TERMINAL_FONT_LICENSE.txt` | DejaVu Sans Mono Bold, renamed MyBot Terminal | Source TTF SHA-256 `3a3c502eeff669a231549e80df9f7c49de109bafe303170409e905d0b31a38fe`; 9 px terminal and 10 px signature subsets, with retained Bitstream Vera terms |
 | `components/mybot_platform/src/drivers/display/adapters/lvgl/shared_lvgl_adapter.cc`, `components/mybot_platform/src/internal/display/display_panel.h` | Project-maintained shared adapter for ST7789, CO5300, SPD2010, and ST77916 panels | Uses the board panel drivers; no new upstream source |
 | `components/mybot_platform/boards/respeaker-flex-xvf3800-circular4-xiao`, `components/mybot_platform/src/drivers/audio/xvf3800_audio.c`, `partitions/v2/8m.csv` | `github.com/qiuyanli1990/respeaker-flex-circle-Agora-mybot` | commit `b06024382eb104c998aead4841e1df647193065b` |
@@ -70,11 +70,9 @@ Firmware integration differences are limited to the active ESP32-S3 build:
   uses fixed widgets/curves, five immutable A8 masks (13,631 alpha bytes), and the terminal
   subsets above instead of the shared view's four emoji. Audio, camera/video policy, input,
   power, PSRAM, partitions, SDK, AOSL and RTSA inputs are unchanged.
-  Geometry and colors refer to the user-provided threejs simulator. The reference hashes are
-  `1d51ca444e69a39da5b2feedc38d543aea362433184e89a76a825e757b684e31` (`expressions.js`) and
-  `2b0cf05ffceb91f079d1cd542a982622e9c44c882ff84ac98a84b9a90bfa0646` (`reference-style.js`).
-  No independent simulator license declaration was found; MIT/Apache-2.0 notices apply to the
-  reused BK display sources/generators as stated in their files, not to an invented simulator license.
+  Geometry, colors, masks and generators are recorded in the delivered
+  [pixel-glasses resource guide](components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md).
+  MIT/Apache-2.0 notices apply to the reused BK display sources/generators as stated in their files.
 - The Xingzhi Cube port reuses project audio/input/LVGL drivers and introduces no new vendored
   dependency. Its Board lifecycle is project-maintained; the reference supplies hardware facts.
   The 16 MB Flash and 80 MHz Octal PSRAM profile requires real-device capacity confirmation.
