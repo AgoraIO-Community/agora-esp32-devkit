@@ -77,6 +77,8 @@ Versioning and Conventional Commits.
 Historical SDK commit IDs below refer to the
 [agent-studio-device-firmware history](https://github.com/AgoraIO-Community/agent-studio-device-firmware/commits/main/).
 
+- Use agent-studio-device-firmware v1.3.0 (`32ac74b`) and report version 1.3.0 from
+  the ESP-IDF wrapper. Changes since the previous snapshot are release metadata and comments.
 - Document the pinned SDK, announcement assets and delivered platform implementations with
   reproducible checksums and retained third-party notices.
 - Use agent-studio-device-firmware SDK `d158022` (1.2.0 plus post-release fixes), accepting cloud
@@ -90,7 +92,7 @@ Historical SDK commit IDs below refer to the
   Existing touch, audio, video auto-selection, power, memory and immutable SDK inputs are retained.
 - Update the language-derived device-service addresses to `https://botstation.shengwang.cn/api`
   for zh-CN and `https://botstation.agora.io/api` for en-US, matching the SDK's regional guidance.
-- Sync the agent-studio-device-firmware SDK snapshot to `e7793eb` (1.2.0 plus post-release fixes),
+- Use agent-studio-device-firmware SDK `e7793eb` (1.2.0 plus post-release fixes),
   adding cloud volume/mute commands and moving status polls and stop notifications off the control worker.
   Register the new device-command source in ESP-IDF. The shared workflow view on other boards
   continues to ignore optional emotion indicators; CoreS3 maps them to pixel expressions.
