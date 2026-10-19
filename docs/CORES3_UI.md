@@ -132,9 +132,10 @@ font is a renamed DejaVu Sans Mono Bold subset under its retained Bitstream Vera
 Source Han Sans UI subset retains SIL OFL 1.1. The masks and terminal fonts are compiled only for
 the CoreS3 pixel renderer; other boards retain their existing state-card images.
 
-The display implementation and generators derive from `github.com/junlon2006/bk_solution_ai`, commit
-`dc4c85492bcf00f780c92d56c6cba2a362f54f68`, preserving file-level MIT/Apache-2.0 notices and the
-existing display license. The delivered [renderer and resource guide](../components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md)
+The display implementation and generators adapt the BK7259 pixel-glasses renderer family for
+ESP32. The [published ESP32 implementation baseline](https://github.com/AgoraIO-Community/agora-esp32-devkit/tree/1bc740a8f4c5e3ba188071d50a1623d9fe328294/components/mybot_platform/src/drivers/display/renderers/lvgl)
+provides the delivered adaptation with its file-level MIT/Apache-2.0 notices and existing display
+license. The delivered [renderer and resource guide](../components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md)
 links the geometry, colors, masks and generators and provides a read-only resource check.
 The corresponding official firmware project is
 [agora-r2-standard-devkit](https://github.com/AgoraIO-Community/agora-r2-standard-devkit).
