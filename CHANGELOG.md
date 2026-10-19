@@ -73,6 +73,8 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Sync the MyBot SDK snapshot to the v1.3.0 release (`58f0ef9`) and report version 1.3.0 from
+  the ESP-IDF wrapper. Changes since the previous snapshot are release metadata and comments.
 - Sync the MyBot SDK snapshot to `39d5ed1` (1.2.0 plus post-release fixes), accepting cloud
   `message.user` envelopes with absolute and relative volume commands. Remove MCP mute,
   expression, and bare-command parsing upstream; retain the platform's LCD emotion rendering.
