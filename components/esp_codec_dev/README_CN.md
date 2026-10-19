@@ -162,18 +162,18 @@ audio_codec_data_if_t ..> esp_codec_dev
 ## 使用方法
 
 以 ES8311 为例，下面将演示播放和录音的具体步骤
-1. 为编解码器设备的控制和数据总线安装驱动，可参考[test_board.c](test_apps/codec_dev_test/main/test_board.c)
-   	```c
-	ut_i2c_init(0);
-	ut_i2s_init(0);
-   	```
+
+1. 初始化板级 I2C 控制总线及 I2S 通道。固件的
+   [ES8311 音频驱动](../mybot_platform/src/drivers/audio/es8311_codec_audio.c)
+   展示编解码器配置和直接 I2S 传输。下面的通用示例使用默认数据接口；
+   `rx_handle` 和 `tx_handle` 表示应用已经初始化的 I2S 通道。
 
 2. 为编解码器设备实现控制接口，数据接口和 GPIO 接口 (使用默认提供的接口实现)
    	```c
 	audio_codec_i2s_cfg_t i2s_cfg = {
 	#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-	    .rx_handle = i2s_keep[0]->rx_handle,
-	    .tx_handle = i2s_keep[0]->tx_handle,
+	    .rx_handle = rx_handle,
+	    .tx_handle = tx_handle,
 	#endif
 	};
 	const audio_codec_data_if_t *data_if = audio_codec_new_i2s_data(&i2s_cfg);
@@ -246,4 +246,5 @@ audio_codec_data_if_t ..> esp_codec_dev
 	const audio_codec_if_t *my_codec_new(my_codec_cfg_t *codec_cfg);
 	```
 
-更细节的实现可以参考测试代码 [my_codec.c](test_apps/codec_dev_test/main/my_codec.c)。
+完整编解码器实现可参考 [es8311.c](device/es8311/es8311.c)。
+固件的真机播放测试及构建步骤见 [CoreS3 音频播放对照测试](../../docs/CORES3_AUDIO_TEST.zh-CN.md)。

@@ -163,17 +163,17 @@ To balance the speaker's loudness across different platforms when playing the sa
 ## Usage
 
 The steps below take the ES8311 codec as an example to illustrate how to play and record audio.
-1. Install the driver for codec control and data bus referring to [test_board.c](test_apps/codec_dev_test/main/test_board.c)  
-   	```c
-	ut_i2c_init(0);
-	ut_i2s_init(0);
-   	```
+
+1. Initialize the board's I2C control bus and I2S channels. The firmware's
+   [ES8311 audio driver](../mybot_platform/src/drivers/audio/es8311_codec_audio.c)
+   shows codec setup with direct I2S transfers. The generic example below uses the default
+   data interface; `rx_handle` and `tx_handle` are the application's initialized I2S channels.
 2. Create the control and data interfaces for the codec using the interface provided by default   
    	```c
 	audio_codec_i2s_cfg_t i2s_cfg = {
 	#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-	    .rx_handle = i2s_keep[0]->rx_handle,
-	    .tx_handle = i2s_keep[0]->tx_handle,
+	    .rx_handle = rx_handle,
+	    .tx_handle = tx_handle,
 	#endif
 	};
 	const audio_codec_data_if_t *data_if = audio_codec_new_i2s_data(&i2s_cfg);
@@ -247,4 +247,6 @@ For boards that use an internal ADC microphone and a speaker PA without an exter
 	const audio_codec_if_t *my_codec_new(my_codec_cfg_t *codec_cfg);
 	```
 
-For details, refer to the sample code [my_codec.c](test_apps/codec_dev_test/main/my_codec.c).
+For a complete codec implementation, see [es8311.c](device/es8311/es8311.c).
+For the firmware's device playback test and build instructions, see
+[CoreS3 audio playback comparison](../../docs/CORES3_AUDIO_TEST.md).

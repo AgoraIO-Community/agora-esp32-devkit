@@ -164,7 +164,8 @@
 - Add IDF v5.3 support
   Using new i2c driver `esp_driver_i2c`, add `bus_handle` configuration for `audio_codec_i2c_cfg_t`.
   User need create the `bus_handle` using API `i2c_new_master_bus` instead of `i2c_driver_install`.
-- Change test code to standalone application, user can directly build it under folder [codec_dev_test](test_apps/codec_dev_test)
+- Upstream changed its test code to a standalone application. For this firmware's device
+  playback test and build instructions, see [CoreS3 audio playback comparison](../../docs/CORES3_AUDIO_TEST.md).
 
 ### Bug Fixes
 

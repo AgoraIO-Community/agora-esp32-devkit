@@ -101,13 +101,12 @@ Its generated Source Han Sans glyph subset retains Adobe's copyright and SIL OFL
 `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt`; it is not MIT-licensed.
 
 CoreS3's pixel-glasses display implementation and generators are adapted from the BK7259
-Solution commit `dc4c85492bcf00f780c92d56c6cba2a362f54f68` in `github.com/junlon2006/bk_solution_ai`,
-the Solution checkout within `mybot-bk7259`.
+Solution commit `dc4c85492bcf00f780c92d56c6cba2a362f54f68` in `github.com/junlon2006/bk_solution_ai`.
 The MIT renderer/geometry/generator notices and existing display permission text in
 `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_LICENSE.txt` are retained;
-expression helper and policy files retain their Apache-2.0 SPDX notices. The user-provided
-threejs simulator supplies visual/geometry reference; no independent simulator license declaration
-was found, and this notice does not assign the simulator an MIT license.
+expression helper and policy files retain their Apache-2.0 SPDX notices. The delivered
+[pixel-glasses resource guide](components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md)
+identifies the renderer, geometry, masks and generators.
 
 The CoreS3 MyBot Terminal subsets are renamed derivatives of DejaVu Sans Mono Bold, preserving
 the Bitstream copyright/trademark notice, font permission conditions and public-domain status of

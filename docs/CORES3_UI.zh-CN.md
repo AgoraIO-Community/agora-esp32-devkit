@@ -13,7 +13,7 @@ RTSA快照不变。
 
 ## 显示内容
 
-外观参考模拟器 `process`（工艺灰）皮肤与 `geek`（像素眼镜），使用固定 `#050708` 黑色
+界面采用 `process`（工艺灰）皮肤与 `geek`（像素眼镜），使用固定 `#050708` 黑色
 玻璃底、灰色装饰及像素镜框。四行终端显示产品标识、表情名称、运行/会话状态及realtime
 签名，正文使用9 px字库，`</>`使用10 px。会话状态行显示聆听/思考/说话及
 `vp:ok`或`vp:pending`；声纹变化不额外弹通知。图案表示语义状态，不测量麦克风幅度。
@@ -115,9 +115,10 @@ alpha数据合计13,631字节，不含描述符。终端字库由DejaVu Sans Mon
 保留Bitstream Vera许可；思源黑体UI子集仍为SIL OFL 1.1。蒙版与终端字库仅编入CoreS3
 像素渲染器，其他板型仍用原状态卡片图像。
 
-显示实现及生成器来源为 `mybot-bk7259` 中的 `bk_solution_ai`（`github.com/junlon2006/bk_solution_ai`）提交
+显示实现及生成器来源为 `github.com/junlon2006/bk_solution_ai` 提交
 `dc4c85492bcf00f780c92d56c6cba2a362f54f68`，保留各文件MIT/Apache-2.0声明及既有显示许可。
-视觉/几何参考用户提供的threejs模拟器，未见模拟器独立许可证声明，不为其另行指定许可。
+已交付的[渲染器与资源说明](../components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md)
+列出几何、颜色、蒙版、生成器及只读资源核验命令。
 对应的当前官方固件工程为
 [agora-r2-standard-devkit](https://github.com/AgoraIO-Community/agora-r2-standard-devkit)。
 详情见[依赖基线](../VENDORED_SOURCES.md)及[第三方声明](../THIRD_PARTY_NOTICES.md)。
