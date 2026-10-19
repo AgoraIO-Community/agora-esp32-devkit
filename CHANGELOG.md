@@ -74,12 +74,15 @@ Versioning and Conventional Commits.
 
 ### Changed
 
-- Align agora-esp32-devkit documentation with the official firmware and SDK repositories while
-  retaining original dependency provenance.
-- Sync the agent-studio-device-firmware SDK snapshot to `39d5ed1` (1.2.0 plus post-release fixes), accepting cloud
+Historical SDK commit IDs below refer to the
+[agent-studio-device-firmware history](https://github.com/AgoraIO-Community/agent-studio-device-firmware/commits/main/).
+
+- Document the pinned SDK, announcement assets and delivered platform implementations with
+  reproducible checksums and retained third-party notices.
+- Use agent-studio-device-firmware SDK `d158022` (1.2.0 plus post-release fixes), accepting cloud
   `message.user` envelopes with absolute and relative volume commands. Remove MCP mute,
   expression, and bare-command parsing upstream; retain the platform's LCD emotion rendering.
-- Replace only the CoreS3 status-card renderer with the BK7259 `dc4c854` display implementation,
+- Replace only the CoreS3 status-card renderer with the BK7259 pixel-glasses display implementation,
   adapted to the existing ESP32 adapter/API. READY uses NEUTRAL; conversation entry uses
   SURPRISED for 300 ms plus its 250 ms enabled transition, continuous thinking becomes
   PROCESSING after three seconds, and MCP holds are 2/3/1.2/0.8 seconds plus transition.

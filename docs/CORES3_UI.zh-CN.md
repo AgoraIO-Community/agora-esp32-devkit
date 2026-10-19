@@ -115,8 +115,9 @@ alpha数据合计13,631字节，不含描述符。终端字库由DejaVu Sans Mon
 保留Bitstream Vera许可；思源黑体UI子集仍为SIL OFL 1.1。蒙版与终端字库仅编入CoreS3
 像素渲染器，其他板型仍用原状态卡片图像。
 
-显示实现及生成器来源为 `github.com/junlon2006/bk_solution_ai` 提交
-`dc4c85492bcf00f780c92d56c6cba2a362f54f68`，保留各文件MIT/Apache-2.0声明及既有显示许可。
+显示实现及生成器基于BK7259像素眼镜渲染方案适配ESP32。
+[已发布的ESP32实现基线](https://github.com/AgoraIO-Community/agora-esp32-devkit/tree/1bc740a8f4c5e3ba188071d50a1623d9fe328294/components/mybot_platform/src/drivers/display/renderers/lvgl)
+提供已交付的适配代码，并保留各文件MIT/Apache-2.0声明及既有显示许可。
 已交付的[渲染器与资源说明](../components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md)
 列出几何、颜色、蒙版、生成器及只读资源核验命令。
 对应的当前官方固件工程为
