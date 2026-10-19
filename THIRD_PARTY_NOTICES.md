@@ -5,7 +5,7 @@ It does not replace third-party terms. This file is informational and is not leg
 
 | Component | Terms | Location |
 | --- | --- | --- |
-| agent-studio-device-firmware SDK 1.2.0 + post-release fixes (`d158022`) | Apache-2.0; bundled JSON parser portions MIT | `components/mybot_stack/mybot_sdk/mybot` |
+| agent-studio-device-firmware SDK 1.3.0 (`32ac74b`) | Apache-2.0; bundled JSON parser portions MIT | `components/mybot_stack/mybot_sdk/mybot` |
 | AOSL (`84e0860`) | Bundled license: Apache-2.0 text plus additional deployment restrictions | `components/mybot_stack/aosl` |
 | Agora RTSA Lite for ESP32-S3 1.10.1 (build 1270872) | Separate Agora distribution terms | `components/mybot_stack/agora_rtc` |
 | esp-wifi-connect 3.2.2 | MIT | `components/esp-wifi-connect` |
@@ -195,7 +195,7 @@ notice is retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
 ## Vendored SDK Notice
 
 The SDK's public headers and core sources are pinned to
-[agent-studio-device-firmware commit `d158022b3ec4e56dfbd25f279685e800e349c053`](https://github.com/AgoraIO-Community/agent-studio-device-firmware/tree/d158022b3ec4e56dfbd25f279685e800e349c053).
+[agent-studio-device-firmware commit `32ac74bc59cb72db70e9a68337753561b59b13d0`](https://github.com/AgoraIO-Community/agent-studio-device-firmware/tree/32ac74bc59cb72db70e9a68337753561b59b13d0).
 The exact trees and reproducible archive checksum are recorded in
 [VENDORED_SOURCES.md](VENDORED_SOURCES.md).
 
