@@ -37,6 +37,7 @@ It does not replace third-party terms. This file is informational and is not leg
 | CoreS3 pixel-glasses renderer, geometry/mask generators | MIT; expression helpers/policy retain their file-level Apache-2.0 notices | `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, pixel geometry/masks/generators and private expression support |
 | MyBot Terminal bitmap subsets derived from DejaVu Sans Mono Bold | Bitstream Vera font terms, with public-domain DejaVu changes | `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c`, `TERMINAL_FONT_LICENSE.txt` |
 | Project-maintained shared LVGL panel adapters | Apache-2.0 unless file SPDX says otherwise | `components/mybot_platform/src/drivers/display/adapters/lvgl/st7789_lvgl_adapter.cc`, `components/mybot_platform/src/drivers/display/adapters/lvgl/shared_lvgl_adapter.cc` |
+| Board documentation adapted from xiaozhi-esp32 hardware references | MIT; project-maintained profile descriptions are Apache-2.0 | The board READMEs indexed in `components/mybot_platform/boards/README.md` |
 | M5Stack CoreS3-derived implementation | MIT | Paths listed under MIT Attributions |
 | ReSpeaker Flex XVF3800-derived implementation (`b060243`) | MIT | Paths listed under MIT Attributions |
 | SenseCAP Watcher-derived implementation | MIT | Paths listed under MIT Attributions |
@@ -73,6 +74,17 @@ If authorization is unavailable, exclude the library from public artifacts and r
 supply an authorized package locally.
 
 ## MIT Attributions
+
+
+The board READMEs for AtomEchoS3R, ESP-VoCat, the Waveshare AMOLED profiles, CoreS3,
+StickS3, SenseCAP Watcher and the Zhengchen profiles adapt hardware material from the
+MIT-licensed xiaozhi-esp32 project. Their instructions describe this repository's current
+profiles and supported features. The original copyright and full MIT permission notice
+are retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
+The Bread Compact Wi-Fi LCD, Xingzhi Cube and ReSpeaker Flex descriptions are
+project-maintained documentation of the checked-in profiles. The board index links
+these documents and their actual configuration files.
+
 
 The adapted platform implementations listed below can be inspected at the published
 [ESP32 implementation baseline][esp32-platform-baseline]. This snapshot preserves the delivered
