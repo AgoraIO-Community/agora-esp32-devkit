@@ -7,6 +7,8 @@ Versioning and Conventional Commits.
 
 ### Added
 
+- Per-board hardware and usage documentation for all thirteen profiles, with a linked board
+  index, current build commands, and profile-specific feature and validation limits.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
   Automatic faces follow READY/conversation phases; four MCP emotions use bounded holds,

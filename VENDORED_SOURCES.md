@@ -41,6 +41,40 @@ also supplies the generated `include/mybot/mybot_version.h`. The official Git tr
 `git archive 32ac74bc59cb72db70e9a68337753561b59b13d0 include src | sha256sum` produces
 `6443be044e8210057b0291e53b8ea6dcb92664f54b78fd9c71ac2f10c34e292e`.
 
+## Board reference documents
+
+Per-board hardware notes and usage instructions are indexed in
+[the board documentation index](components/mybot_platform/boards/README.md).
+These pages describe the checked-in `board.cmake`, `board_config.h` and board defaults,
+using this repository's `MYBOT_BOARD` selector and `scripts/build_all.py` build entry.
+Firmware capabilities and validation limits follow the current profiles and the English
+and Chinese root READMEs.
+
+The AtomEchoS3R, ESP-VoCat, Waveshare AMOLED, CoreS3, StickS3, SenseCAP Watcher and Zhengchen
+pages adapt MIT-licensed xiaozhi-esp32 hardware reference material. The upstream MIT
+notice is retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
+Bread Compact Wi-Fi LCD, Xingzhi Cube and ReSpeaker Flex have project-maintained profile
+descriptions. The adapted pages are maintained for this firmware; they are not unchanged
+copies of another application's build or feature documentation.
+
+| Board profile | Delivered description |
+| --- | --- |
+| `atom-echos3r` | [README](components/mybot_platform/boards/atom-echos3r/README.md) |
+| `bread-compact-wifi-lcd` | [README](components/mybot_platform/boards/bread-compact-wifi-lcd/README.md) |
+| `esp-vocat` | [README](components/mybot_platform/boards/esp-vocat/README.md) |
+| `esp32-s3-touch-amoled-1.75` | [README](components/mybot_platform/boards/esp32-s3-touch-amoled-1.75/README.md) |
+| `esp32-s3-touch-amoled-1.75c` | [README](components/mybot_platform/boards/esp32-s3-touch-amoled-1.75c/README.md) |
+| `esp32-s3-touch-amoled-2.16` | [README](components/mybot_platform/boards/esp32-s3-touch-amoled-2.16/README.md) |
+| `m5stack-core-s3` | [README](components/mybot_platform/boards/m5stack-core-s3/README.md) |
+| `m5stack-stick-s3` | [README](components/mybot_platform/boards/m5stack-stick-s3/README.md) |
+| `respeaker-flex-xvf3800-circular4-xiao` | [README](components/mybot_platform/boards/respeaker-flex-xvf3800-circular4-xiao/README.md) |
+| `sensecap-watcher` | [README](components/mybot_platform/boards/sensecap-watcher/README.md) / [English](components/mybot_platform/boards/sensecap-watcher/README_en.md) |
+| `xingzhi-cube-1.54tft-wifi` | [README](components/mybot_platform/boards/xingzhi-cube-1.54tft-wifi/README.md) |
+| `zhengchen-1.54tft-ml307` | [README](components/mybot_platform/boards/zhengchen-1.54tft-ml307/README.md) |
+| `zhengchen-1.54tft-wifi` | [README](components/mybot_platform/boards/zhengchen-1.54tft-wifi/README.md) |
+
+## Platform implementation references
+
 The platform table identifies third-party derivation and hardware references separately from
 the delivered adaptations. [ESP32 implementation baseline][esp32-platform-baseline] refers to
 the listed paths at the published `agora-esp32-devkit` commit
