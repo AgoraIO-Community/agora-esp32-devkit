@@ -7,8 +7,8 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Per-board hardware and usage documentation for all thirteen profiles, with a linked board
-  index, current build commands, and profile-specific feature and validation limits.
+- Per-board hardware, input, configuration, build and flashing instructions for all thirteen
+  profiles, with a linked board documentation index.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
   Automatic faces follow READY/conversation phases; four MCP emotions use bounded holds,
@@ -75,6 +75,11 @@ Versioning and Conventional Commits.
   CoreS3 video in both languages, and light-theme/static-indicator variants, using 60 ms audio.
 
 ### Changed
+
+- Refresh the Chinese and English Wi-Fi provisioning prompts while preserving 20 ms mono Opus/Ogg.
+
+- Refresh the 22 Chinese and English pairing prompt and digit recordings. Preserve the 20 ms
+  mono Opus/Ogg format.
 
 Historical SDK commit IDs below refer to the
 [agent-studio-device-firmware history](https://github.com/AgoraIO-Community/agent-studio-device-firmware/commits/main/).

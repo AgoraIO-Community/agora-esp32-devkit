@@ -1,45 +1,53 @@
 # M5Stack AtomEchoS3R
 
-本目录是 agora-esp32-devkit 的 `atom-echos3r` 板级 profile，面向
-ESP32-S3-PICO-1-N8R8 与 ES8311 音频硬件。该 profile 无屏幕，不编入 LVGL。
+本工程的板型 ID 为 `atom-echos3r`，使用无屏音频 profile。
 
-## 硬件与当前 profile
+## 当前配置
 
-| 项目 | 当前配置 |
+| 项目 | 本工程实现 |
 | --- | --- |
-| 存储 | 8 MB QIO Flash、80 MHz 8 MB Octal PSRAM |
-| 分区 | 根目录 `partitions/v2/8m.csv` |
-| ES8311 I2C0 | SDA GPIO45、SCL GPIO0；7 位地址 `0x18` |
-| I2S 音频 | MCLK GPIO11、BCLK GPIO17、WS GPIO3、DIN GPIO4、DOUT GPIO48 |
-| 扬声器功放 | GPIO18 使能 |
-| 用户按键 | GPIO41，当前按低电平有效配置 |
+| SoC | ESP32-S3 |
+| Flash | 8 MB，QIO |
+| PSRAM | 8 MB，Octal，80 MHz |
+| 分区 | [partitions/v2/8m.csv](../../../../partitions/v2/8m.csv)，双 OTA 分区 |
+| 控制台 | ESP-IDF 默认 UART0，板级配置未覆盖控制台类型 |
+| 音频 | ES8311 采集/播放，GPIO18 控制功放；SDK 使用 16 kHz 单声道 signed-16 PCM |
+| 输入 | 当前代码映射 GPIO41 为低电平有效用户按键，映射与极性仍需真机确认 |
+| 显示 | 无屏幕，不编译 LVGL |
+| 摄像头 | 当前 profile 未提供视频接口，不支持开启视频 |
 
-音频接口使用 16 kHz、单声道、signed 16-bit PCM。引脚定义见
-[board_config.h](board_config.h)，构建约束见 [board.cmake](board.cmake) 与
-[sdkconfig.defaults](sdkconfig.defaults)。
+I2C0 使用 SDA GPIO45、SCL GPIO0，ES8311 的 7-bit 地址为 `0x18`。
+I2S0 为 MCLK GPIO11、BCLK GPIO17、WS GPIO3、DIN GPIO4、DOUT GPIO48。
+GPIO0 已用于 I2C 时钟，不作为配网按键。
 
-## 构建
+当前代码以 GPIO41 短按开始/结束对话、长按 3 秒进入配网；该板不依赖语音唤醒启动对话。
+无已保存的 Wi-Fi 信息时自动创建配置热点并播放对应语言的提示音，运行状态和配对码可通过
+串口日志查看。音量逻辑值保存到 NVS，初始默认值为 70；ES8311 硬件音量按逻辑值的 60% 映射。
 
-在工程根目录激活 ESP-IDF v5.5.2 后构建中英文固件：
+## 构建与烧录
+
+在仓库根目录使用 ESP-IDF v5.5.2：
 
 ```sh
-. /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+source /path/to/esp-idf/export.sh
 python3 scripts/build_all.py --board atom-echos3r --language both
 ```
 
-中间构建目录为 `build/build-atom-echos3r-<语言>/`，默认生成根目录 `releases/atom-echos3r-zh-CN.bin` 与
-`releases/atom-echos3r-en-US.bin`。构建器默认清理所选构建/输出根目录，详情与烧录入口见
-[根目录构建说明](../../../../README.zh-CN.md#构建)。本板不支持视频构建。
+输出 `releases/atom-echos3r-zh-CN.bin` 和对应英文固件。
+构建脚本的清理行为见[板卡索引](../README.md)。
 
-## 使用与验证边界
+直接构建中文固件并烧录时，使用独立目录；将串口替换为本机设备：
 
-未保存 Wi-Fi 凭据时，设备创建配置热点并播放对应语言的配网提示音。短按 GPIO41 用户按键
-开始或结束对话，长按 3 秒先停止 SDK，再进入配网。当前未接入本地唤醒词，不要求通过
-语音唤醒操作设备。
+```sh
+idf.py -B build/atom-echos3r \
+  -DMYBOT_BOARD=atom-echos3r \
+  -DSDKCONFIG=build/atom-echos3r/sdkconfig \
+  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
+idf.py -B build/atom-echos3r -p /dev/ttyUSB0 flash monitor
+```
 
-GPIO41 用户按键映射、极性及 16 kHz 双向音频质量仍需真机验证。构建成功不代表已经完成
-这些硬件验证；无屏状态可结合串口日志与语音提示确认。
+## 验证范围
 
-板级集成约定见 [板级移植](../../../../docs/BOARD_PORTING.zh-CN.md)，
-相关上游许可见 [MIT 许可文本](../../assets/LICENSE.xiaozhi-esp32)。
+GPIO41 按键映射、极性、16 kHz 采集及播放质量尚未通过本工程真机验收。
+构建成功不能代替这些测试。详见[平台移植文档](../../../../docs/BOARD_PORTING.zh-CN.md)
+及[项目说明](../../../../README.zh-CN.md)。

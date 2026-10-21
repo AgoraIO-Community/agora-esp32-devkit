@@ -8,12 +8,24 @@ pairing prompt, and spoken digits `0` through `9`.
 Only the locale selected by `CONFIG_MYBOT_LANGUAGE_*` is embedded in a firmware image. The audio is
 decoded to 16 kHz mono signed-16 PCM in PSRAM when the SDK opens an announcement sound.
 
-The copied assets use 20 ms Opus packets. Replacements must retain that packet duration, a mono
+The local `wificonfig.ogg` in each locale plays when Wi-Fi provisioning starts.
+
+The assets use 20 ms Opus packets. Replacements must retain that packet duration, a mono
 OpusHead stream, and a valid final granule position so playback can trim pre-skip and end padding.
 
-The announcement audio is distributed under the accompanying
-[MIT license](LICENSE.xiaozhi-esp32). Its attribution is retained there and in the repository
-third-party notice.
+To encode replacement pairing prompts or digits, use 16 kHz mono signed-16 little-endian PCM
+and FFmpeg with libopus. Substitute the local input PCM and output Ogg paths:
+
+```sh
+ffmpeg -nostdin -hide_banner -loglevel error \
+  -f s16le -ar 16000 -ac 1 -i input.pcm -map_metadata -1 \
+  -c:a libopus -b:a 24000 -vbr off -compression_level 10 \
+  -application voip -frame_duration 20 -flags:a +bitexact -fflags +bitexact \
+  -f ogg -y output.ogg
+```
+
+Firmware builds embed the checked-in Ogg files directly; FFmpeg and the PCM files are not build
+dependencies. Host decoding checks do not establish real-device playback quality.
 
 ## CoreS3 UI images
 
@@ -24,7 +36,7 @@ constant ARGB8888 arrays in `src/drivers/display/renderers/lvgl/lvgl_assets.c`. 
 arrays only when an LVGL UI option is enabled; no runtime PNG decoder is needed.
 
 These rasterized Noto Color Emoji font glyphs retain the font's
-[SIL Open Font License 1.1](ui/noto_emoji/LICENSE.txt), separately from the audio's MIT terms.
+[SIL Open Font License 1.1](ui/noto_emoji/LICENSE.txt).
 [SOURCES.json](ui/noto_emoji/SOURCES.json) records the pinned source package, original font
 provenance, per-file SHA-256 values, and conversion details. Run the generator with `--check`
 to verify that the source hashes and generated arrays match.

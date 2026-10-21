@@ -1,51 +1,74 @@
-# Espressif ESP-VoCat 喵伴
+# ESP-VoCat
 
-本目录是 agora-esp32-devkit 的 `esp-vocat` 板级 profile。硬件资料见
-[ESP-VoCat 开源硬件项目](https://oshwhub.com/esp-college/echoear)；硬件具备的器件与算法能力
-不等于本固件已实现的功能。
+本目录提供 `agora-esp32-devkit` 的 `esp-vocat` 板型配置，支持 PCB V1.0 和 V1.2。
+两个版本使用相同的固件，启动时先探测硬件版本，再初始化音频、显示和输入。
+硬件资料见 [ESP-VoCat 开源硬件项目](https://oshwhub.com/esp-college/echoear)。
 
-## 硬件与当前 profile
+## 当前配置
 
-| 项目 | 当前配置 |
+| 项目 | 本工程实现 |
 | --- | --- |
-| 主控与存储 | ESP32-S3、16 MB QIO Flash、80 MHz Octal PSRAM |
-| 分区 | 根目录 `partitions/v2/16m.csv` |
-| 音频 | ES7210 采集、ES8311 播放，16 kHz 单声道 signed 16-bit PCM |
-| 公共 I2C0 | SDA GPIO2、SCL GPIO1；ES8311 `0x18`、ES7210 `0x40`、CST816S `0x15` |
-| I2S | MCLK GPIO42、BCLK GPIO40、WS GPIO39、DOUT GPIO41 |
-| 显示 | 360 × 360 ST77916 QSPI 圆屏，共享 LVGL UI |
-| 输入 | CST816S 触摸中断 GPIO10、Boot GPIO0 |
-| 控制台 | USB Serial/JTAG，避免 UART0 与板载外设引脚冲突 |
+| 芯片 | ESP32-S3 |
+| 存储 | 16 MB QIO Flash；80 MHz Octal PSRAM，实际容量以启动日志为准 |
+| 分区 | `partitions/v2/16m.csv`，双 OTA 应用分区与资源分区 |
+| 控制台 | 原生 USB Serial/JTAG；关闭 UART0 控制台，避免与外设引脚冲突 |
+| 音频 | ES7210 采集、ES8311 播放；SDK 接口为 16 kHz、单声道、16 位 PCM |
+| 显示 | 360 × 360 ST77916 圆屏，40 MHz QSPI，共享 LVGL 界面 |
+| 输入 | CST816S 触摸、GPIO0 Boot 按键 |
+| 网络 | Wi-Fi，支持首次自动配网和长按重新配网 |
+| 视频 | 未集成摄像头采集，不支持 `CONFIG_MYBOT_ENABLE_VIDEO` |
 
-初始化时探测兼容的 PCB 版本：V1.0 使用 DIN GPIO15、PA GPIO4、GPIO3 低有效 LCD reset；
-V1.2 使用 DIN GPIO3、PA GPIO15、GPIO47 高有效 LCD reset。无法探测 ES8311 时初始化失败，
-不会盲选引脚。完整定义见 [board_config.h](board_config.h)、[board.cmake](board.cmake) 与
-[sdkconfig.defaults](sdkconfig.defaults)。发布设备仍需确认实际 PSRAM 容量和 PCB 引脚映射。
+公共 I2C0 使用 SDA GPIO2、SCL GPIO1。I2S 使用 MCLK GPIO42、BCLK GPIO40、
+WS GPIO39、DOUT GPIO41；DIN、功放使能和屏幕复位由 PCB 版本决定：
 
-## 构建
+| PCB 版本 | I2S DIN | 功放使能 | ST77916 reset |
+| --- | --- | --- | --- |
+| V1.0 | GPIO15 | GPIO4 | GPIO3，低有效 |
+| V1.2 | GPIO3 | GPIO15 | GPIO47，高有效 |
 
-在工程根目录激活 ESP-IDF v5.5.2 后构建中英文固件：
+GPIO9 以低电平启用外设电源。初始化时先将 GPIO48 拉低并探测 ES8311，失败后拉高重试；
+两次均失败则终止硬件初始化，不使用默认版本继续启动。QSPI 使用 CLK GPIO18、CS GPIO14、
+D0-D3 GPIO46/GPIO13/GPIO11/GPIO12，背光为 GPIO44，触摸中断为 GPIO10。
+
+采集和播放共享两槽 I2S 时钟，直接运行在 16 kHz：采集只提取主麦 slot，播放将 SDK
+单声道复制到两个物理输出 slot。音量可持久化，未保存过时默认值为 70。
+
+## 操作与配网
+
+就绪时轻触屏幕或短按 Boot 开始对话，对话中再次操作结束对话。长按屏幕或 Boot 约 3 秒
+请求重新配网；应用先停止 SDK，再进入配网流程，联网成功后重新启动。
+未保存 Wi-Fi 信息时自动进入配网，屏幕显示热点名称并播放提示音；按屏幕提示连接热点
+完成配置。
+
+CST816S 使用中断触发读取，仅在按住时定时检查长按，不持续轮询空闲触摸。当前配置关闭
+触摸 ID 寄存器读取，以兼容不响应该寄存器的固件批次。
+
+## 编译与烧录
+
+在工程根目录使用 ESP-IDF 5.5.2：
 
 ```sh
-. /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+source /path/to/esp-idf/export.sh
 python3 scripts/build_all.py --board esp-vocat --language both
 ```
 
-中间构建目录为 `build/build-esp-vocat-<语言>/`，默认生成根目录 `releases/esp-vocat-zh-CN.bin` 与
-`releases/esp-vocat-en-US.bin`。构建器默认清理所选构建/输出根目录，详情与烧录入口见
-[根目录构建说明](../../../../README.zh-CN.md#构建)。本板不支持视频构建。
+脚本自动启用 LVGL，生成 `releases/esp-vocat-zh-CN.bin` 和
+`releases/esp-vocat-en-US.bin`，默认清理脚本管理的 `build/` 和 `releases/`。
 
-当前 UI 由板级配置自动启用，无需下载额外 UI 资源包。
+需要独立构建、烧录并查看控制台时，可使用：
 
-## 使用与验证边界
+```sh
+idf.py -B build/esp-vocat \
+  -DMYBOT_BOARD=esp-vocat \
+  -DSDKCONFIG=build/esp-vocat/sdkconfig build flash monitor
+```
 
-短触屏幕或短按 Boot 开始/结束对话；长触或长按 3 秒进入配网。当前只向 SDK 提供主麦克风
-采集通道，未接入第二麦克风、播放参考通道、本地 AEC、本地唤醒词或声源定位。
+使用原生 USB 数据接口并打开硬件电源；如需指定端口，在命令中增加 `-p` 参数。
+其他板型必须使用不同的构建目录和 sdkconfig。
 
-电量、IMU、PCB 电容控制、SD 卡、LED、摄像头扩展、关机与低功耗尚未接入。PCB V1.0 有固件
-无法修复的已知硬件供电稳定性问题。本 profile 尚未完成真机验证，编译成功不能替代电源、
-触摸、显示和双向音频验证。
+## 支持边界
 
-板级集成约定见 [板级移植](../../../../docs/BOARD_PORTING.zh-CN.md)，
-相关上游许可见 [MIT 许可文本](../../assets/LICENSE.xiaozhi-esp32)。
+第二麦克风、播放参考通道、本地 AEC、电量计、IMU、电容控制、SD 卡、LED、关机和低功耗
+尚未集成。硬件能力不等同于本工程已实现的功能。
+两个 PCB 版本的电源、引脚映射、音频和触摸均需在对应实物上验证；构建通过不能替代真机测试。
+完整说明见[工程文档](../../../../README.zh-CN.md)和[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
