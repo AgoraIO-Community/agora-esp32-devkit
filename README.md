@@ -31,7 +31,8 @@ Circular-4 with XIAO ESP32S3, and SenseCAP Watcher.
   Other packet durations require a matching RTSA build supplied by the integrator.
 - Shared bounded PCM playback buffering and an independent I2S writer on all board profiles.
 - Agora RTSA full-duplex audio, Cloud AEC, AI QoS, RTM channel subscription, and voice-print status.
-- Chinese and English local pairing-code and Wi-Fi provisioning prompts.
+- Chinese and English local pairing-code and Wi-Fi provisioning prompts, with
+  [audio asset provenance](components/mybot_platform/assets/README.md#announcement-audio).
 - Compile-time board profiles with isolated Flash, PSRAM, partition, driver, and pin configuration.
 - Automatic LVGL UI selection by board: process-gray pixel glasses on CoreS3, the existing
   shared workflow view on other display boards.
@@ -39,7 +40,7 @@ Circular-4 with XIAO ESP32S3, and SenseCAP Watcher.
 
 ## Supported Boards
 
-Per-board descriptions and original reference documents are listed in the
+Per-board hardware configuration, controls and build/flash instructions are listed in the
 [board documentation index](components/mybot_platform/boards/README.md).
 
 | Board profile | Audio | Display and input | Storage |

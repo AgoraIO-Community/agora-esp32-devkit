@@ -1,0 +1,231 @@
+{
+  "source": {
+    "repository": "https://github.com/junlon2006/mybot",
+    "commit": "7854c1d5798004485aa1947ff55116bdb7ab0237",
+    "format": "s16le",
+    "sample_rate_hz": 16000,
+    "channels": 1
+  },
+  "encoding": {
+    "tool": "ffmpeg 6.1.1-3ubuntu5",
+    "libopus_version": "libopus 1.4",
+    "codec": "libopus",
+    "bitrate_bps": 24000,
+    "frame_duration_ms": 20,
+    "command": [
+      "ffmpeg",
+      "-nostdin",
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-f",
+      "s16le",
+      "-ar",
+      "16000",
+      "-ac",
+      "1",
+      "-i",
+      "{input_pcm}",
+      "-map_metadata",
+      "-1",
+      "-c:a",
+      "libopus",
+      "-b:a",
+      "24000",
+      "-vbr",
+      "off",
+      "-compression_level",
+      "10",
+      "-application",
+      "voip",
+      "-frame_duration",
+      "20",
+      "-flags:a",
+      "+bitexact",
+      "-fflags",
+      "+bitexact",
+      "-f",
+      "ogg",
+      "-y",
+      "{output_ogg}"
+    ]
+  },
+  "files": [
+    {
+      "file": "en-US/0.ogg",
+      "source_file": "assets/locales/en-US/0.pcm",
+      "source_sha256": "44d60e13bd55cef9c1097cef3132e634f93daf102f118ec70af895712cd85a0c",
+      "sha256": "bc7be9ea8a91b53f66caabbe9641e82d0f0d63c8e9b14809a0f619b58b1bcdbb",
+      "source_frames": 16896,
+      "bytes": 3469
+    },
+    {
+      "file": "en-US/1.ogg",
+      "source_file": "assets/locales/en-US/1.pcm",
+      "source_sha256": "138f6cd261db445bacde50b93fa0483009942dea824b03bb1f49e69750f5a2eb",
+      "sha256": "22946bbf5ea0d29ee9bcc1305d8a59df343d2beda4e477c8c9312b8aa758dc2f",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "en-US/2.ogg",
+      "source_file": "assets/locales/en-US/2.pcm",
+      "source_sha256": "a956a33325f83544e923f8bb849a4b247aaddf086a15f27f8ebf0c2714911e18",
+      "sha256": "c7803e7e4935e3032b3985a223fc843ac43201dd48063f3ba66038c11ef532bc",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "en-US/3.ogg",
+      "source_file": "assets/locales/en-US/3.pcm",
+      "source_sha256": "90bfa809bcf1ec234e975cfd5ebcf481a48fb52f46db9c91a9e51b8e12298f3a",
+      "sha256": "339164925bca25516802ea2fc6870b83de938a3c081a2694f0663fd230fbe34a",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "en-US/4.ogg",
+      "source_file": "assets/locales/en-US/4.pcm",
+      "source_sha256": "eb9eb5e301d7dcf0662a08946652a18c429b75368c0194db452f4963950037dd",
+      "sha256": "7f0abb1c1b284bc47538d99151bdf948083bb5fa5ede92cb56431f6e220a3564",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "en-US/5.ogg",
+      "source_file": "assets/locales/en-US/5.pcm",
+      "source_sha256": "5be2d7944244ef4b4b7f34e2dc8b03f164a438c4ef0f7e94a41990b46c0e1d18",
+      "sha256": "11bb6c75d4f2700110034a273fbfd8d45209bdcf23b6e4d4bea7e313dc514d56",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "en-US/6.ogg",
+      "source_file": "assets/locales/en-US/6.pcm",
+      "source_sha256": "3ddf816e5b9176f5422b118a4fd4d9b4adfbdf1f081d770af289e1734172e57b",
+      "sha256": "c25cfa7805b692bdf73f32bc010812a688820bd583e13e17267f8f35d6506797",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "en-US/7.ogg",
+      "source_file": "assets/locales/en-US/7.pcm",
+      "source_sha256": "ccf40765c104796163f2e848e733792f181ff956d7f7ee54f17e502796bb495d",
+      "sha256": "8760cd80fe382b2270a6a5bb9bea515097ed12150eb98deff5b2f5962801e967",
+      "source_frames": 16896,
+      "bytes": 3469
+    },
+    {
+      "file": "en-US/8.ogg",
+      "source_file": "assets/locales/en-US/8.pcm",
+      "source_sha256": "950f69b022245a78551795279b15e0933353bb93aa3f401e1e438bd3afd0b9dd",
+      "sha256": "4a235330fdeb730ccfb9bcbda7fb5c708ec0108208a9a91c1834f2def9d19845",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "en-US/9.ogg",
+      "source_file": "assets/locales/en-US/9.pcm",
+      "source_sha256": "f9297fbb50d049324e872e2920441f9a79e3c108131b3ac404394262e19a8755",
+      "sha256": "a55e764e65167a1c9b2386a489912bac9aabce74bcf3d06db0dc25c590536b1c",
+      "source_frames": 17280,
+      "bytes": 3530
+    },
+    {
+      "file": "en-US/prompt.ogg",
+      "source_file": "assets/locales/en-US/prompt.pcm",
+      "source_sha256": "f35cd9c8db451be978ca82f8ce8120c5c90c27267d75ab261af09810a73882ef",
+      "sha256": "7aab5ae81e966a097d9ae7a873cccead856c0ff0ccd6c030d538c8ff4bf8deb3",
+      "source_frames": 64512,
+      "bytes": 12578
+    },
+    {
+      "file": "zh-CN/0.ogg",
+      "source_file": "assets/locales/zh-CN/0.pcm",
+      "source_sha256": "99c74257c316b48852b33abe55a334ba8d03c037c42048630dfb81e548a6b14c",
+      "sha256": "ecaf19e5830e13568f213045c3882d43d8fa5e62b00ad797b321e26b5e17e0fa",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "zh-CN/1.ogg",
+      "source_file": "assets/locales/zh-CN/1.pcm",
+      "source_sha256": "fb12c4ad9f62509908bd6b69fab1adac8f58e25818e535ce02d43d66b2f025cc",
+      "sha256": "a0e9b51b2adfdc6aa49865d7aa0c128cb810db7b33ef91e96ef93619545484b1",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "zh-CN/2.ogg",
+      "source_file": "assets/locales/zh-CN/2.pcm",
+      "source_sha256": "505267bdada3ec3ddb1c8a413d066572df992706dbfa70a20ec48d2c797d65f1",
+      "sha256": "cc0465811816db711acb600c9f4ea1abe1806cc884882c729a5707765f944b7e",
+      "source_frames": 10752,
+      "bytes": 2222
+    },
+    {
+      "file": "zh-CN/3.ogg",
+      "source_file": "assets/locales/zh-CN/3.pcm",
+      "source_sha256": "97283e859e3e40d4acef432c35c1847b747e367cbac5f52c118789fb03731cdd",
+      "sha256": "68ea2f9f4241e3eb98c37c12ccb3359208f8fa1a4e020a4b98b4c773f4395d90",
+      "source_frames": 10752,
+      "bytes": 2222
+    },
+    {
+      "file": "zh-CN/4.ogg",
+      "source_file": "assets/locales/zh-CN/4.pcm",
+      "source_sha256": "6b6ca932e1e228501b0f4679519888b2583f3b250a7c2160119a8d68f6902405",
+      "sha256": "e3414d3f5b7b3dab26eea2ac472865f02bdec6ae71fbce47696470f6435d6d4c",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "zh-CN/5.ogg",
+      "source_file": "assets/locales/zh-CN/5.pcm",
+      "source_sha256": "56a5faa640947362936bc6c00851fe86d50ddd1f9a450bb2420056abda81e556",
+      "sha256": "06901e54e7866ce5d644d3cbd6c65ae08db309209072bbec2b839f8780c81239",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "zh-CN/6.ogg",
+      "source_file": "assets/locales/zh-CN/6.pcm",
+      "source_sha256": "f465c3cace0bf268e5a7911ed36b5789c11aafc7da29fec73c151c2dce06b662",
+      "sha256": "010d08caaf308aaca6b4a5d09a57f0f7a79bc2aa7b06ae5e8f2b0fa1852b2087",
+      "source_frames": 10368,
+      "bytes": 2161
+    },
+    {
+      "file": "zh-CN/7.ogg",
+      "source_file": "assets/locales/zh-CN/7.pcm",
+      "source_sha256": "4ab534aea01f4eddca9d186cd97007904779336cd5c14db596b9b261b098a4a7",
+      "sha256": "c7c418ff779e7ae5e0110a111ffa6ce19b277aa54acda215fd3b155c8cd1e2e4",
+      "source_frames": 10752,
+      "bytes": 2222
+    },
+    {
+      "file": "zh-CN/8.ogg",
+      "source_file": "assets/locales/zh-CN/8.pcm",
+      "source_sha256": "bd7a09ffa811b9f9d5e9ee62597af386098506f3ede3f311734919985d8e77e1",
+      "sha256": "dd3699d6ce5188e4136ebda996828f1fa89f13836528cbe788977c341147cbb6",
+      "source_frames": 10368,
+      "bytes": 2161
+    },
+    {
+      "file": "zh-CN/9.ogg",
+      "source_file": "assets/locales/zh-CN/9.pcm",
+      "source_sha256": "291695f716f10fceb8200f8734263548b7eaa7737f0cb6f63fd64fae45b940fe",
+      "sha256": "2038ca65cefc83b601bbb54a5f70e2b1360a72c05823715c96102861a654fa2a",
+      "source_frames": 13440,
+      "bytes": 2771
+    },
+    {
+      "file": "zh-CN/prompt.ogg",
+      "source_file": "assets/locales/zh-CN/prompt.pcm",
+      "source_sha256": "82db526b69df7c62f382eb82ea1813b39498ff27e83e26a8b12c93c5f8f63be3",
+      "sha256": "d8267ea1c392e8a6214e6982cb8499570585365c3327d032f235f27d09de125e",
+      "source_frames": 51840,
+      "bytes": 10172
+    }
+  ]
+}

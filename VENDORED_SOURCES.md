@@ -1,11 +1,11 @@
 # Vendored Dependency Baselines
 
-This file records the revisions of firmware inputs and copied board documents. License and
+This file records the revisions of firmware inputs. License and
 redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 | Path | Source | Pinned revision |
 | --- | --- | --- |
-| `components/mybot_stack/mybot_sdk/mybot` | `github.com/junlon2006/mybot` | v1.3.0, commit `58f0ef9c14be9f159b1dc167bf0f035983b25117` |
+| `components/mybot_stack/mybot_sdk/mybot` | `github.com/junlon2006/mybot` | v1.3.0 + post-release asset refresh, commit `7854c1d5798004485aa1947ff55116bdb7ab0237` |
 | `components/mybot_stack/aosl` | `github.com/AgoraIO-Community/aosl` | v1.0.4 + post-release fixes, commit `84e086084ebcd0ae2455a0ce5721950c5fe2e656` |
 | `components/mybot_stack/agora_rtc` | Agora RTSA Lite package archive | v1.10.1, build 1270872 (`20260828_194128`) |
 | `components/esp-wifi-connect` | `github.com/78/esp-wifi-connect` | 3.2.2, commit `c24b97c194e6b4a1d7be0237b3c28980661cac1e` |
@@ -30,35 +30,17 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 | `components/knob` | ESP Component Registry `espressif/knob` | 1.1.0, commit `5f9cb98ae4d0e8153c4b4d1accf471214e5b6fe8` |
 | `components/cmake_utilities` | ESP Component Registry `espressif/cmake_utilities` | 0.5.0 |
 | `components/m5pm1` | ESP Component Registry `m5stack/m5pm1` | 1.0.7, content hash `731f79d0629e245787440f5419aac5d7a82befeb25f97689d6a2d0331a24a72d` |
-| `components/mybot_platform/assets/locales` | `github.com/junlon2006/mybot-bk7258` | commit `2577b5977a9f137855a7acf1fcdcd4040c5db2ea` |
+| Pairing `prompt.ogg` and `0.ogg` through `9.ogg` under `components/mybot_platform/assets/locales/{en-US,zh-CN}` | `github.com/junlon2006/mybot`, `assets/locales` | commit `7854c1d5798004485aa1947ff55116bdb7ab0237`; 16 kHz mono s16 PCM converted to 20 ms Opus/Ogg; source/output SHA-256 and encoding command in `components/mybot_platform/assets/locales/SOURCES.json` |
+| Wi-Fi `wificonfig.ogg` under `components/mybot_platform/assets/locales/{en-US,zh-CN}` | `github.com/junlon2006/mybot-bk7258` | commit `2577b5977a9f137855a7acf1fcdcd4040c5db2ea` |
 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` | `github.com/lvgl/lvgl`, `scripts/built_in_font/SourceHanSansSC-Normal.otf` | LVGL 9.5.0 source font SHA-256 `1ee89e1669362dee13851129c0a8a791a87521eb4148e5efbf5d26596738e25b`; generated 20 px, 4 bpp static UI subset |
 | `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` | Noto Color Emoji font glyphs rasterized by `github.com/78/noto-fonts`, `png/noto-color-emoji_64` | 2.0.0, commit `d45dbc64052d57048f20ab1770074172ce9eb53b`; per-image SHA-256 values and glyph provenance in `assets/ui/noto_emoji/SOURCES.json` |
 
-## Board reference documents
+## Board profiles
 
-The following files are copied verbatim from `github.com/junlon2006/xiaozhi-esp32` at commit
-`1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d`. Paths in the source column are relative to
-`main/boards/`; destination paths are relative to `components/mybot_platform/boards/`.
-The copies retain upstream text, whitespace and line endings under the upstream MIT license.
-
-| Destination | Source |
-| --- | --- |
-| `atom-echos3r/README.md` | `atom-echos3r/README.md` |
-| `esp-vocat/README.md` | `esp-vocat/README.md` |
-| `esp32-s3-touch-amoled-1.75/README.md` | `waveshare/esp32-s3-touch-amoled-1.75/README.md` |
-| `esp32-s3-touch-amoled-1.75c/README.md` | `waveshare/esp32-s3-touch-amoled-1.75/README.md` |
-| `esp32-s3-touch-amoled-2.16/README.md` | `waveshare/esp32-s3-touch-amoled-2.16/README.md` |
-| `m5stack-core-s3/README.md` | `m5stack-core-s3/README.md` |
-| `m5stack-stick-s3/README.md` | `m5stack-stick-s3/README.md` |
-| `sensecap-watcher/README.md` | `sensecap-watcher/README.md` |
-| `sensecap-watcher/README_en.md` | `sensecap-watcher/README_en.md` |
-| `zhengchen-1.54tft-ml307/README.md` | `zhengchen-1.54tft-ml307/README.md` |
-| `zhengchen-1.54tft-wifi/README.md` | `zhengchen-1.54tft-wifi/README.md` |
-
-Upstream selects the same 1.75 directory for the 1.75C variant, so both profiles share its README.
-The Bread Compact Wi-Fi LCD, Xingzhi Cube and ReSpeaker Flex profile READMEs are project-maintained
-descriptions based on the checked-in profiles; no corresponding upstream README was available.
-These documentation additions do not change firmware behavior or validation status.
+Board documentation describes the checked-in ESP32-S3 profiles. Build settings, pins and driver
+selection are defined by `board.cmake`, `board_config.h` and `sdkconfig.defaults` in each profile.
+See the [board documentation index](components/mybot_platform/boards/README.md) for all supported
+boards and the project build/flash workflow.
 
 ## Implementation references
 
@@ -68,21 +50,11 @@ are not vendored into this repository.
 
 | Paths | Source | Pinned revision |
 | --- | --- | --- |
-| `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_view.cc`, `components/mybot_platform/src/internal/display/lvgl_view.h` | `github.com/junlon2006/xiaozhi-esp32`, `main/display/lcd_display.cc` and LVGL theme layout | commit `1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d` |
 | CoreS3 `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, expression geometry/masks/generators, `pixel_expressions.c`, and private expression headers/policy | `github.com/junlon2006/bk_solution_ai`, Solution checkout in `mybot-bk7259` | commit `dc4c85492bcf00f780c92d56c6cba2a362f54f68`; adapted to the existing ESP32 display API and CoreS3 320x240 geometry |
 | CoreS3 terminal subsets in `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c` and `TERMINAL_FONT_LICENSE.txt` | DejaVu Sans Mono Bold, renamed MyBot Terminal | Source TTF SHA-256 `3a3c502eeff669a231549e80df9f7c49de109bafe303170409e905d0b31a38fe`; 9 px terminal and 10 px signature subsets, with retained Bitstream Vera terms |
 | `components/mybot_platform/src/drivers/display/adapters/lvgl/shared_lvgl_adapter.cc`, `components/mybot_platform/src/internal/display/display_panel.h` | Project-maintained shared adapter for ST7789, CO5300, SPD2010, and ST77916 panels | Uses the board panel drivers; no new upstream source |
 | `components/mybot_platform/boards/respeaker-flex-xvf3800-circular4-xiao`, `components/mybot_platform/src/drivers/audio/xvf3800_audio.c`, `partitions/v2/8m.csv` | `github.com/qiuyanli1990/respeaker-flex-circle-Agora-mybot` | commit `b06024382eb104c998aead4841e1df647193065b` |
-| `components/mybot_platform/boards/sensecap-watcher`, `components/mybot_platform/src/drivers/audio/sensecap_codec_audio.c`, `components/mybot_platform/src/drivers/display/panels/spd2010/spd2010_panel.c`, `partitions/v2/32m-sensecap.csv` | `github.com/junlon2006/xiaozhi-esp32` | commit `2b9b4e3bf93c76fdfca1249ce0f7ed0bf546aaa0` |
-| `components/mybot_platform/boards/m5stack-stick-s3`, `components/mybot_platform/src/drivers/audio/es8311_codec_audio.c`, `components/mybot_platform/src/drivers/display/adapters/lvgl/st7789_lvgl_adapter.cc`, `components/mybot_platform/src/drivers/display/panels/st7789/st7789_panel.c` (panel lifecycle extracted from the existing local adapter) | `github.com/junlon2006/xiaozhi-esp32` | commit `2b9b4e3bf93c76fdfca1249ce0f7ed0bf546aaa0` |
-| `components/mybot_platform/boards/zhengchen-1.54tft-wifi/board_config.h` (hardware mapping verification only) | `github.com/junlon2006/xiaozhi-esp32` | commit `2b9b4e3bf93c76fdfca1249ce0f7ed0bf546aaa0` |
-| `components/mybot_platform/boards/xingzhi-cube-1.54tft-wifi/board_config.h` (hardware mapping, SPI mode, RTC power hold, and reference speaker-rate verification only) | `github.com/junlon2006/xiaozhi-esp32`, `main/boards/xingzhi-cube-1.54tft-wifi` | commit `1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d` |
-| `components/mybot_platform/boards/bread-compact-wifi-lcd/board_config.h` (fixed 240x320 ST7789/simplex-I2S hardware mapping and reference speaker-rate verification only) | `github.com/junlon2006/xiaozhi-esp32`, `main/boards/bread-compact-wifi-lcd` | commit `1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d` |
-| `components/mybot_platform/boards/bread-compact-wifi-lcd/bread_input.c` | Existing local `components/mybot_platform/boards/atom-echos3r/atom_echos3r_input.c` MIT template | Project-local adaptation for Boot GPIO0; retains MIT copyright and permission notice |
-| `components/mybot_platform/boards/atom-echos3r/board_config.h` (hardware mapping verification only) | `github.com/junlon2006/xiaozhi-esp32` | commit `1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d` |
-| `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75-common`, `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75`, `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75c`, `components/mybot_platform/src/drivers/audio/amoled175_codec_audio.c`, `components/mybot_platform/src/drivers/display/panels/co5300/co5300_panel.c` | `github.com/junlon2006/xiaozhi-esp32` | commit `2b9b4e3bf93c76fdfca1249ce0f7ed0bf546aaa0` |
-| `components/mybot_platform/boards/esp32-s3-touch-amoled-2.16`, `components/mybot_platform/src/drivers/display/panels/co5300/co5300_480_panel.c` (independent variants of the existing 1.75 integration; hardware facts checked against the 2.16 reference) | `github.com/junlon2006/xiaozhi-esp32`, `main/boards/waveshare/esp32-s3-touch-amoled-2.16` | hardware reference commit `1d5eeb2dd51cb315f98ef3c7d3f2b96bd2bbcf1d`; local implementation derived from the existing `2b9b4e3` integration above |
-| `components/mybot_platform/boards/esp-vocat`, `components/mybot_platform/src/drivers/audio/vocat_codec_audio.c`, `components/mybot_platform/src/drivers/display/panels/st77916/st77916_panel.c` | `github.com/junlon2006/xiaozhi-esp32` | commit `2b9b4e3bf93c76fdfca1249ce0f7ed0bf546aaa0` |
+| `components/mybot_platform/boards/bread-compact-wifi-lcd/bread_input.c` | Existing local `components/mybot_platform/boards/atom-echos3r/atom_echos3r_input.c` input implementation | Project-local adaptation for Boot GPIO0 |
 | `components/mybot_platform/boards/esp-vocat/board_config.h` (hardware mapping verification only) | `github.com/espressif/esp-brookesia` | commit `b22c488f50bafe53342c8e171081bd736396ef58` |
 
 Firmware integration differences are limited to the active ESP32-S3 build:
@@ -99,14 +71,14 @@ Firmware integration differences are limited to the active ESP32-S3 build:
   No independent simulator license declaration was found; MIT/Apache-2.0 notices apply to the
   reused BK display sources/generators as stated in their files, not to an invented simulator license.
 - The Xingzhi Cube port reuses project audio/input/LVGL drivers and introduces no new vendored
-  dependency. Its Board lifecycle is project-maintained; the reference supplies hardware facts.
+  dependency. Its Board lifecycle and pin mapping are defined by the local profile.
   The 16 MB Flash and 80 MHz Octal PSRAM profile requires real-device capacity confirmation.
 - The Bread Compact Wi-Fi LCD port fixes the user-selected N16R8, 240x320 ST7789, and separate
   I2S wiring. It reuses raw audio, the existing ST7789 panel, and shared LVGL; its independent
-  Boot-only input is adapted from the local MIT AtomEchoS3R input template. Board lifecycle and
+  Boot-only input is adapted from the local AtomEchoS3R input implementation. Board lifecycle and
   build metadata are project-maintained Apache-2.0. Chinese and English build support has been
   validated; real-device validation remains pending.
-- The AMOLED 2.16 profile owns independent MIT Board and CO5300 480-pixel panel variants derived
+- The AMOLED 2.16 profile owns independent Board and CO5300 480-pixel panel variants derived
   from the existing integration. It reuses AXP2101 configuration, codecs, CST9217, and shared LVGL
   with independent identity and 480x480 zero-gap geometry.
   Its conservative 16 MB Flash/Octal PSRAM defaults require physical capacity confirmation;

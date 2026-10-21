@@ -1,52 +1,66 @@
-# 编译命令
+# SenseCAP Watcher
 
-## 一键编译
+本工程的板型 ID 为 `sensecap-watcher`。[English](README_en.md)。
 
-```bash
-python scripts/release.py sensecap-watcher
+## 当前配置
+
+| 项目 | 本工程实现 |
+| --- | --- |
+| SoC | ESP32-S3 |
+| Flash | 32 MB，QIO，开启 Quad Flash 32-bit 地址支持 |
+| PSRAM | Octal，80 MHz；容量由实际设备检测 |
+| 分区 | [partitions/v2/32m-sensecap.csv](../../../../partitions/v2/32m-sensecap.csv)，保留出厂数据并提供双 4 MB OTA 分区 |
+| 控制台 | ESP-IDF 默认 UART0，板级配置未覆盖控制台类型 |
+| 音频 | ES7243E 采集、ES8311 播放；SDK 边界为 16 kHz 单声道 signed-16 PCM |
+| 显示 | 412 × 412 SPD2010，QSPI，自动使用共享 LVGL 界面 |
+| 输入 | 编码器 GPIO41/GPIO42，按键由 TCA9555 P0.3 读取 |
+| 电源 | TCA9555 管理系统、LCD 与 codec/功放电源 |
+| 摄像头 | 当前 profile 未提供视频接口，不支持开启视频 |
+
+共享 I2C0 为 SDA GPIO47、SCL GPIO48，TCA9555 的 7-bit 地址为 `0x21`。
+I2S0 为 MCLK GPIO10、BCLK GPIO11、WS GPIO12、DIN GPIO15、DOUT GPIO16。
+LCD QSPI 为 CLK GPIO7、D0 GPIO9、D1 GPIO1、D2 GPIO14、D3 GPIO13、CS GPIO45，
+背光为 GPIO8。局部刷新按 4 像素对齐。
+
+短按编码器开始/结束对话，长按 3 秒进入配网；代码将左旋映射为音量增加、右旋映射为音量
+降低，旋转方向需实机确认。音量保存到 NVS。无 Wi-Fi 信息时自动进入配网并显示热点名称、
+播放提示音；手动配网前先停止 MyBot。
+
+## 构建与烧录
+
+在仓库根目录使用 ESP-IDF v5.5.2：
+
+```sh
+source /path/to/esp-idf/export.sh
+python3 scripts/build_all.py --board sensecap-watcher --language both
 ```
 
-## 手动配置编译
+脚本输出 `releases/sensecap-watcher-zh-CN.bin` 和对应英文合并镜像；清理行为见
+[板卡索引](../README.md)。为保留出厂分区，设备烧录请使用下面的独立构建与 `idf.py flash`，
+不要直接向整片 Flash 写入合并镜像。
 
-```bash
-idf.py set-target esp32s3
+首次烧录前备份出厂分区，将串口替换为本机设备，并妥善保存备份：
+
+```sh
+python -m esptool --chip esp32s3 --port /dev/ttyUSB0 --baud 2000000 \
+  --before default_reset --after hard_reset --no-stub \
+  read_flash 0x9000 204800 nvsfactory.bin
 ```
 
-**配置**
+出厂分区 `nvsfactory` 从 `0x9000` 开始，长度为 200 KiB。禁止执行 `erase-flash` 或使用
+其他板型的分区表。下面的标准烧录流程不会写入 `nvsfactory`：
 
-```bash
-idf.py menuconfig
+```sh
+idf.py -B build/sensecap-watcher \
+  -DMYBOT_BOARD=sensecap-watcher \
+  -DSDKCONFIG=build/sensecap-watcher/sdkconfig \
+  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
+idf.py -B build/sensecap-watcher -p /dev/ttyUSB0 flash monitor
 ```
 
-选择板子
+## 验证范围
 
-```
-Xiaozhi Assistant -> Board Type -> SenseCAP Watcher
-```
-
-watcher 中一些额外的配置项如下，需要在menuconfig 中选择.
-
-```
-CONFIG_BOARD_TYPE_SEEED_STUDIO_SENSECAP_WATCHER=y
-CONFIG_ESPTOOLPY_FLASHSIZE_32MB=y
-CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions/v2/32m.csv"
-CONFIG_BOOTLOADER_CACHE_32BIT_ADDR_QUAD_FLASH=y
-CONFIG_ESPTOOLPY_FLASH_MODE_AUTO_DETECT=n
-CONFIG_IDF_EXPERIMENTAL_FEATURES=y
-```
-
-## 编译烧入
-
-```bash
-idf.py -DBOARD_NAME=sensecap-watcher build flash
-```
-
-注意: 如果当前设备出货之前是SenseCAP 固件(非小智版本),请特别小心处理闪存固件分区地址，以避免错误擦除 SenseCAP Watcher 的自身设备信息（EUI 等），否则设备即使恢复成SenseCAP固件也无法正确连接到 SenseCraft 服务器！所以在刷写固件之前，请务必记录设备的相关必要信息，以确保有恢复的方法！
-
-您可以使用以下命令备份生产信息
-
-```bash
-# firstly backup the factory information partition which contains the credentials for connecting the SenseCraft server
-esptool.py --chip esp32s3 --baud 2000000 --before default_reset --after hard_reset --no-stub read_flash 0x9000 204800 nvsfactory.bin
-
-```
+当前 profile 尚未完成真机验收；需验证电源时序、codec 的 16 kHz 工作模式、双向音频、
+编码器、配网和显示。摄像头、触摸、LED、电池状态、关机及低功耗尚未接入。
+详见[平台移植](../../../../docs/BOARD_PORTING.zh-CN.md)及
+[平台 UI](../../../../docs/PLATFORM_UI.zh-CN.md)。
