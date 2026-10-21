@@ -75,9 +75,11 @@ Versioning and Conventional Commits.
 
 ### Changed
 
-- Refresh the SDK snapshot to `7854c1d` (version 1.3.0) and update all 22 Chinese/English pairing
+- Update the Chinese and English Wi-Fi provisioning prompts from the BK7259 release `ab25833`,
+  using the original 20 ms mono Opus/Ogg files with recorded hashes and decoded frame counts.
+- Refresh the SDK snapshot to `3f9a1ad` (version 1.3.0) and update all 22 Chinese/English pairing
   prompt and digit recordings from its PCM assets. Encode 20 ms mono Opus/Ogg for the existing
-  firmware decoder, record source/output hashes, and retain the existing Wi-Fi provisioning audio.
+  firmware decoder and record source/output hashes.
 - Sync the MyBot SDK snapshot to the v1.3.0 release (`58f0ef9`) and report version 1.3.0 from
   the ESP-IDF wrapper. Changes since the previous snapshot are release metadata and comments.
 - Sync the MyBot SDK snapshot to `39d5ed1` (1.2.0 plus post-release fixes), accepting cloud

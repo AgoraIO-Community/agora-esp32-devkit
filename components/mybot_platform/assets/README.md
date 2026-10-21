@@ -17,6 +17,11 @@ little-endian PCM at commit `7854c1d5798004485aa1947ff55116bdb7ab0237`. They use
 [locales/SOURCES.json](locales/SOURCES.json) records the source revision, source/output SHA-256,
 sample counts, encoder version and full encoding command.
 
+The two `wificonfig.ogg` recordings are copied byte for byte from the BK7259 release at commit
+`ab258333f0cc8b8d8e9b338e96a8c2b4296d9655`. They use the same mono, 20 ms Opus format required by
+the firmware. Their separate source revision, hashes and frame counts are recorded under
+`wifi_provisioning` in `locales/SOURCES.json`.
+
 To regenerate a pairing asset, obtain `assets/locales/<locale>/<sound>.pcm` from the pinned SDK
 commit and use FFmpeg 6.1.1 with libopus 1.4. Run the command below for each locale (`en-US`, `zh-CN`)
 and sound (`prompt`, `0` through `9`), substituting the input and output paths:

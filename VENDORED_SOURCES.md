@@ -5,7 +5,7 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 
 | Path | Source | Pinned revision |
 | --- | --- | --- |
-| `components/mybot_stack/mybot_sdk/mybot` | `github.com/junlon2006/mybot` | v1.3.0 + post-release asset refresh, commit `7854c1d5798004485aa1947ff55116bdb7ab0237` |
+| `components/mybot_stack/mybot_sdk/mybot` | `github.com/junlon2006/mybot` | v1.3.0 + post-release updates, commit `3f9a1add55f1b946d59655b5b88f4662d780fb31` |
 | `components/mybot_stack/aosl` | `github.com/AgoraIO-Community/aosl` | v1.0.4 + post-release fixes, commit `84e086084ebcd0ae2455a0ce5721950c5fe2e656` |
 | `components/mybot_stack/agora_rtc` | Agora RTSA Lite package archive | v1.10.1, build 1270872 (`20260828_194128`) |
 | `components/esp-wifi-connect` | `github.com/78/esp-wifi-connect` | 3.2.2, commit `c24b97c194e6b4a1d7be0237b3c28980661cac1e` |
@@ -31,7 +31,7 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 | `components/cmake_utilities` | ESP Component Registry `espressif/cmake_utilities` | 0.5.0 |
 | `components/m5pm1` | ESP Component Registry `m5stack/m5pm1` | 1.0.7, content hash `731f79d0629e245787440f5419aac5d7a82befeb25f97689d6a2d0331a24a72d` |
 | Pairing `prompt.ogg` and `0.ogg` through `9.ogg` under `components/mybot_platform/assets/locales/{en-US,zh-CN}` | `github.com/junlon2006/mybot`, `assets/locales` | commit `7854c1d5798004485aa1947ff55116bdb7ab0237`; 16 kHz mono s16 PCM converted to 20 ms Opus/Ogg; source/output SHA-256 and encoding command in `components/mybot_platform/assets/locales/SOURCES.json` |
-| Wi-Fi `wificonfig.ogg` under `components/mybot_platform/assets/locales/{en-US,zh-CN}` | `github.com/junlon2006/mybot-bk7258` | commit `2577b5977a9f137855a7acf1fcdcd4040c5db2ea` |
+| Wi-Fi `wificonfig.ogg` under `components/mybot_platform/assets/locales/{en-US,zh-CN}` | `github.com/junlon2006/mybot-bk7259`, `projects/mybot/assets/locales` | release commit `ab258333f0cc8b8d8e9b338e96a8c2b4296d9655`; copied byte for byte; SHA-256 and frame counts in `components/mybot_platform/assets/locales/SOURCES.json` |
 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` | `github.com/lvgl/lvgl`, `scripts/built_in_font/SourceHanSansSC-Normal.otf` | LVGL 9.5.0 source font SHA-256 `1ee89e1669362dee13851129c0a8a791a87521eb4148e5efbf5d26596738e25b`; generated 20 px, 4 bpp static UI subset |
 | `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` | Noto Color Emoji font glyphs rasterized by `github.com/78/noto-fonts`, `png/noto-color-emoji_64` | 2.0.0, commit `d45dbc64052d57048f20ab1770074172ce9eb53b`; per-image SHA-256 values and glyph provenance in `assets/ui/noto_emoji/SOURCES.json` |
 
