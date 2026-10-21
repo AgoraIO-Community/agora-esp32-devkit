@@ -76,8 +76,10 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Refresh the Chinese and English Wi-Fi provisioning prompts while preserving 20 ms mono Opus/Ogg.
+
 - Refresh the 22 Chinese and English pairing prompt and digit recordings. Preserve the 20 ms
-  mono Opus/Ogg format and the existing Wi-Fi provisioning audio.
+  mono Opus/Ogg format.
 
 Historical SDK commit IDs below refer to the
 [agent-studio-device-firmware history](https://github.com/AgoraIO-Community/agent-studio-device-firmware/commits/main/).
