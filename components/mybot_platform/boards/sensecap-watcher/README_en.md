@@ -1,66 +1,72 @@
 # SenseCAP Watcher
 
-[中文](README.md)
+The board ID in this project is `sensecap-watcher`. [简体中文](README.md).
 
-This guide describes the `sensecap-watcher` profile in `agora-esp32-devkit`. Its configuration is
-provided by [board.cmake](board.cmake), [board_config.h](board_config.h), and
-[sdkconfig.defaults](sdkconfig.defaults).
+## Current profile
 
-## Current configuration
-
-| Item | Configuration |
+| Item | Implementation |
 | --- | --- |
-| MCU / storage | ESP32-S3; 32 MB QIO Flash, Octal PSRAM at 80 MHz |
-| Audio | ES8311 and ES7243E, 16 kHz mono PCM |
-| Audio MCLK/BCLK/WS/DIN/DOUT | GPIO10/11/12/15/16 |
-| Display | 412×412 SPD2010 QSPI with the LVGL status view |
-| Shared I2C | SDA GPIO47, SCL GPIO48; TCA9555 address `0x21` |
-| Input | Rotary encoder GPIO41/42; encoder button on TCA9555 P0.3 |
-| Partitions | [`partitions/v2/32m-sensecap.csv`](../../../../partitions/v2/32m-sensecap.csv) |
+| SoC | ESP32-S3 |
+| Flash | 32 MB QIO, with Quad Flash 32-bit addressing enabled |
+| PSRAM | Octal, 80 MHz; capacity is detected on the device |
+| Partitions | [partitions/v2/32m-sensecap.csv](../../../../partitions/v2/32m-sensecap.csv), retaining factory data and two 4 MB OTA slots |
+| Console | ESP-IDF's default UART0; the board does not override the console type |
+| Audio | ES7243E capture and ES8311 playback; SDK boundary: 16 kHz mono signed-16 PCM |
+| Display | 412 × 412 SPD2010 over QSPI; shared LVGL view selected automatically |
+| Input | Rotary encoder on GPIO41/GPIO42; button read through TCA9555 P0.3 |
+| Power | TCA9555 controls system, LCD and codec/amplifier rails |
+| Camera | No video adapter in this profile; enabling video is unsupported |
 
-TCA9555 controls the system, display, and codec-amplifier power sequence. Rotate the encoder to
-change volume, short-press it to start or stop a conversation, and hold it for three seconds to
-enter provisioning. Camera, touch, LED, battery reporting, shutdown, and low-power operation are
-not implemented by this firmware.
+Shared I2C0 uses SDA GPIO47 and SCL GPIO48; TCA9555 has the 7-bit address `0x21`.
+I2S0 uses MCLK GPIO10, BCLK GPIO11, WS GPIO12, DIN GPIO15 and DOUT GPIO16.
+LCD QSPI uses CLK GPIO7, D0 GPIO9, D1 GPIO1, D2 GPIO14, D3 GPIO13 and CS GPIO45;
+the backlight is on GPIO8. Partial updates are aligned to four pixels.
 
-## Build
+A short encoder-button press starts/stops a conversation; a three-second hold requests Wi-Fi
+provisioning. The code maps left rotation to volume up and right rotation to volume down;
+verify physical rotation on the device. Volume is persisted in NVS. With no saved Wi-Fi
+credentials, provisioning starts automatically, displays the hotspot name and plays a prompt.
+Manual provisioning stops SDK before entering setup.
 
-Load ESP-IDF v5.5.2 and run this command from the project root:
+## Build and flash
+
+Use ESP-IDF v5.5.2 from the repository root:
 
 ```sh
+source /path/to/esp-idf/export.sh
 python3 scripts/build_all.py --board sensecap-watcher --language both
 ```
 
-The builder selects this profile through `MYBOT_BOARD` and creates separate
-`build/build-sensecap-watcher-zh-CN/` and `build/build-sensecap-watcher-en-US/` directories.
-The languages use their respective service regions. The builder also generates merged images
-under `releases/sensecap-watcher-*.bin`; use the segmented flashing procedure below for Watcher
-and do not flash those merged images.
+The script produces `releases/sensecap-watcher-zh-CN.bin` and its English merged image.
+See the [board index](../README.md) for cleanup behavior. To preserve factory data, flash this
+device through the dedicated build and `idf.py flash` below; do not write a merged image
+across the entire Flash.
 
-## Flash and preserve factory data
-
-The dedicated partition table preserves the `nvsfactory` partition at `0x9000` for 204800 bytes.
-Before first flashing, replace the serial port and back up that region. Keep the backup outside
-the device in a safe location:
+Before the first flash, back up the factory partition. Replace the serial port with your
+device's port and keep the backup safe:
 
 ```sh
-python -m esptool --chip esp32s3 --port /dev/ttyUSB0 --baud 460800 \
-  --before default_reset --after hard_reset --no-stub read_flash 0x9000 204800 nvsfactory.bin
+python -m esptool --chip esp32s3 --port /dev/ttyUSB0 --baud 2000000 \
+  --before default_reset --after hard_reset --no-stub \
+  read_flash 0x9000 204800 nvsfactory.bin
 ```
 
-Flash the generated English build as separate segments and monitor the device:
+The `nvsfactory` partition starts at `0x9000` and occupies 200 KiB. Do not run `erase-flash`
+or substitute another board's partition table. Standard flashing below does not write
+`nvsfactory`:
 
 ```sh
-idf.py -B build/build-sensecap-watcher-en-US -p /dev/ttyUSB0 flash monitor
+idf.py -B build/sensecap-watcher-en-US \
+  -DMYBOT_BOARD=sensecap-watcher \
+  -DSDKCONFIG=build/sensecap-watcher-en-US/sdkconfig \
+  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults;ci/en-us.defaults" build
+idf.py -B build/sensecap-watcher-en-US -p /dev/ttyUSB0 flash monitor
 ```
 
-Use `build/build-sensecap-watcher-zh-CN` for Chinese. `idf.py flash` uses the selected build's
-`flash_args` to write the bootloader, partition table, OTA data, and application segments. The
-application starts at `0x200000`; do not write it at `0x0`. These segments exclude factory data.
-Do not erase the whole chip or flash a merged image that fills the factory-data gap.
+## Validation scope
 
-See the [project build guide](../../../../README.md#build) for environment setup and build
-options, and the [porting guide](../../../../docs/BOARD_PORTING.md) for validation status.
-A successful build does not establish real-device behavior. The reference material's MIT license
-is retained in [LICENSE.xiaozhi-esp32](../../assets/LICENSE.xiaozhi-esp32); see the
-[third-party notices](../../../../THIRD_PARTY_NOTICES.md) for attribution.
+This profile has not completed real-device acceptance. Verify power sequencing, the codecs'
+16 kHz mode, bidirectional audio, the encoder, provisioning and the display. Camera, touch,
+LEDs, battery status, shutdown and low-power support are not integrated. See
+[board porting](../../../../docs/BOARD_PORTING.md) and
+[platform UI](../../../../docs/PLATFORM_UI.md).

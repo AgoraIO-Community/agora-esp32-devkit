@@ -30,7 +30,6 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 | `components/knob` | ESP Component Registry `espressif/knob` | 1.1.0, commit `5f9cb98ae4d0e8153c4b4d1accf471214e5b6fe8` |
 | `components/cmake_utilities` | ESP Component Registry `espressif/cmake_utilities` | 0.5.0 |
 | `components/m5pm1` | ESP Component Registry `m5stack/m5pm1` | 1.0.7, content hash `731f79d0629e245787440f5419aac5d7a82befeb25f97689d6a2d0331a24a72d` |
-| `components/mybot_platform/assets/locales` | [agora-r1-devkit announcement assets](https://github.com/AgoraIO-Community/agora-r1-devkit/tree/2f95ffa5075413ec0752b8cf5a08e8b200267ce0/projects/mybot/assets/locales) | commit `2f95ffa5075413ec0752b8cf5a08e8b200267ce0`; the 24 delivered files are byte-identical to this asset set, with the two `success.ogg` files omitted |
 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` | `github.com/lvgl/lvgl`, `scripts/built_in_font/SourceHanSansSC-Normal.otf` | LVGL 9.5.0 source font SHA-256 `1ee89e1669362dee13851129c0a8a791a87521eb4148e5efbf5d26596738e25b`; generated 20 px, 4 bpp static UI subset |
 | `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` | Noto Color Emoji font glyphs rasterized by `github.com/78/noto-fonts`, `png/noto-color-emoji_64` | 2.0.0, commit `d45dbc64052d57048f20ab1770074172ce9eb53b`; per-image SHA-256 values and glyph provenance in `components/mybot_platform/assets/ui/noto_emoji/SOURCES.json` |
 
@@ -49,13 +48,6 @@ These pages describe the checked-in `board.cmake`, `board_config.h` and board de
 using this repository's `MYBOT_BOARD` selector and `scripts/build_all.py` build entry.
 Firmware capabilities and validation limits follow the current profiles and the English
 and Chinese root READMEs.
-
-The AtomEchoS3R, ESP-VoCat, Waveshare AMOLED, CoreS3, StickS3, SenseCAP Watcher and Zhengchen
-pages adapt MIT-licensed xiaozhi-esp32 hardware reference material. The upstream MIT
-notice is retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
-Bread Compact Wi-Fi LCD, Xingzhi Cube and ReSpeaker Flex have project-maintained profile
-descriptions. The adapted pages are maintained for this firmware; they are not unchanged
-copies of another application's build or feature documentation.
 
 | Board profile | Delivered description |
 | --- | --- |
@@ -84,21 +76,11 @@ are not included by these references.
 
 | Paths | Derivation or hardware reference | Delivered implementation or pinned input |
 | --- | --- | --- |
-| `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_view.cc`, `components/mybot_platform/src/internal/display/lvgl_view.h` | MIT-licensed xiaozhi-esp32 display and LVGL theme layout | [ESP32 implementation baseline][esp32-platform-baseline] |
 | CoreS3 `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, expression geometry/masks/generators, `pixel_expressions.c`, and private expression headers/policy | BK7259 pixel-glasses renderer family, retaining MIT/Apache-2.0 file notices | [ESP32 implementation baseline][esp32-platform-baseline]; adapted to the ESP32 display API and CoreS3 320x240 geometry |
 | CoreS3 terminal subsets in `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c` and `TERMINAL_FONT_LICENSE.txt` | DejaVu Sans Mono Bold, renamed MyBot Terminal | Source TTF SHA-256 `3a3c502eeff669a231549e80df9f7c49de109bafe303170409e905d0b31a38fe`; 9 px terminal and 10 px signature subsets, with retained Bitstream Vera terms |
 | `components/mybot_platform/src/drivers/display/adapters/lvgl/shared_lvgl_adapter.cc`, `components/mybot_platform/src/internal/display/display_panel.h` | Project-maintained shared adapter for ST7789, CO5300, SPD2010, and ST77916 panels | Uses the board panel drivers; no new upstream source |
 | `components/mybot_platform/boards/respeaker-flex-xvf3800-circular4-xiao`, `components/mybot_platform/src/drivers/audio/xvf3800_audio.c`, `partitions/v2/8m.csv` | `github.com/qiuyanli1990/respeaker-flex-circle-Agora-mybot` | commit `b06024382eb104c998aead4841e1df647193065b` |
-| `components/mybot_platform/boards/sensecap-watcher`, `components/mybot_platform/src/drivers/audio/sensecap_codec_audio.c`, `components/mybot_platform/src/drivers/display/panels/spd2010/spd2010_panel.c`, `partitions/v2/32m-sensecap.csv` | MIT-licensed xiaozhi-esp32 hardware/driver material | [ESP32 implementation baseline][esp32-platform-baseline] |
-| `components/mybot_platform/boards/m5stack-stick-s3`, `components/mybot_platform/src/drivers/audio/es8311_codec_audio.c`, `components/mybot_platform/src/drivers/display/adapters/lvgl/st7789_lvgl_adapter.cc`, `components/mybot_platform/src/drivers/display/panels/st7789/st7789_panel.c` (panel lifecycle extracted from the existing local adapter) | MIT-licensed xiaozhi-esp32 hardware/driver material | [ESP32 implementation baseline][esp32-platform-baseline] |
-| `components/mybot_platform/boards/zhengchen-1.54tft-wifi/board_config.h` (hardware mapping verification only) | xiaozhi-esp32 hardware reference | [ESP32 implementation baseline][esp32-platform-baseline] |
-| `components/mybot_platform/boards/xingzhi-cube-1.54tft-wifi/board_config.h` (hardware mapping, SPI mode, RTC power hold, and reference speaker-rate verification only) | xiaozhi-esp32 hardware reference | [ESP32 implementation baseline][esp32-platform-baseline] |
-| `components/mybot_platform/boards/bread-compact-wifi-lcd/board_config.h` (fixed 240x320 ST7789/simplex-I2S hardware mapping and reference speaker-rate verification only) | xiaozhi-esp32 hardware reference | [ESP32 implementation baseline][esp32-platform-baseline] |
 | `components/mybot_platform/boards/bread-compact-wifi-lcd/bread_input.c` | Existing local `components/mybot_platform/boards/atom-echos3r/atom_echos3r_input.c` MIT template | Project-local adaptation for Boot GPIO0; retains MIT copyright and permission notice |
-| `components/mybot_platform/boards/atom-echos3r/board_config.h` (hardware mapping verification only) | xiaozhi-esp32 hardware reference | [ESP32 implementation baseline][esp32-platform-baseline] |
-| `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75-common`, `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75`, `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75c`, `components/mybot_platform/src/drivers/audio/amoled175_codec_audio.c`, `components/mybot_platform/src/drivers/display/panels/co5300/co5300_panel.c` | MIT-licensed xiaozhi-esp32 hardware/driver material | [ESP32 implementation baseline][esp32-platform-baseline] |
-| `components/mybot_platform/boards/esp32-s3-touch-amoled-2.16`, `components/mybot_platform/src/drivers/display/panels/co5300/co5300_480_panel.c` (independent variants of the existing 1.75 integration; hardware facts checked against the 2.16 reference) | xiaozhi-esp32 hardware reference; existing MIT 1.75 integration | [ESP32 implementation baseline][esp32-platform-baseline] |
-| `components/mybot_platform/boards/esp-vocat`, `components/mybot_platform/src/drivers/audio/vocat_codec_audio.c`, `components/mybot_platform/src/drivers/display/panels/st77916/st77916_panel.c` | MIT-licensed xiaozhi-esp32 hardware/driver material | [ESP32 implementation baseline][esp32-platform-baseline] |
 | `components/mybot_platform/boards/esp-vocat/board_config.h` (hardware mapping verification only) | `github.com/espressif/esp-brookesia` | commit `b22c488f50bafe53342c8e171081bd736396ef58` |
 
 [esp32-platform-baseline]: https://github.com/AgoraIO-Community/agora-esp32-devkit/tree/1bc740a8f4c5e3ba188071d50a1623d9fe328294

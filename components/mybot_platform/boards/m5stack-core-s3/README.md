@@ -1,54 +1,58 @@
 # M5Stack CoreS3
 
-本目录是 agora-esp32-devkit 的 `m5stack-core-s3` 板级 profile，提供音频、触摸、像素眼镜
-LVGL UI 与可选 GC0308 视频上行。
+本工程的板型 ID 为 `m5stack-core-s3`，面向带 GC0308 摄像头的 CoreS3。
+[官方硬件文档](https://docs.m5stack.com/en/core/CoreS3)。
 
-## 硬件与当前 profile
+## 当前配置
 
-| 项目 | 当前配置 |
+| 项目 | 本工程实现 |
 | --- | --- |
-| 主控与存储 | ESP32-S3、16 MB QIO Flash、80 MHz Quad PSRAM |
-| 分区 | 根目录 `partitions/v2/16m.csv` |
-| 公共 I2C1 | SDA GPIO12、SCL GPIO11 |
-| ES7210 / AW88298 I2S | MCLK GPIO0、BCLK GPIO34、WS GPIO33、DIN GPIO14、DOUT GPIO13 |
-| 显示 | 320 × 240 ILI9342，SPI MOSI GPIO37、SCLK GPIO36、CS GPIO3、DC GPIO35 |
-| 触摸与电源 | FT6336 `0x38`、AXP2101 `0x34`、AW9523 `0x58` |
-| 视频 | GC0308，RTC 连接期间上传 320 × 240 JPEG，最多 1 fps |
+| SoC | ESP32-S3 |
+| Flash | 16 MB，QIO |
+| PSRAM | 8 MB，Quad，80 MHz |
+| 分区 | [partitions/v2/16m.csv](../../../../partitions/v2/16m.csv)，双 OTA 分区 |
+| 控制台 | ESP-IDF 默认 UART0，板级配置未覆盖控制台类型 |
+| 音频 | ES7210 采集、AW88298 播放；SDK 边界为 16 kHz 单声道 signed-16 PCM |
+| 显示 | 320 × 240 ILI9342，自动使用 LVGL 像素眼镜界面 |
+| 输入 | FT6336 触摸：短触开始/结束对话，长按 3 秒进入配网 |
+| 摄像头 | GC0308 DVP，320 × 240 YUYV，软件 JPEG，上行最多 1 fps |
+| 电源 | AXP2101 与 AW9523，由板级硬件层初始化并控制背光、复位 |
 
-GPIO0 是音频 MCLK，不能当作 Boot 用户按键。音频使用 16 kHz 单声道 signed 16-bit PCM，
-启动时恢复持久化音量。完整定义见 [board_config.h](board_config.h)、[board.cmake](board.cmake)
-与 [sdkconfig.defaults](sdkconfig.defaults)。
+共享 I2C1 为 SDA GPIO12、SCL GPIO11。I2S0 为 MCLK GPIO0、BCLK GPIO34、WS GPIO33、
+DIN GPIO14、DOUT GPIO13；GPIO0 用于音频时钟，不作为配网按键。LCD SPI3 为 MOSI GPIO37、
+SCLK GPIO36、CS GPIO3、DC GPIO35。
 
-## 构建
+无已保存的 Wi-Fi 信息时自动进入配网并显示热点名称、播放提示音。已有网络时联网后启动
+SDK；长按触摸会先停止 SDK 再配网。设备音量保存在 NVS，重启后恢复。
 
-在工程根目录激活 ESP-IDF v5.5.2 后构建中英文固件：
+## 构建与烧录
+
+在仓库根目录使用 ESP-IDF v5.5.2：
 
 ```sh
-. /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+source /path/to/esp-idf/export.sh
 python3 scripts/build_all.py --board m5stack-core-s3 --language both
 ```
 
-默认自动开启视频，中间构建目录为 `build/build-m5stack-core-s3-<语言>-video/`，生成根目录 `releases/m5stack-core-s3-zh-CN-video.bin` 与
-`releases/m5stack-core-s3-en-US-video.bin`。需要无视频对照固件时运行：
+脚本默认开启视频，输出 `releases/m5stack-core-s3-zh-CN-video.bin` 和对应英文固件。
+需要关闭视频时追加 `--video off`。CoreS3-SE 不带 GC0308，不能使用视频固件。
+构建脚本的清理行为见[板卡索引](../README.md)。
+
+直接构建中文视频固件并烧录时，使用独立目录；将串口替换为本机设备：
 
 ```sh
-python3 scripts/build_all.py --board m5stack-core-s3 --language both --video off
+idf.py -B build/m5stack-core-s3 \
+  -DMYBOT_BOARD=m5stack-core-s3 \
+  -DSDKCONFIG=build/m5stack-core-s3/sdkconfig \
+  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults;ci/video.defaults" build
+idf.py -B build/m5stack-core-s3 -p /dev/ttyUSB0 flash monitor
 ```
 
-此时文件名为 `releases/m5stack-core-s3-zh-CN.bin` 与 `releases/m5stack-core-s3-en-US.bin`。
-构建器默认清理所选构建/输出根目录；如需同时保留两组，使用独立输出目录，详见
-[根目录构建说明](../../../../README.zh-CN.md#构建)。
+英文直接构建需在新目录的 defaults 列表追加 `;ci/en-us.defaults`。
 
-## 使用与验证边界
+## 验证范围
 
-短触屏幕开始/结束对话，长按屏幕 3 秒进入配网。当前 UI 使用固定工艺灰像素眼镜皮肤。
-详细行为见 [CoreS3 UI](../../../../docs/CORES3_UI.zh-CN.md) 与
-[CoreS3 视频](../../../../docs/CORES3_VIDEO.zh-CN.md)。
-
-此前固件的配网、双向音频、摄像头上行与旧状态卡片 UI 已有真机结果；这些结果不能代表新
-像素眼镜 UI 已完成真机回归。当前 UI、视频和音频仍需按本轮固件联合验收。摄像头预览、视频
-下行、电池状态和自动休眠尚未接入。构建成功不能替代实机验证。
-
-板级集成约定见 [板级移植](../../../../docs/BOARD_PORTING.zh-CN.md)，
-相关上游许可见 [MIT 许可文本](../../assets/LICENSE.xiaozhi-esp32)。
+已有音频和摄像头通路完成过真机验证；当前像素眼镜 UI、采集调度和 DMA 配置仍需按对应
+文档回归。构建成功不等于硬件验收。详见[像素眼镜 UI](../../../../docs/CORES3_UI.zh-CN.md)、
+[摄像头上行](../../../../docs/CORES3_VIDEO.zh-CN.md)及
+[音频对照测试](../../../../docs/CORES3_AUDIO_TEST.zh-CN.md)。

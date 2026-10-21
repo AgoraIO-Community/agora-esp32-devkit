@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: MIT */
 /* Copyright (c) 2026 Project Contributors */
-/* Status/content/notification layout adapted from the MIT-licensed display
- * reference identified in LVGL_VIEW_LICENSE.txt. */
 #include "display/lvgl_view.h"
 #include "display/lvgl_assets.h"
 #include "network/wifi_control.h"

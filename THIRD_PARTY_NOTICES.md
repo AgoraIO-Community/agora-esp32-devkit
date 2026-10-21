@@ -30,22 +30,10 @@ It does not replace third-party terms. This file is informational and is not leg
 | Espressif knob 1.1.0 | Apache-2.0 | `components/knob` |
 | Espressif CMake utilities 0.5.0 | Apache-2.0 | `components/cmake_utilities` |
 | M5Stack M5PM1 1.0.7 | MIT | `components/m5pm1` |
-| Announcement assets and Ogg parser | MIT | `components/mybot_platform/assets/locales`, `components/mybot_platform/src/services/announcement/ogg_opus_decoder.c` |
 | Source Han Sans UI glyph subset | SIL Open Font License 1.1 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` |
 | Noto Color Emoji rasterized glyphs | SIL Open Font License 1.1 | `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` |
-| Shared LVGL view | MIT | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_view.cc`, `components/mybot_platform/src/internal/display/lvgl_view.h` |
-| CoreS3 pixel-glasses renderer, geometry/mask generators | MIT; expression helpers/policy retain their file-level Apache-2.0 notices | `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_glasses_view.cc`, pixel geometry/masks/generators and private expression support |
 | MyBot Terminal bitmap subsets derived from DejaVu Sans Mono Bold | Bitstream Vera font terms, with public-domain DejaVu changes | `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c`, `TERMINAL_FONT_LICENSE.txt` |
 | Project-maintained shared LVGL panel adapters | Apache-2.0 unless file SPDX says otherwise | `components/mybot_platform/src/drivers/display/adapters/lvgl/st7789_lvgl_adapter.cc`, `components/mybot_platform/src/drivers/display/adapters/lvgl/shared_lvgl_adapter.cc` |
-| Board documentation adapted from xiaozhi-esp32 hardware references | MIT; project-maintained profile descriptions are Apache-2.0 | The board READMEs indexed in `components/mybot_platform/boards/README.md` |
-| M5Stack CoreS3-derived implementation | MIT | Paths listed under MIT Attributions |
-| ReSpeaker Flex XVF3800-derived implementation (`b060243`) | MIT | Paths listed under MIT Attributions |
-| SenseCAP Watcher-derived implementation | MIT | Paths listed under MIT Attributions |
-| M5Stack StickS3-derived implementation | MIT | Paths listed under MIT Attributions |
-| Waveshare AMOLED 1.75/1.75C-derived implementation | MIT | Paths listed under MIT Attributions |
-| Waveshare AMOLED 2.16 profile/panel | MIT | Paths listed under MIT Attributions |
-| Bread Compact Wi-Fi LCD input (local AtomEchoS3R template) | MIT | `components/mybot_platform/boards/bread-compact-wifi-lcd/bread_input.c` |
-| ESP-VoCat-derived implementation | MIT | Paths listed under MIT Attributions |
 | ESP-IDF | Apache-2.0 plus component-specific terms | External development SDK |
 
 The built-in LVGL UI fonts retain their separate Montserrat OFL and Font Awesome terms at
@@ -73,136 +61,20 @@ before publishing source archives, firmware images, mirrors, or releases contain
 If authorization is unavailable, exclude the library from public artifacts and require users to
 supply an authorized package locally.
 
-## MIT Attributions
-
-
-The board READMEs for AtomEchoS3R, ESP-VoCat, the Waveshare AMOLED profiles, CoreS3,
-StickS3, SenseCAP Watcher and the Zhengchen profiles adapt hardware material from the
-MIT-licensed xiaozhi-esp32 project. Their instructions describe this repository's current
-profiles and supported features. The original copyright and full MIT permission notice
-are retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
-The Bread Compact Wi-Fi LCD, Xingzhi Cube and ReSpeaker Flex descriptions are
-project-maintained documentation of the checked-in profiles. The board index links
-these documents and their actual configuration files.
-
-
-The adapted platform implementations listed below can be inspected at the published
-[ESP32 implementation baseline][esp32-platform-baseline]. This snapshot preserves the delivered
-code and its file-level notices; the original project and copyright attributions remain below.
+## Component Notices
 
 The pinned esp-wifi-connect manifest declares MIT but its 3.2.2 archive omitted the license file.
 `components/esp-wifi-connect/LICENSE` is the byte-identical MIT text later published by that
 upstream project in commit `347682fa013b52f863052ad4b1a793ca3cabff17`.
 
-The announcement assets and Ogg parsing implementation retain the MIT copyright of Shenzhen Xinzhi
-Future Technology Co., Ltd. and Project Contributors. The assets originate from xiaozhi-esp32 and
-their license is retained at `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
-
-The following M5Stack CoreS3 integration files contain substantial portions derived from
-MIT-licensed xiaozhi-esp32 hardware and driver material. They use the MIT SPDX identifier and the
-full permission text in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`:
-
-- `components/mybot_platform/boards/m5stack-core-s3/`
-- `components/mybot_platform/src/drivers/audio/cores3_codec_audio.c`
-- `components/mybot_platform/src/drivers/display/panels/ili9342/ili9342_panel.c`
-- `components/mybot_platform/src/internal/display/ili9342_panel.h`
-- `components/mybot_platform/src/drivers/display/adapters/lvgl/ili9342_lvgl_adapter.cc`
-- `components/mybot_platform/src/drivers/input/ft6336_touch.c`
-
-The shared LVGL view adapts the status/content/notification layout from the MIT-licensed
-xiaozhi-esp32 display implementation. The original copyright and complete permission notice
-are retained in `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_LICENSE.txt`.
-Its generated Source Han Sans glyph subset retains Adobe's copyright and SIL OFL 1.1 text in
-`components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt`; it is not MIT-licensed.
-
-CoreS3's pixel-glasses display implementation and generators adapt the BK7259 pixel-glasses
-renderer family for the ESP32 display API and 320x240 geometry.
-The MIT renderer/geometry/generator notices and existing display permission text in
-`components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_LICENSE.txt` are retained;
-expression helper and policy files retain their Apache-2.0 SPDX notices. The delivered
-[pixel-glasses resource guide](components/mybot_platform/src/drivers/display/renderers/lvgl/PIXEL_GLASSES_SOURCES.md)
-identifies the renderer, geometry, masks and generators.
-
-The CoreS3 MyBot Terminal subsets are renamed derivatives of DejaVu Sans Mono Bold, preserving
-the Bitstream copyright/trademark notice, font permission conditions and public-domain status of
-DejaVu changes in `components/mybot_platform/src/drivers/display/renderers/lvgl/TERMINAL_FONT_LICENSE.txt`.
-Font data is not covered by the renderer's MIT declaration. The existing Source Han Sans 20 px
-subset is reused for Chinese guidance under its SIL OFL 1.1 license. Other board profiles retain
-their existing font and emoji notices.
-
-The ReSpeaker Flex hardware mapping, AIC3104 initialization, XVF3800 control and button polling,
-and I2S conversion are derived in part from the MIT-licensed
-`github.com/qiuyanli1990/respeaker-flex-circle-Agora-mybot` reference at commit
-`b06024382eb104c998aead4841e1df647193065b`. The following paths remain covered by its MIT terms;
-the complete copyright and permission notice is retained in
-`components/mybot_platform/assets/LICENSE.xiaozhi-esp32`:
-
-- `components/mybot_platform/boards/respeaker-flex-xvf3800-circular4-xiao/`
-- `components/mybot_platform/src/drivers/audio/xvf3800_audio.c`
-- `partitions/v2/8m.csv`
-
-The SenseCAP Watcher hardware mapping, codec integration, SPD2010 display integration, and partition
-layout are derived in part from MIT-licensed xiaozhi-esp32 material. The following paths remain covered by its MIT terms;
-the complete copyright and permission notice is retained in
-`components/mybot_platform/assets/LICENSE.xiaozhi-esp32`:
-
-- `components/mybot_platform/boards/sensecap-watcher/`
-- `components/mybot_platform/src/drivers/audio/sensecap_codec_audio.c`
-- `components/mybot_platform/src/drivers/display/panels/spd2010/spd2010_panel.c`
-- `partitions/v2/32m-sensecap.csv`
-
-The M5Stack StickS3 hardware mapping, M5PM1 sequencing, ES8311 integration, and ST7789P3 display
-configuration are derived in part from MIT-licensed xiaozhi-esp32 material. The following paths remain
-covered by its MIT terms; the complete copyright and permission notice is retained in
-`components/mybot_platform/assets/LICENSE.xiaozhi-esp32`:
-
-- `components/mybot_platform/boards/m5stack-stick-s3/`
-- `components/mybot_platform/src/drivers/audio/es8311_codec_audio.c`
-- `components/mybot_platform/src/drivers/display/adapters/lvgl/st7789_lvgl_adapter.cc`
-- `components/mybot_platform/src/drivers/display/panels/st7789/st7789_panel.c`
-
-The ST7789 panel lifecycle was extracted from the existing local adapter and retains its MIT
-SPDX identifier, copyright, and permission notice.
-
 The vendored M5PM1 production sources retain the upstream M5Stack MIT license in
 `components/m5pm1/LICENSE`.
 
-The Waveshare ESP32-S3 Touch AMOLED 1.75 and 1.75C hardware mappings, AXP2101 sequence, CO5300
-initialization, CST9217 integration, and codec routing are derived in part from MIT-licensed
-xiaozhi-esp32 material. The following paths remain covered by its MIT terms;
-the complete copyright and permission notice is retained in
-`components/mybot_platform/assets/LICENSE.xiaozhi-esp32`:
-
-- `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75-common/`
-- `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75/`
-- `components/mybot_platform/boards/esp32-s3-touch-amoled-1.75c/`
-- `components/mybot_platform/src/drivers/audio/amoled175_codec_audio.c`
-- `components/mybot_platform/src/drivers/display/panels/co5300/co5300_panel.c`
-
-The Waveshare AMOLED 2.16 profile owns independent Board and 480-pixel panel variants derived
-from this MIT integration, reusing its audio/input drivers and the shared LVGL view. Its pin mapping
-and 480x480 zero-gap panel geometry use the xiaozhi-esp32 hardware reference. The adapted profile
-and panel are available in the [ESP32 implementation baseline][esp32-platform-baseline].
-The profile retains the MIT SPDX identifier
-and the complete notice in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`:
-
-- `components/mybot_platform/boards/esp32-s3-touch-amoled-2.16/`
-- `components/mybot_platform/src/drivers/display/panels/co5300/co5300_480_panel.c`
-
-The ESP-VoCat PCB detection, hardware mapping, ST77916 initialization, CST816S input behavior, and
-codec routing are derived in part from MIT-licensed xiaozhi-esp32 material. The following paths remain
-covered by its MIT terms; the complete copyright and permission notice is retained in
-`components/mybot_platform/assets/LICENSE.xiaozhi-esp32`:
-
-- `components/mybot_platform/boards/esp-vocat/`
-- `components/mybot_platform/src/drivers/audio/vocat_codec_audio.c`
-- `components/mybot_platform/src/drivers/display/panels/st77916/st77916_panel.c`
-
-The Bread Compact Wi-Fi LCD Boot input is adapted from the existing local MIT AtomEchoS3R input
-implementation at `components/mybot_platform/boards/atom-echos3r/atom_echos3r_input.c`. Its
-copyright and MIT SPDX identifier are retained in
-`components/mybot_platform/boards/bread-compact-wifi-lcd/bread_input.c`; the complete permission
-notice is retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
+The CoreS3 pixel-glasses renderer and geometry generators use the file-level terms in their
+sources. The terminal font subsets retain the Bitstream Vera terms and public-domain DejaVu
+changes in `components/mybot_platform/src/drivers/display/renderers/lvgl/TERMINAL_FONT_LICENSE.txt`.
+Source Han Sans UI glyphs retain the SIL OFL 1.1 terms in
+`components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt`.
 
 ## Vendored SDK Notice
 
@@ -211,28 +83,7 @@ The SDK's public headers and core sources are pinned to
 The exact trees and reproducible archive checksum are recorded in
 [VENDORED_SOURCES.md](VENDORED_SOURCES.md).
 
-The original SDK license and third-party notice are retained unchanged under
-`components/mybot_stack/mybot_sdk/mybot/`. That notice may describe packages used by other SDK targets;
-it is preserved as part of the immutable SDK snapshot and does not redefine this firmware's dependency set.
+The SDK license and platform-specific third-party notice are retained under
+`components/mybot_stack/mybot_sdk/mybot/`.
 
 Every component license file and file-level SPDX/copyright notice remains in force.
-
-## Hardware References
-
-The Xingzhi Cube pin mapping, ST7789 SPI mode, RTC GPIO21 power hold, and reference speaker rate
-use xiaozhi-esp32 hardware reference material. The selected values are recorded in the delivered
-`components/mybot_platform/boards/xingzhi-cube-1.54tft-wifi/board_config.h` and the
-[ESP32 implementation baseline][esp32-platform-baseline]. The Board lifecycle is project-maintained
-Apache-2.0 code. The port adds no vendored component or upstream application service; reused
-drivers retain their existing file-level SPDX and copyright notices. The reference's complete MIT
-copyright and permission text is retained in `components/mybot_platform/assets/LICENSE.xiaozhi-esp32`.
-
-The Bread Compact Wi-Fi LCD fixed ST7789 240x320 and separate-I2S pin mapping and 24 kHz
-reference speaker rate use xiaozhi-esp32 hardware reference material. The selected values are
-recorded in the delivered `components/mybot_platform/boards/bread-compact-wifi-lcd/board_config.h`
-and the [ESP32 implementation baseline][esp32-platform-baseline].
-The N16R8 memory profile is the selected firmware hardware contract and still requires real-device
-confirmation. Its Board lifecycle, pin header, and build metadata are project-maintained Apache-2.0;
-reused drivers and the adapted Boot input retain their existing MIT notices.
-
-[esp32-platform-baseline]: https://github.com/AgoraIO-Community/agora-esp32-devkit/tree/1bc740a8f4c5e3ba188071d50a1623d9fe328294

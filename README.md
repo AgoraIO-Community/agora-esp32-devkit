@@ -39,7 +39,7 @@ Circular-4 with XIAO ESP32S3, and SenseCAP Watcher.
 
 ## Supported Boards
 
-Per-board hardware notes and build instructions are listed in the
+Per-board hardware configuration, controls and build/flash instructions are listed in the
 [board documentation index](components/mybot_platform/boards/README.md).
 
 | Board profile | Audio | Display and input | Storage |
