@@ -227,5 +227,25 @@
       "source_frames": 51840,
       "bytes": 10172
     }
-  ]
+  ],
+  "wifi_provisioning": {
+    "format": "ogg_opus",
+    "sample_rate_hz": 16000,
+    "channels": 1,
+    "frame_duration_ms": 20,
+    "files": [
+      {
+        "file": "en-US/wificonfig.ogg",
+        "sha256": "a0af04e8a9e06dfc8fc8990d12bdee7c187fc61710465a92c1d00bc6848a8e75",
+        "frames": 39168,
+        "bytes": 7132
+      },
+      {
+        "file": "zh-CN/wificonfig.ogg",
+        "sha256": "c96e85c37533c8115a991c4614c0268a9e0c762c76e6e278a570ff0866590145",
+        "frames": 36480,
+        "bytes": 6704
+      }
+    ]
+  }
 }
