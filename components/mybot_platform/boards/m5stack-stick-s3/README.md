@@ -1,133 +1,57 @@
-# M5Stack Sticks3
+# M5Stack StickS3
 
-* MCU: ESP32-S3
-* PSRAM: 8MB
-* Flash: 8MB
-* Display: 1.14Inch, 135x240 LCD.
+本工程的板型 ID 为 `m5stack-stick-s3`。
+[官方硬件文档](https://docs.m5stack.com/zh_CN/core/StickS3)。
 
------------
-## Hardware
+## 当前配置
 
-* SYS_I2C/I2C0
-    * SCL -- G48
-    * SDA -- G47
-* PMIC: M5PM1
-    * Interface: I2C0@0x6E
-* LCD
-    * Power: M5PM1_G2 高电平使能
-    * Resolution: 135x240
-    * Driver: CO5300
-    * Interface: SPI
-        * MOSI -- G39
-        * SCLK -- G40
-        * CS   -- G41
-        * RS   -- G45
-    * BL -- G38
-* Audio
-    * Power: M5PM1_G2 高电平使能
-    * ES8311@0x18
-        * Control Interface: SYS_I2C
-        * Data Interface: I2S0
-            * MCLK   -- G18
-            * BCLK   -- G17
-            * ASDOUT -- G16
-            * LRCK   -- G15
-            * DSDIN  -- G14
-    * PA -- PM1_G3
-* Key
-    * KEY1 -- G11
-* IMU
-    * BMI270@0x68
-        * Interface: SYS_I2C
-* IR
-    * TX -- G46
-    * RX -- G42
+| 项目 | 本工程实现 |
+| --- | --- |
+| SoC | ESP32-S3 |
+| Flash | 8 MB，QIO |
+| PSRAM | 8 MB，Octal，80 MHz |
+| 分区 | [partitions/v2/8m.csv](../../../../partitions/v2/8m.csv)，双 OTA 分区 |
+| 控制台 | ESP-IDF 默认 UART0，板级配置未覆盖控制台类型 |
+| 音频 | ES8311；SDK 边界为 16 kHz 单声道 signed-16 PCM，物理 I2S 使用双声道 |
+| 显示 | ST7789P3，135 × 240，偏移 (52, 40)，自动使用共享 LVGL 界面 |
+| 输入 | GPIO11 主按键，低电平有效；短按开始/结束对话，长按 3 秒进入配网 |
+| 电源 | M5PM1，G2 为显示与 codec 供电，G3 控制播放功放 |
+| 摄像头 | 当前 profile 未提供视频接口，不支持开启视频 |
 
-## 快速构建
+共享 I2C0 为 SDA GPIO47、SCL GPIO48，M5PM1 的 7-bit 地址为 `0x6e`，ES8311 为 `0x18`。
+I2S0 为 MCLK GPIO18、BCLK GPIO17、WS GPIO15、DIN GPIO16、DOUT GPIO14。
+LCD SPI3 为 MOSI GPIO39、SCLK GPIO40、CS GPIO41、DC GPIO45、RESET GPIO21；
+背光 GPIO38 由 LEDC 驱动，默认亮度 60%。
 
-推荐使用 release 脚本生成完整固件包：
+固件运行期间保持 G2 电源开启，播放生命周期控制 G3。音量逻辑值为 0–100，保存到 NVS；
+当前 ES8311 硬件音量按逻辑值的 60% 映射。无 Wi-Fi 信息时自动进入配网并显示热点名称、
+播放提示音；长按主按键会先停止 MyBot 再重新配网。
 
-```bash
-python scripts/release.py m5stack-stick-s3 --name m5stack-stick-s3
+## 构建与烧录
+
+在仓库根目录使用 ESP-IDF v5.5.2：
+
+```sh
+source /path/to/esp-idf/export.sh
+python3 scripts/build_all.py --board m5stack-stick-s3 --language both
 ```
 
-生成的固件压缩包位于：
+输出 `releases/m5stack-stick-s3-zh-CN.bin` 和对应英文固件；LVGL 自动启用。
+构建脚本的清理行为见[板卡索引](../README.md)。
 
-```text
-releases/v2.2.6_m5stack-stick-s3.zip
+直接构建中文固件并烧录时，使用独立目录；将串口替换为本机设备：
+
+```sh
+idf.py -B build/m5stack-stick-s3 \
+  -DMYBOT_BOARD=m5stack-stick-s3 \
+  -DSDKCONFIG=build/m5stack-stick-s3/sdkconfig \
+  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
+idf.py -B build/m5stack-stick-s3 -p /dev/ttyUSB0 flash monitor
 ```
 
-`config.json` 中的关键构建配置：
+## 验证范围
 
-```text
-CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
-CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions/v2/8m.csv"
-CONFIG_SPIRAM=y
-```
-
-## 手动配置
-
-配置编译目标：
-
-```bash
-idf.py set-target esp32s3
-```
-
-打开配置菜单：
-
-```bash
-idf.py menuconfig
-```
-
-选择板卡：
-
-```text
-Xiaozhi Assistant -> Board Type -> M5Stack StickS3
-```
-
-配置 Flash 大小：
-
-```text
-Serial flasher config -> Flash size -> 8 MB
-```
-
-配置分区表：
-
-```text
-Partition Table -> Custom partition CSV file -> partitions/v2/8m.csv
-```
-
-配置 PSRAM：
-
-```text
-Component config -> ESP PSRAM -> Support for external, SPI-connected RAM -> Select
-```
-
-编译：
-
-```bash
-idf.py build
-```
-
-## 合并固件
-
-手动构建后，可使用以下命令合并烧录固件：
-
-```bash
-esptool.py --chip esp32s3 merge_bin \
-    --flash_mode dio \
-    --flash_freq 80m \
-    --flash_size 8MB \
-    0x0 build/bootloader/bootloader.bin \
-    0x8000 build/partition_table/partition-table.bin \
-    0xd000 build/ota_data_initial.bin \
-    0x20000 build/xiaozhi.bin \
-    0x600000 build/generated_assets.bin \
-    -o M5Stack-StickS3-XiaoZhi-v2.2.6_0x00.bin
-```
-
-烧录合并后的固件：
-
-```bash
-esptool.py -b 1500000 write_flash -z 0 M5Stack-StickS3-XiaoZhi-v2.2.6_0x00.bin
-```
+当前 profile 尚未完成真机验收，需验证电源时序、16 kHz 双向音频、按键与屏幕颜色/方向。
+GPIO12、IMU、红外、电池状态、关机手势和低功耗未接入。详见
+[平台移植](../../../../docs/BOARD_PORTING.zh-CN.md)及
+[平台 UI](../../../../docs/PLATFORM_UI.zh-CN.md)。

@@ -7,8 +7,8 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Per-board README files for all thirteen profiles, including eleven verbatim reference documents
-  covering ten profiles, three local descriptions, and a linked board documentation index.
+- Per-board hardware, input, configuration, build and flashing instructions for all thirteen
+  profiles, with a linked board documentation index.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
   Automatic faces follow READY/conversation phases; four MCP emotions use bounded holds,
@@ -75,6 +75,9 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Refresh the SDK snapshot to `7854c1d` (version 1.3.0) and update all 22 Chinese/English pairing
+  prompt and digit recordings from its PCM assets. Encode 20 ms mono Opus/Ogg for the existing
+  firmware decoder, record source/output hashes, and retain the existing Wi-Fi provisioning audio.
 - Sync the MyBot SDK snapshot to the v1.3.0 release (`58f0ef9`) and report version 1.3.0 from
   the ESP-IDF wrapper. Changes since the previous snapshot are release metadata and comments.
 - Sync the MyBot SDK snapshot to `39d5ed1` (1.2.0 plus post-release fixes), accepting cloud

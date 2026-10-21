@@ -30,12 +30,13 @@ StickS3、M5Stack AtomEchoS3R、搭配 XIAO ESP32S3 的 ReSpeaker Flex XVF3800 C
 - 所有 Board profile 共用有界 PCM 播放缓冲和独立 I2S 播放任务。
 - 带屏板型自动选择LVGL界面：CoreS3使用工艺灰像素眼镜，其他板型保留共享流程视图。
 - 配网页面显示实际设备热点名称，超宽文字按需滚动。
-- 中英文配对码与 Wi-Fi 配网本地提示音。
+- 中英文配对码与 Wi-Fi 配网本地提示音，来源及转换方法见
+  [音频资源说明](components/mybot_platform/assets/README.md#announcement-audio)。
 - 编译期 Board profile，隔离 Flash、PSRAM、分区、驱动和引脚配置。
 
 ## 支持的板卡
 
-各板型目录中的说明和参考原文见[板卡说明索引](components/mybot_platform/boards/README.md)。
+各板型的硬件配置、输入操作与构建烧录步骤见[板卡说明索引](components/mybot_platform/boards/README.md)。
 
 | Board profile | 音频 | 显示与输入 | 存储 |
 | --- | --- | --- | --- |
