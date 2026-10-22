@@ -5,565 +5,143 @@
 
 **[English](README.md) | [简体中文](README.zh-CN.md)**
 
-`mybot-esp32` is an independent ESP-IDF firmware project that brings the
-[mybot AI voice-chat SDK](https://github.com/junlon2006/mybot) to ESP32-S3 devices. It owns board
-initialization, Wi-Fi provisioning, persistent storage, secure HTTPS transport, audio
-capture/playback, input, display, and the firmware lifecycle around mybot.
+`mybot-esp32` is an ESP-IDF firmware project for running the MyBot voice-chat runtime on
+ESP32-S3 boards. The project owns board initialization, Wi-Fi provisioning, persistent storage,
+HTTPS transport, audio, input, display, and the firmware lifecycle around the SDK.
 
-The current development baseline is **ESP-IDF v5.5.2**. Supported board profiles are the Zhengchen
-1.54 TFT ML307 and Wi-Fi variants, Xingzhi Cube 1.54 TFT Wi-Fi, Bread Compact Wi-Fi LCD,
-Espressif ESP-VoCat,
-Waveshare ESP32-S3 Touch AMOLED 1.75, 1.75C, and 2.16, M5Stack CoreS3, M5Stack StickS3,
-M5Stack AtomEchoS3R, ReSpeaker Flex XVF3800
-Circular-4 with XIAO ESP32S3, and SenseCAP Watcher.
+The development baseline is **ESP-IDF v5.5.2**. Thirteen compile-time board profiles are
+supported; the board, Flash, PSRAM, partition table, and hardware drivers are selected with
+`MYBOT_BOARD`. See the [board documentation index](components/mybot_platform/boards/README.md)
+for hardware details, controls, build commands, and per-board limitations.
 
-> Project-maintained code is Apache-2.0 unless a file says otherwise. Bundled dependencies and media
-> assets have separate terms. Read [License and dependencies](#license-and-dependencies) before
-> redistributing source or firmware images.
+> Project-maintained code is Apache-2.0 unless a file says otherwise. Bundled dependencies and
+> media assets have separate terms. Read [License and dependencies](#license-and-dependencies)
+> before redistributing source or firmware.
 
 ## Features
 
-- Native ESP-IDF component build of the pinned mybot SDK.
 - Wi-Fi station reconnect and first-boot captive-portal provisioning.
-- NVS persistence for device credentials and 0-100 speaker volume.
-- HTTPS through `esp-tls` with the system CA bundle, SNI, and hostname verification.
-- 16 kHz mono signed-16 PCM capture/playback with 60 ms packets for the bundled RTSA package.
-  Other packet durations require a matching RTSA build supplied by the integrator.
-- Shared bounded PCM playback buffering and an independent I2S writer on all board profiles.
-- Agora RTSA full-duplex audio, Cloud AEC, AI QoS, RTM channel subscription, and voice-print status.
-- Chinese and English local pairing-code and Wi-Fi provisioning prompts, with
-  [audio asset provenance](components/mybot_platform/assets/README.md#announcement-audio).
-- Compile-time board profiles with isolated Flash, PSRAM, partition, driver, and pin configuration.
-- Automatic LVGL UI selection by board: process-gray pixel glasses on CoreS3, the existing
-  shared workflow view on other display boards.
-- Provisioning screens show the actual device hotspot name and scroll overflowing text.
+- NVS persistence for device credentials and speaker volume.
+- HTTPS with `esp-tls`, the system CA bundle, SNI, and hostname verification.
+- 16 kHz mono signed-16 PCM capture and playback with 60 ms packets for the bundled RTSA
+  package; other packet durations require a matching RTSA build.
+- Agora RTSA full-duplex audio, Cloud AEC, AI QoS, RTM channel subscription, and voice-print
+  status.
+- A shared bounded PCM playback buffer and independent I2S writer on all board profiles.
+- Automatic LVGL selection for display boards, including the CoreS3 pixel-glasses view.
+- Localized pairing and Wi-Fi provisioning prompts, with the actual hotspot name shown during
+  provisioning.
 
 ## Supported Boards
 
-Per-board hardware configuration, controls and build/flash instructions are listed in the
-[board documentation index](components/mybot_platform/boards/README.md).
+Display profiles:
 
-| Board profile | Audio | Display and input | Storage |
-| --- | --- | --- | --- |
-| `zhengchen-1.54tft-ml307` | I2S microphone and speaker | ST7789, Boot and volume buttons | 16 MB QIO Flash, 8 MB Octal PSRAM |
-| `zhengchen-1.54tft-wifi` | I2S microphone and speaker | ST7789, Boot and volume buttons | 16 MB QIO Flash, Octal PSRAM at 80 MHz |
-| `xingzhi-cube-1.54tft-wifi` | Separate microphone/speaker I2S | ST7789, Boot and volume buttons | 16 MB QIO Flash profile, Octal PSRAM at 80 MHz; physical capacities unconfirmed |
-| `bread-compact-wifi-lcd` | Separate microphone/speaker I2S | 240x320 ST7789 and Boot; no volume buttons | ESP32-S3 N16R8 profile: 16 MB QIO Flash, 8 MB Octal PSRAM at 80 MHz |
-| `esp-vocat` | ES7210 and ES8311 | ST77916, CST816S touch and Boot | 16 MB QIO Flash, Octal PSRAM at 80 MHz |
-| `esp32-s3-touch-amoled-1.75` | ES7210 and ES8311 | CO5300 AMOLED, CST9217 touch and Boot | 16 MB QIO Flash, 8 MB Octal PSRAM |
-| `esp32-s3-touch-amoled-1.75c` | ES7210 and ES8311 | CO5300 AMOLED, CST9217 touch and Boot | Safe 16 MB QIO Flash profile, 8 MB Octal PSRAM |
-| `esp32-s3-touch-amoled-2.16` | ES7210 and ES8311 | 480x480 CO5300 AMOLED, CST9217 touch and Boot | 16 MB QIO Flash profile, Octal PSRAM at 80 MHz; physical capacities unconfirmed |
-| `m5stack-core-s3` | ES7210 and AW88298 | ILI9342 and FT6336 touch | 16 MB QIO Flash, 8 MB Quad PSRAM |
-| `m5stack-stick-s3` | ES8311 | ST7789P3 and main button | 8 MB QIO Flash, 8 MB Octal PSRAM |
-| `atom-echos3r` | ES8311 | GPIO41 user button; no display | 8 MB Flash, 8 MB Octal PSRAM |
-| `respeaker-flex-xvf3800-circular4-xiao` | XVF3800 and AIC3104 | XIAO Boot and XVF onboard buttons; no display | 8 MB Flash, 8 MB Octal PSRAM |
-| `sensecap-watcher` | ES8311 and ES7243E | SPD2010 and rotary encoder | 32 MB QIO Flash, Octal PSRAM |
+`zhengchen-1.54tft-ml307`, `zhengchen-1.54tft-wifi`,
+`xingzhi-cube-1.54tft-wifi`, `bread-compact-wifi-lcd`, `esp-vocat`,
+`esp32-s3-touch-amoled-1.75`, `esp32-s3-touch-amoled-1.75c`,
+`esp32-s3-touch-amoled-2.16`, `m5stack-core-s3`, `m5stack-stick-s3`, and
+`sensecap-watcher`.
 
-All profiles currently use Wi-Fi networking. The ML307 profile reserves the Zhengchen modem UART,
-but the modem AT socket is not an lwIP network interface and is not supported by the RTC transport.
-The Wi-Fi profile does not configure or access the modem UART pins, GPIO11 and GPIO12.
+Headless profiles:
+
+`atom-echos3r` and `respeaker-flex-xvf3800-circular4-xiao`.
+
+All profiles currently use Wi-Fi. The ML307 profile reserves modem UART pins but does not
+implement modem or 4G networking. Only `m5stack-core-s3` currently exposes camera video.
 
 ## Build
 
-Install ESP-IDF v5.5.2 by following the
+Install ESP-IDF v5.5.2 using the
 [official setup guide](https://docs.espressif.com/projects/esp-idf/en/v5.5.2/esp32s3/get-started/index.html),
-then activate that installation in the current shell:
+then activate it in the current shell:
 
 ```sh
 . /path/to/esp-idf/export.sh
 test "$(idf.py --version)" = "ESP-IDF v5.5.2"
 ```
 
-Use a separate build directory and generated sdkconfig for each board:
+Build one board with an isolated build directory and sdkconfig:
 
 ```sh
-idf.py -B build/zhengchen-1.54tft-ml307 \
-  -DMYBOT_BOARD=zhengchen-1.54tft-ml307 \
-  -DSDKCONFIG=build/zhengchen-1.54tft-ml307/sdkconfig build
-
-idf.py -B build/zhengchen-1.54tft-wifi \
-  -DMYBOT_BOARD=zhengchen-1.54tft-wifi \
-  -DSDKCONFIG=build/zhengchen-1.54tft-wifi/sdkconfig build
-
-idf.py -B build/xingzhi-cube-1.54tft-wifi \
-  -DMYBOT_BOARD=xingzhi-cube-1.54tft-wifi \
-  -DSDKCONFIG=build/xingzhi-cube-1.54tft-wifi/sdkconfig build
-
-idf.py -B build/bread-compact-wifi-lcd \
-  -DMYBOT_BOARD=bread-compact-wifi-lcd \
-  -DSDKCONFIG=build/bread-compact-wifi-lcd/sdkconfig build
-
-idf.py -B build/esp-vocat \
-  -DMYBOT_BOARD=esp-vocat \
-  -DSDKCONFIG=build/esp-vocat/sdkconfig build
-
-idf.py -B build/esp32-s3-touch-amoled-1.75 \
-  -DMYBOT_BOARD=esp32-s3-touch-amoled-1.75 \
-  -DSDKCONFIG=build/esp32-s3-touch-amoled-1.75/sdkconfig build
-
-idf.py -B build/esp32-s3-touch-amoled-1.75c \
-  -DMYBOT_BOARD=esp32-s3-touch-amoled-1.75c \
-  -DSDKCONFIG=build/esp32-s3-touch-amoled-1.75c/sdkconfig build
-
-idf.py -B build/esp32-s3-touch-amoled-2.16 \
-  -DMYBOT_BOARD=esp32-s3-touch-amoled-2.16 \
-  -DSDKCONFIG=build/esp32-s3-touch-amoled-2.16/sdkconfig build
-
-idf.py -B build/m5stack-core-s3 \
-  -DMYBOT_BOARD=m5stack-core-s3 \
-  -DSDKCONFIG=build/m5stack-core-s3/sdkconfig build
-
-idf.py -B build/m5stack-stick-s3 \
-  -DMYBOT_BOARD=m5stack-stick-s3 \
-  -DSDKCONFIG=build/m5stack-stick-s3/sdkconfig build
-
-idf.py -B build/atom-echos3r \
-  -DMYBOT_BOARD=atom-echos3r \
-  -DSDKCONFIG=build/atom-echos3r/sdkconfig build
-
-idf.py -B build/respeaker-flex-xvf3800-circular4-xiao \
-  -DMYBOT_BOARD=respeaker-flex-xvf3800-circular4-xiao \
-  -DSDKCONFIG=build/respeaker-flex-xvf3800-circular4-xiao/sdkconfig build
-
-idf.py -B build/sensecap-watcher \
-  -DMYBOT_BOARD=sensecap-watcher \
-  -DSDKCONFIG=build/sensecap-watcher/sdkconfig build
+idf.py -B build/<board-id> \
+  -DMYBOT_BOARD=<board-id> \
+  -DSDKCONFIG=build/<board-id>/sdkconfig \
+  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
 ```
 
-The default profile is `zhengchen-1.54tft-ml307`, but explicit board selection is recommended.
-Board defaults supply the required Flash, PSRAM, and partition settings.
-All eleven display profiles use LVGL automatically; AtomEchoS3R and ReSpeaker Flex remain headless.
-There is no renderer enable switch. CoreS3 selects its pixel-glasses view automatically;
-other profiles retain their existing UI. Theme options apply to the shared view; CoreS3 keeps
-its fixed process-gray skin and supports expression-animation configuration.
-
-To build all supported profiles with the automatic capabilities, use:
+To build both languages for one board or all boards:
 
 ```sh
+python3 scripts/build_all.py --board <board-id> --language both
 python3 scripts/build_all.py
 ```
 
-The script places merged firmware images in `releases/` and per-variant build directories in
-`build/` by default, and builds both Chinese and English images. Use `--language zh-CN` or
-`--language en-US` for one language, `--board <board-id>` to select profiles,
-`--build-root <dir>` to place intermediate builds elsewhere, `--output-root <dir>` for merged
-firmware, and `--video off` to disable the default CoreS3 video build. Display profiles select LVGL
-through their board capability; CoreS3 automatically receives the video defaults. The script prints
-each variant's elapsed time and the total batch duration.
+The script places intermediate builds in `build/` and merged images in `releases/`. It derives
+display and video support from the selected board profile, uses the bundled 60 ms RTSA cadence,
+and enables CoreS3 video by default. Use `--video off` to compare without video, `--dry-run` to
+inspect commands, and `--no-clean` only for an incremental build.
 
-Each run cleans the selected build/output roots first. Use dedicated, separate roots that do not
-contain each other, `..` path components, or symbolic-link components. Roots inside the repository
-must be within its `build/` or `releases/` trees. New or empty roots receive an ownership marker,
-`.mybot-generated-root.json`; an existing nonempty root without a matching marker is refused,
-including with `--no-clean`. Inspect older build/output directories and move them aside, or select
-fresh dedicated roots; there is no automatic migration, and markers must not be created manually.
+Build and output roots must be dedicated, non-overlapping, and free of `..` or symbolic-link
+components. A normal run cleans roots owned by the script; an existing non-empty root without
+the matching `.mybot-generated-root.json` marker is rejected. Safe cleanup requires Python 3.11
+or newer. Board-specific direct-build and flash commands are in each
+[board README](components/mybot_platform/boards/README.md).
 
-`--no-clean` preserves existing outputs but still checks path safety and ownership. `--dry-run`
-performs the same validation without creating directories or markers. Cleanup requires POSIX safe
-directory handling and Python 3.11 or newer; unsupported cleanup fails closed. On macOS, `/tmp` and
-`/var` are symbolic-link aliases: use a canonical custom path such as `/private/tmp/mybot-build`.
-
-Flash and monitor the selected build:
-
-```sh
-idf.py -B build/zhengchen-1.54tft-ml307 -p /dev/tty.wchusbserial1430 flash monitor
-```
-
-Before first flashing a SenseCAP Watcher, back up its 200 KiB factory-data partition:
-
-```sh
-python -m esptool --chip esp32s3 --baud 2000000 --before default_reset \
-  --after hard_reset --no-stub read_flash 0x9000 204800 nvsfactory.bin
-```
-
-Always build the `sensecap-watcher` profile and use `idf.py flash`; never run `erase-flash` on this
-device. Erasing or replacing the `nvsfactory` region can permanently remove factory identifiers and
-service-recovery data.
+For SenseCAP Watcher, back up the factory-data partition and use `idf.py flash` as described in
+its [board README](components/mybot_platform/boards/sensecap-watcher/README.md). Do not run
+`erase-flash` on that device.
 
 ## Provisioning and Controls
 
-When NVS contains no Wi-Fi credentials, the device creates a configuration AP named `mybot-xxxx`,
-where `xxxx` is the first two station-MAC bytes in hexadecimal. Connect to it and open
-`http://192.168.4.1`. mybot starts only after the station has
-a usable IP address. Display boards show the actual device AP name (`mybot-xxxx`) in the center
-and a Chinese/English connection hint below. Text scrolls only when it exceeds the available width;
-leaving provisioning stops the scrolling.
+When NVS contains no Wi-Fi credentials, the device creates a configuration AP named
+`mybot-xxxx` and serves provisioning at `http://192.168.4.1`. MyBot starts only after the station
+has a usable IP address. A provisioning request stops MyBot first and restarts it after
+reconnection.
 
-- Zhengchen ML307 and Wi-Fi: short-press Boot to start/stop a conversation; hold Boot for 3 seconds
-  to provision. The volume buttons adjust and persist speaker volume.
-- Xingzhi Cube: short-press Boot to start/stop a conversation; hold Boot for 3 seconds to provision.
-  The volume buttons adjust and persist speaker volume.
-- Bread Compact Wi-Fi LCD: short-press Boot to start/stop a conversation; hold Boot for 3 seconds
-  to provision. This profile has one button and restores software speaker volume from NVS
-  (default 70 when no saved value exists).
-- ESP-VoCat: tap the display or short-press Boot to start/stop a conversation; hold either input for
-  3 seconds to provision.
-- Waveshare AMOLED 1.75, 1.75C, and 2.16: tap the display or short-press Boot to start/stop a conversation;
-  hold either input for 3 seconds to provision.
-- CoreS3: short-touch the screen to start/stop a conversation; hold for 3 seconds to provision.
-- StickS3: short-press the main button to start/stop a conversation; hold it for 3 seconds to
-  provision.
-- AtomEchoS3R: short-press the GPIO41 user button to start/stop a conversation; hold it for
-  3 seconds to provision. The GPIO41 input mapping still requires real-device confirmation.
-- ReSpeaker Flex: short-press XIAO Boot or the XVF onboard button (GPI0/X1D09) to start/stop a
-  conversation; hold either button for 3 seconds to provision.
-- SenseCAP Watcher: rotate the encoder to adjust volume, short-press it to start/stop a conversation,
-  and hold it for 3 seconds to provision.
+Board inputs use a short press or touch to start/stop a conversation and a 3-second hold to
+request provisioning; boards with volume controls persist their value in NVS. Exact inputs and
+panel behavior are listed in the
+[board documentation index](components/mybot_platform/boards/README.md).
 
-A provisioning request stops mybot first. After Wi-Fi reconnects and obtains an IP address, the
-firmware starts mybot again.
+Use `idf.py -B <build-dir> menuconfig` under `mybot` to select the product language, audio packet
+duration, Cloud AEC, and AI QoS. The device service endpoint is selected with the language:
 
-The device-service endpoint follows the firmware language:
+- Chinese (`zh-CN`): `https://botstation.shengwang.cn/api`
+- English (`en-US`): `https://botstation.agora.io/api`
 
-- Chinese (`zh-CN`, mainland China): `https://botstation.shengwang.cn/api`
-- English (`en-US`, overseas): `https://botstation.agora.io/api`
+CPU, heap, and playback diagnostics can be enabled with
+`CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR=y`; they are disabled by default. See
+[buffered audio playback](docs/AUDIO_PLAYBACK.md) for playback counters and interpretation.
 
-Use `idf.py -B <build-dir> menuconfig` and the `mybot` menu to select the language, audio
-packet duration, Cloud AEC, and AI QoS. The endpoint follows the language on reconfiguration;
-use separate sdkconfigs when building both language variants.
+## Validation
 
-For CPU and heap diagnostics, enable `mybot → Enable debug CPU and memory monitor`
-(`CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR=y`) in menuconfig and rebuild. It is disabled by default.
-The low-priority monitor logs each core's estimated busy percentage from interval idle-runtime
-deltas, plus internal RAM and PSRAM used/free/minimum-free/largest-free bytes. The default interval
-is 5000 ms, configurable with `CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR_INTERVAL_MS`. CPU values are
-scheduler-based estimates, not separate ISR measurements; runtime-clock rollover skips a sample.
-Heap minima cover the boot lifetime. Accounting and serial output add overhead, so disable the
-monitor after troubleshooting. High CPU load alone does not establish the cause of audio noise.
+The [CI workflow](.github/workflows/ci.yml) defines 30 ESP-IDF v5.5.2 firmware builds: both
+languages for all thirteen profiles, two additional CoreS3 video builds, one CoreS3 light-theme
+build, and one CoreS3 video build with conversation animations disabled. Host tests cover the
+board lifecycles and CoreS3 pixel UI.
 
-On all boards the same switch also enables interval `mybot_stats` playback reports: `playback_stats` counts I2S
-writes, requested/written frames, timeouts, errors, short writes and zero-progress writes, plus
-average/maximum write duration. `playback_gaps` measures maximum start-to-start and return-to-next-start
-intervals. Use CPU/heap statistics and display lifecycle logs to assess the UI. Playback durations
-use microseconds; `*_at_ms` identifies the peak operation's start time since boot.
-Counters and maxima reset after each report. Writes spanning reports count on completion; interrupted
-shutdown writes also count. Speech pauses can produce long gaps, so gaps alone do not prove underruns.
-The public SDK API does not expose queue underruns (`sdk_queue_underruns=unavailable`).
-See [buffered audio playback](docs/AUDIO_PLAYBACK.md) for board formats, stop behavior, and validation.
-
-## Hardware Notes
-
-### Zhengchen 1.54 TFT ML307 and Wi-Fi
-
-| Capability | Pins/configuration |
-| --- | --- |
-| Microphone I2S1 RX | WS GPIO4, BCLK GPIO5, DIN GPIO6 |
-| Speaker I2S0 TX | DOUT GPIO7, BCLK GPIO15, WS GPIO16 |
-| Buttons | Boot GPIO0, volume up GPIO10, volume down GPIO39 |
-| ST7789 | MOSI GPIO41, SCLK GPIO42, CS GPIO21, DC GPIO40, RESET GPIO45 |
-| Backlight / power hold | GPIO20 / GPIO2 high |
-| ML307 UART (`zhengchen-1.54tft-ml307` only) | ESP TX GPIO12, RX GPIO11 |
-
-The two profiles share the display, audio, buttons, and GPIO2 power-hold implementation. The Wi-Fi
-profile leaves GPIO11 and GPIO12 unconfigured. Its defaults select 16 MB QIO Flash and Octal PSRAM
-at 80 MHz; confirm the physical PSRAM capacity from the startup log before release.
-
-The mybot boundary is 16 kHz mono signed-16 PCM; the initial physical I2S link uses 16 kHz mono
-32-bit left-slot words. The board's original speaker configuration uses 24 kHz output, so
-real-device validation must confirm playback speed, pitch, stability, and bidirectional audio. If
-the hardware requires 24 kHz output, keep the SDK boundary at 16 kHz and add stateful resampling
-inside the Board audio driver.
-
-GPIO9 charge status, GPIO8 battery ADC, temperature monitoring, automatic sleep, and low-power
-behavior are not part of the initial Wi-Fi profile.
-
-### Xingzhi Cube 1.54 TFT Wi-Fi
-
-| Capability | Pins/configuration |
-| --- | --- |
-| Microphone I2S1 RX | WS GPIO4, BCLK GPIO5, DIN GPIO6 |
-| Speaker I2S0 TX | DOUT GPIO7, BCLK GPIO15, WS GPIO16 |
-| Buttons | Boot GPIO0, volume up GPIO40, volume down GPIO39 |
-| ST7789 | MOSI GPIO10, SCLK GPIO9, CS GPIO14, DC GPIO8, RESET GPIO18 |
-| Display | 240 x 240 RGB565, SPI3 mode 3 at 40 MHz, (0, 0) offset |
-| Backlight / power hold | GPIO13 LEDC PWM, 5 kHz / 13-bit / 60% duty; RTC GPIO21 high |
-
-Board preparation releases a retained RTC hold and drives GPIO21 high before peripherals start.
-The power hold remains active for the firmware process lifetime. The profile uses 16 MB QIO Flash,
-80 MHz Octal PSRAM, and `partitions/v2/16m.csv`; confirm the physical Flash and PSRAM capacities
-from startup logs before flashing a release device.
-
-The SDK audio boundary is 16 kHz mono signed-16 PCM; separate RX/TX I2S peripherals use 16 kHz
-mono 32-bit left-slot words and the shared buffered playback driver. The reference speaker setting
-uses 24 kHz, so playback speed, pitch, stability, capture, and full-duplex interaction require
-real-device testing. If 24 kHz output is necessary, implement stateful resampling in the platform
-audio driver while keeping the SDK boundary at 16 kHz.
-
-This initial profile has no touch or camera path. Battery ADC, charging status, shutdown, sleep,
-and low-power behavior are outside its scope. Display orientation/colors, PWM backlight, power
-sequencing, and the button mapping also require real-device validation.
-
-### Bread Compact Wi-Fi LCD
-
-This fixed wiring profile selects an ESP32-S3 N16R8 module, a 240 x 320 IPS ST7789 panel, and
-separate microphone/speaker I2S links. Match these pins and the panel variant before flashing.
-
-| Capability | Pins/configuration |
-| --- | --- |
-| Microphone I2S1 RX | WS GPIO4, BCLK GPIO5, DIN GPIO6 |
-| Speaker I2S0 TX | DOUT GPIO7, BCLK GPIO15, WS GPIO16 |
-| Input | Boot GPIO0; no volume buttons or touch |
-| ST7789 | MOSI GPIO47, SCLK GPIO21, CS GPIO41, DC GPIO40, RESET GPIO45 |
-| Display | 240 x 320 RGB565, SPI3 mode 0 at 40 MHz, (0, 0) offset, RGB order, color inversion enabled |
-| Backlight | GPIO42 LEDC PWM, 5 kHz / 13-bit / 60% duty |
-| Storage | 16 MB QIO Flash, 8 MB Octal PSRAM at 80 MHz, `partitions/v2/16m.csv` |
-
-The Board owns backlight initialization and its Boot input. It uses the shared ST7789 panel and
-LVGL view, without a GPIO power-hold output. The SDK boundary remains 16 kHz mono signed-16 PCM;
-the raw I2S driver uses 16 kHz mono 32-bit left-slot words and shared buffered playback. The
-reference speaker setting is 24 kHz, so playback speed, pitch, stability, and simultaneous capture
-require real-device testing. Add stateful rate conversion only if hardware testing establishes it
-is necessary, while preserving the SDK boundary.
-
-Chinese and English variants passed ESP-IDF v5.5.2 `reconfigure`, `build`, `size`, and `merge-bin`.
-Real-device validation remains pending. Confirm physical Flash/PSRAM capacities, colors/orientation,
-backlight, Boot behavior, provisioning, full-duplex audio, volume
-persistence, and repeated start/stop on the wired device. Camera, touch, status LED, lamp output,
-and battery/power-management features are outside this profile.
-
-### Espressif ESP-VoCat
-
-| Capability | Pins/configuration |
-| --- | --- |
-| Shared I2C0 | SDA GPIO2, SCL GPIO1; ES8311 `0x18`, ES7210 `0x40`, CST816S `0x15` |
-| ES7210/ES8311 I2S0 | MCLK GPIO42, BCLK GPIO40, WS GPIO39, DOUT GPIO41 |
-| ST77916 QSPI | SPI2, CLK GPIO18, CS GPIO14, D0-D3 GPIO46/GPIO13/GPIO11/GPIO12, backlight GPIO44 |
-| Input / power | CST816S INT GPIO10, Boot GPIO0, peripheral power GPIO9 active low |
-
-The profile detects its PCB revision before initializing the display or audio. V1.0 uses audio DIN
-GPIO15, PA GPIO4, and an active-low LCD reset on GPIO3. V1.2 uses DIN GPIO3, PA GPIO15, and an
-active-high LCD reset on GPIO47. If neither GPIO48 power state exposes the ES8311 at `0x18`, Board
-preparation fails instead of selecting a potentially destructive fallback pin map.
-
-The 360 x 360 round display uses the panel-specific ST77916 initialization sequence and the shared
-LVGL UI with partial DMA updates. USB Serial/JTAG owns the console because the normal ESP32-S3
-UART0 pins overlap the backlight and board LED.
-
-The physical audio link runs directly at mybot's 16 kHz boundary. Capture and playback share a
-two-slot standard-I2S clock domain; capture exposes only the primary microphone slot and playback
-duplicates mono samples into both output slots. The second microphone, playback-reference channel,
-local AEC, battery gauge, IMU, PCB capacitive slider, SD card, camera expansion, and low-power
-behavior are outside the initial profile. Current production material identifies a 16 MB PSRAM
-module, but release hardware must confirm detected PSRAM capacity and both PCB pin maps from startup
-logs.
-
-### Waveshare ESP32-S3 Touch AMOLED 1.75, 1.75C, and 2.16
-
-| Capability | Pins/configuration |
-| --- | --- |
-| Shared I2C0 | SDA GPIO15, SCL GPIO14; AXP2101 `0x34`, ES8311 `0x18`, ES7210 `0x40`, CST9217 `0x5a` |
-| ES7210/ES8311 I2S0 | BCLK GPIO9, WS GPIO45, DIN GPIO10, DOUT GPIO8; PA GPIO46 |
-| CO5300 QSPI | SPI2, CS GPIO12, CLK GPIO38, D0-D3 GPIO4/GPIO5/GPIO6/GPIO7 |
-| Input | CST9217 INT GPIO11; Boot GPIO0 |
-
-| Profile | Audio MCLK | CO5300 reset | CST9217 reset | TCA9554 |
-| --- | --- | --- | --- | --- |
-| `esp32-s3-touch-amoled-1.75` | GPIO42 | GPIO39 | GPIO40 | Optional probe at `0x20` |
-| `esp32-s3-touch-amoled-1.75c` | GPIO16 | GPIO1 | GPIO2 | Not probed or required |
-| `esp32-s3-touch-amoled-2.16` | GPIO42 | GPIO39 | GPIO40 | Optional probe at `0x20`; hardware presence unconfirmed |
-
-The 1.75 and 1.75C profiles use a 466 x 466 CO5300 panel with a (6, 0) display offset; 2.16 uses
-480 x 480 and (0, 0). The 1.75 revisions share their Board lifecycle and panel; 2.16 owns its Board
-lifecycle and 480-pixel panel variant, reusing the established audio, input, and LVGL view. Each is a
-separate firmware target; match the physical board before flashing because pins and geometry differ.
-
-The 2.16 panel uses 40 MHz QSPI with partial RGB565 DMA updates and even start/end pixel boundaries
-on both axes. Its defaults conservatively select 16 MB QIO Flash, 80 MHz Octal PSRAM, and
-`partitions/v2/16m.csv`; physical Flash/PSRAM capacities remain unconfirmed. TCA9554 is optional
-and its presence must be checked on the release hardware. Power sequencing, panel orientation/colors,
-CST9217 input, and 16 kHz bidirectional audio require real-device validation. The reference audio
-setting is 24 kHz; any required rate conversion belongs in the platform driver.
-The 2.16 Chinese and English variants passed ESP-IDF v5.5.2 `reconfigure`, `build`, `size`, and
-`merge-bin`. Real-device validation remains pending.
-
-The 1.75C defaults deliberately use 16 MB QIO Flash, 8 MB Octal PSRAM at 80 MHz, and
-`partitions/v2/16m.csv`. Its current product page describes 32 MB Flash while the reference firmware
-targets 16 MB and available hardware materials conflict. Confirm the detected Flash capacity in the
-startup log before adding a larger partition layout; the conservative profile is safe on either
-capacity.
-
-The initial audio path configures the physical link directly at mybot's 16 kHz mono signed-16
-boundary, captures the ES7210 primary microphone slot, and keeps Cloud AEC enabled. The playback
-reference channel and local AEC are not exposed. RTC, IMU, TF card, battery reporting, automatic
-sleep, and power-off gestures are outside the initial profiles. The 1.75C profile also has no
-TCA9554 integration.
-
-### M5Stack CoreS3
-
-| Capability | Pins/configuration |
-| --- | --- |
-| Shared I2C1 | SDA GPIO12, SCL GPIO11 |
-| ES7210/AW88298 I2S0 | MCLK GPIO0, BCLK GPIO34, WS GPIO33, DIN GPIO14, DOUT GPIO13 |
-| ILI9342 SPI3 | MOSI GPIO37, SCLK GPIO36, CS GPIO3, DC GPIO35 |
-| FT6336 / AXP2101 / AW9523 | I2C addresses `0x38` / `0x34` / `0x58` |
-
-GPIO0 is audio MCLK on CoreS3 and is not used as a button. CoreS3 has no dedicated volume keys;
-the firmware restores its persisted device volume at startup.
-
-CoreS3 playback uses a bounded PCM FIFO and independent I2S writer to absorb producer scheduling
-variation. The optional [offline audio comparison](docs/CORES3_AUDIO_TEST.md) tests timed and
-continuous feeding with and without capture; normal firmware uses the same buffered path.
-
-The [CoreS3 pixel-glasses UI](docs/CORES3_UI.md) uses the fixed process-gray skin on its 320x240
-screen, with 23 expressions, four 9 px terminal rows, a 10 px signature and fixed 32 px six-digit
-pairing codes. Automatic READY/conversation faces follow SDK phases; four optional one-shot LCD
-emotion indicators trigger temporary expressions, including replay of the same indicator. The
-current SDK MCP path accepts only volume commands and does not emit emotion indicators.
-Voiceprint/session text and bilingual operational guidance remain available. The view reuses
-partial redraws and the 10 KiB DMA stripe; no renderer-selection flag is needed. The old
-light-theme field is kept for compatibility; expression animation remains configurable. Touch,
-audio, camera, power, pins, PSRAM and partitions retain their existing board configuration.
-
-All supported display boards automatically use LVGL as their only rendering backend. See
-[platform UI](docs/PLATFORM_UI.md) for panel sizes, adapter coverage, build variants, and validation limits.
-
-CoreS3 also provides optional GC0308 camera uplink: 320 x 240 software JPEG, at most 1 fps while
-RTC is connected. Direct profile builds leave it disabled unless configured; the normal
-`build_all.py --video auto` policy enables it on CoreS3. See [CoreS3 video](docs/CORES3_VIDEO.md) for building,
-diagnostic logs, and hardware acceptance checks. The CoreS3 camera path has been brought up on
-real hardware; regressions must still be checked with audio and UI running together.
-
-### M5Stack StickS3
-
-| Capability | Pins/configuration |
-| --- | --- |
-| Shared I2C0 | SDA GPIO47, SCL GPIO48; M5PM1 at `0x6e`, ES8311 at `0x18` |
-| ES8311 I2S0 | MCLK GPIO18, BCLK GPIO17, WS GPIO15, DIN GPIO16, DOUT GPIO14 |
-| ST7789P3 SPI3 | MOSI GPIO39, SCLK GPIO40, CS GPIO41, DC GPIO45, RESET GPIO21, backlight GPIO38 |
-| Input | Main button GPIO11, active low |
-
-M5PM1 G2 powers both the display and codec and remains enabled while the firmware runs. G3 enables
-the speaker amplifier only during playback. The display uses a 135 x 240 window at offset (52, 40).
-The initial profile leaves GPIO12, the IMU, infrared functions, battery reporting, shutdown gestures,
-and low-power behavior unused.
-
-### M5Stack AtomEchoS3R
-
-This ESP32-S3 profile has no display or LVGL runtime. It uses ES8311 audio, an 8 MB Flash layout,
-and 8 MB Octal PSRAM. First boot without saved Wi-Fi credentials starts the configuration AP and
-plays the localized provisioning prompt; holding the assumed GPIO41 user button requests
-reprovisioning after mybot stops. Physical button polarity and 16 kHz capture/playback quality have
-not yet been validated on the device.
-
-### ReSpeaker Flex XVF3800 Circular-4 with XIAO ESP32S3
-
-This profile targets the
-[Seeed ReSpeaker Flex Circular-4 assembly](https://wiki.seeedstudio.com/respeaker_flex_introduction/)
-with a XIAO ESP32S3.
-
-| Capability | Pins/configuration |
-| --- | --- |
-| XVF3800 I2S0 | BCLK GPIO8, WS GPIO7, DOUT GPIO44, DIN GPIO43 |
-| Shared I2C0 | SDA GPIO5, SCL GPIO6, 400 kHz |
-| XVF3800 / AIC3104 | I2C addresses `0x2c` / `0x18` |
-| Buttons | XIAO Boot GPIO0; XVF onboard button GPI0/X1D09 through I2C resource 36 |
-
-The XVF3800 must be flashed separately with the Circular-4 **16 kHz, two-channel I2S firmware**
-before this profile can capture or play audio. The ESP32-S3 is the I2S slave. GPIO43 and GPIO44 are
-reserved for I2S, so use USB Serial/JTAG for the console. XVF3800 performs the acoustic processing;
-Cloud AEC is disabled for this profile to avoid applying AEC twice.
-
-### SenseCAP Watcher
-
-| Capability | Pins/configuration |
-| --- | --- |
-| ES8311/ES7243E I2S0 | MCLK GPIO10, BCLK GPIO11, WS GPIO12, DIN GPIO15, DOUT GPIO16 |
-| Shared I2C0 | SDA GPIO47, SCL GPIO48; TCA9555 at `0x21` |
-| SPD2010 QSPI | CLK GPIO7, D0 GPIO9, D1 GPIO1, D2 GPIO14, D3 GPIO13, CS GPIO45 |
-| Input / backlight | Encoder GPIO41/GPIO42, encoder button on TCA9555 P0.3, backlight GPIO8 |
-
-The profile drives the codec bus directly at mybot's 16 kHz mono signed-16 boundary. TCA9555 owns
-the system, LCD, and codec-amplifier power sequence. The dedicated 32 MB partition table preserves
-the factory-data region and provides two 4 MB OTA slots. Camera, touch, LED, battery reporting,
-power-off gestures, and automatic sleep are not part of the initial port.
-
-## Repository Layout
-
-```text
-components/
-├── mybot_stack/              Runtime bundle; three independent ESP-IDF components
-│   ├── agora_rtc/            ESP32-S3 Agora RTSA package
-│   ├── aosl/                 AOSL with ESP32-S3 platform integration
-│   └── mybot_sdk/
-│       └── mybot/            Read-only pinned SDK headers and sources
-└── mybot_platform/
-    ├── boards/              Compile-time board profiles
-    ├── include/mybot_platform/
-    └── src/                 Platform registration, services, drivers, internal headers
-main/                        Firmware entry point and project Kconfig
-```
-
-## Validation and Limitations
-
-The CI matrix defines 30 configurations covering all board profiles, both languages, and the bundled RTSA
-60 ms cadence. Six CoreS3 configurations cover language/video combinations, compatibility with
-the light-theme setting and disabled animations. All display-board builds use LVGL, as described in
-[Platform LVGL UI](docs/PLATFORM_UI.md).
-
-The Xingzhi Cube, Waveshare AMOLED 2.16, and Bread Compact Wi-Fi LCD ports passed Chinese and
-English ESP-IDF v5.5.2 `reconfigure`, `build`, `size`, and `merge-bin` validation. These are software
-build results; all three still require real-device validation. Bread's N16R8 label describes the
-fixed firmware profile, not a measured module capacity.
-
-Earlier CoreS3 firmware has passed hardware tests for
-provisioning, bidirectional audio, camera uplink, and the previous status-card LVGL UI, including
-audio with video on and off. These results do not validate the new CoreS3 pixel-glasses view;
-its initial Chinese/English ESP-IDF v5.5.2 standard-builder video builds passed, while host
-previews and real-device regression remain pending. The shared-view
-cleanup and provisioning SSID/scrolling changes still need hardware regression.
-The Zhengchen Wi-Fi, Xingzhi Cube, Bread Compact Wi-Fi LCD, ESP-VoCat, all three Waveshare AMOLED profiles, M5Stack
-StickS3, AtomEchoS3R, ReSpeaker Flex, and SenseCAP Watcher profiles have not yet completed real-device
-validation; a successful build is not a substitute for hardware validation on a release device.
-
-Known limitations:
-
-- ML307/4G networking and local wake words are not wired up.
-- Zhengchen charge status, battery ADC, temperature monitoring, automatic sleep, and low-power
-  operation are not wired up. The Wi-Fi profile's physical PSRAM capacity is not yet confirmed.
-- Xingzhi Cube physical Flash/PSRAM capacities and 16 kHz audio are unconfirmed. Battery reporting,
-  charge status, shutdown, sleep, and low-power behavior are not wired up.
-- Bread Compact Wi-Fi LCD is fixed to the N16R8, 240x320 ST7789, separate-I2S wiring above.
-  Real-device validation remains pending; camera, touch, volume buttons, LED,
-  lamp, and battery/power management are not wired up.
-- ESP-VoCat battery reporting, IMU, PCB capacitive controls, SD card, LED, camera expansion, local
-  AEC, reference audio, shutdown, and low-power operation are not wired up. PCB V1.0 also has a
-  known hardware power-integrity issue that firmware cannot correct.
-- Waveshare AMOLED 1.75, 1.75C, and 2.16 do not yet expose the playback reference channel, local AEC,
-  battery reporting, or low-power operation. RTC, IMU, TF card, and TCA9554 are not supported on
-  the 1.75C profile.
-- Waveshare AMOLED 2.16 Flash/PSRAM capacities and optional TCA9554 presence remain unconfirmed;
-  RTC, IMU, TF card, battery reporting, shutdown, and low-power behavior are not wired up.
-- CoreS3 camera uplink requires explicit enablement. Camera preview,
-  video downlink, battery reporting, and automatic sleep are not wired up.
-- StickS3 GPIO12, IMU, infrared functions, battery reporting, shutdown gestures, and low-power
-  operation are not wired up.
-- AtomEchoS3R's GPIO41 user-button mapping and 16 kHz bidirectional audio have not passed
-  real-device validation.
-- ReSpeaker Flex support is limited to Circular-4 and requires separately flashed XVF3800 16 kHz
-  I2S firmware; Linear-4, XVF3800 firmware update, LED-ring status, and LCD output are not
-  implemented.
-- SenseCAP Watcher camera, touch, LED, battery reporting, shutdown, and low-power operation are not
-  implemented. Its factory-data partition must be preserved when flashing.
-- NVS encryption, Flash encryption, and Secure Boot belong to the product provisioning process.
+CI builds and host tests do not establish panel behavior, power sequencing, audio quality, Wi-Fi
+recovery, or other real-device results. Earlier CoreS3 audio and camera paths passed hardware
+tests; the current pixel-glasses UI and shared LVGL changes still require hardware regression.
+Validation status and unsupported features for every profile are recorded in its board README.
+Bread Compact Wi-Fi LCD, Xingzhi Cube, and AMOLED 2.16 currently have build validation only.
 
 ## Documentation
 
+- [Board profiles](components/mybot_platform/boards/README.md)
 - [Board porting](docs/BOARD_PORTING.md)
 - [Buffered audio playback](docs/AUDIO_PLAYBACK.md)
-- [CoreS3 LVGL UI](docs/CORES3_UI.md)
 - [Platform LVGL UI](docs/PLATFORM_UI.md)
+- [CoreS3 LVGL UI](docs/CORES3_UI.md)
 - [CoreS3 audio playback comparison](docs/CORES3_AUDIO_TEST.md)
 - [CoreS3 camera uplink](docs/CORES3_VIDEO.md)
+- [Release checklist](docs/RELEASING.md)
 - [Contributing](CONTRIBUTING.md)
 - [Support](SUPPORT.md)
-- [Release checklist](docs/RELEASING.md)
-- [Vendored dependency baselines](VENDORED_SOURCES.md)
-- [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## License and Dependencies
 
-Project-maintained code is licensed under [Apache-2.0](LICENSE) unless a file carries another SPDX
-identifier. The repository also contains dependencies and media assets under separate licenses or
-distribution terms, including AOSL and Agora RTSA. The root license does not override those terms.
-Review [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and every bundled license before use or
-redistribution.
+Project-maintained code is licensed under [Apache-2.0](LICENSE) unless a file carries another
+SPDX identifier. Bundled dependencies and media assets have separate licenses or distribution
+terms, including AOSL and Agora RTSA. Review [VENDORED_SOURCES.md](VENDORED_SOURCES.md) and
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before use or redistribution.
