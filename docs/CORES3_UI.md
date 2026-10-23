@@ -9,8 +9,8 @@ profiles retain their existing UI and hardware behavior; see [Platform UI](PLATF
 
 This replaces CoreS3's earlier status-card view. Audio, camera/video policy, FT6336 touch gestures,
 power, pins, PSRAM and partitions retain their board configuration. Short touch still starts or
-stops a conversation; a three-second hold still requests Wi-Fi provisioning. The MyBot SDK,
-AOSL and Agora RTSA snapshots are unchanged.
+stops a conversation; a three-second hold still requests Wi-Fi provisioning. The currently pinned
+SDK revision is recorded in [dependency baselines](../VENDORED_SOURCES.md).
 
 ## Displayed information
 
@@ -31,33 +31,25 @@ The pairing page directs users to the web console. A six-digit numeric pairing c
 fixed 32 px font on CoreS3; it does not shrink to fit. Chinese guidance reuses the existing
 20 px Source Han Sans subset. That subset covers product UI text, not arbitrary Chinese chat.
 
-## Automatic faces and optional LCD indicators
+## Automatic faces
 
-The public LCD interface retains four optional one-shot emotion indicators. The current SDK MCP
-path accepts only `audio.set_volume` and `audio.adjust_volume` inside a `message.user` envelope;
-it does not emit these emotion indicators. The table describes renderer behavior when indicators
-are submitted, as exercised by the LCD adapter host tests.
+The SDK exposes listening, thinking, speaking and voice-print status. It no longer exposes
+one-shot emotion indicators; MCP device commands are limited to `audio.set_volume` and
+`audio.adjust_volume`. The renderer keeps the full artwork set for its automatic state mapping.
 
-| State or submitted LCD indicator | Face and hold |
+| State | Face and hold |
 | --- | --- |
 | READY / return from a conversation | NEUTRAL |
 | Enter a conversation | SURPRISED for 300 ms, plus entering transition |
 | LISTENING | LISTENING |
 | THINKING | THINKING; PROCESSING after three continuous seconds |
 | SPEAKING / no active phase | NEUTRAL |
-| `MYBOT_LCD_INDICATOR_HAPPY` | HAPPY for 2000 ms |
-| `MYBOT_LCD_INDICATOR_SAD` | SAD for 3000 ms |
-| `MYBOT_LCD_INDICATOR_ANGRY` | ANNOYED for 1200 ms |
-| `MYBOT_LCD_INDICATOR_SURPRISED` | SURPRISED for 800 ms |
 
 With animations enabled, each entering transition adds 250 ms before its hold, including the
-conversation opener. With animations disabled, only the hold remains. Each submitted emotion
-indicator replaces the unfinished foreground and replays even the same expression name.
-Ordinary phase/voiceprint updates do not restart the hold.
-Expiry restores the latest automatic face, including PROCESSING if thinking has continued for
-three seconds in the background. Leaving a conversation or detaching the SDK cancels its
-expression timers. Operational guidance takes precedence. All expressions are LCD-only and send
-no motor commands.
+conversation opener. With animations disabled, only the hold remains. Ordinary phase or
+voice-print updates do not restart the hold. Leaving a conversation or detaching the SDK cancels
+its expression timers. Operational guidance takes precedence. All expressions are LCD-only and
+send no motor commands.
 
 The complete artwork set contains 23 names:
 
@@ -67,10 +59,10 @@ SURPRISED, SHY, PROUD, LOVE, SLEEPY, BORED, SAD, PLEADING, APOLOGY, WORRIED,
 ANNOYED, REFUSE, PROCESSING, ERROR, SLEEP
 ```
 
-GREETING and the other prepared artwork remain available without automatic demo cycling.
+GREETING and the other prepared artwork remain in the renderer without automatic demo cycling.
 ERROR and SLEEP artwork do not enter an SDK error state or put the board to sleep. The CoreS3
-adapter owns expression timing alongside its existing copied LCD-state submissions; rendering
-stays in the existing LVGL task, without an extra UI thread or UTC dependency.
+adapter owns automatic expression timing alongside its existing copied LCD-state submissions;
+rendering stays in the existing LVGL task, without an extra UI thread or UTC dependency.
 
 ## Theme and animation settings
 
@@ -151,9 +143,8 @@ input paths. They do not validate this new pixel renderer. Real-device testing r
 
 - Check all ten guidance screens and 23 expressions in both languages on the 320 × 240 panel.
 - Verify four separate terminal rows, the signature and full-size six-digit pairing codes.
-- Verify the SURPRISED opener, phase changes and three-second thinking timeout. Inject optional
-  LCD emotion indicators to test replacement, same-indicator replay and expiry; phase/voiceprint
-  updates must preserve hold timing. The SDK MCP path cannot trigger these expression tests.
+- Verify the SURPRISED opener, phase changes and three-second thinking timeout. Phase and
+  voice-print updates must preserve the opener hold timing.
 - Test animation enabled/disabled, overflowing SSID/instructions, and web-console pairing.
 - Regress short touch, three-second provisioning, Wi-Fi recovery and repeated SDK stop/start.
 - Run full-duplex audio with video off and with the existing 1 fps camera uplink enabled.

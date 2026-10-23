@@ -8,8 +8,8 @@ CoreS3 LVGL适配器及公共LCD视图接口。不增加手工渲染器开关，
 [平台UI](PLATFORM_UI.zh-CN.md)。
 
 本视图替换CoreS3旧状态卡片。音频、摄像头/视频策略、FT6336触摸手势、电源、引脚、PSRAM
-和分区仍采用原板级配置；短触开始/结束会话、长按三秒配网保持。MyBot SDK、AOSL与Agora
-RTSA快照不变。
+和分区仍采用原板级配置；短触开始/结束会话、长按三秒配网保持。当前固定的SDK版本记录于
+[依赖基线](../VENDORED_SOURCES.md)。
 
 ## 显示内容
 
@@ -25,29 +25,22 @@ RTSA快照不变。
 配对页提示在网页控制台输入配对码。CoreS3六位数字配对码固定使用32 px字体，不缩小适配。
 中文引导复用原20 px思源黑体子集，字形覆盖产品文案，不覆盖任意中文聊天正文。
 
-## 自动表情与可选LCD指示
+## 自动表情
 
-公共LCD接口保留四种可选的一次性情绪指示。当前SDK MCP通路仅接受`message.user`封装内的
-`audio.set_volume`与`audio.adjust_volume`，不产生这些情绪指示。下表描述提交指示时的
-渲染器行为，LCD适配器宿主测试通过直接提交指示验证。
+SDK公开聆听、思考、说话及声纹状态，不再提供一次性情绪指示；MCP设备命令仅支持
+`audio.set_volume`与`audio.adjust_volume`。渲染器保留完整图案集，用于自动状态映射。
 
-| 状态或提交的LCD指示 | 表情与保持时间 |
+| 状态 | 表情与保持时间 |
 | --- | --- |
 | READY / 挂断返回 | NEUTRAL |
 | 进入会话 | SURPRISED保持300 ms，另计进入过渡 |
 | LISTENING | LISTENING |
 | THINKING | THINKING；连续三秒后PROCESSING |
 | SPEAKING / 无阶段 | NEUTRAL |
-| `MYBOT_LCD_INDICATOR_HAPPY` | HAPPY，2000 ms |
-| `MYBOT_LCD_INDICATOR_SAD` | SAD，3000 ms |
-| `MYBOT_LCD_INDICATOR_ANGRY` | ANNOYED，1200 ms |
-| `MYBOT_LCD_INDICATOR_SURPRISED` | SURPRISED，800 ms |
 
 开启动画时，每次保持另加250 ms进入过渡，会话开场同样另计；关闭动画时只有保持时间。
-每次提交情绪指示都会替换未结束的前景，重复提交同一指示也会重播。
-普通阶段/声纹更新不重置保持计时，到期恢复最新自动表情；后台思考已满三秒时恢复
-PROCESSING。离开会话或SDK解挂会清除表情计时，必要引导优先。全部表情仅控制LCD，
-不发送电机命令。
+普通阶段或声纹更新不重置保持计时。离开会话或SDK解挂会清除表情计时，必要引导优先。
+全部表情仅控制LCD，不发送电机命令。
 
 完整23表情如下：
 
@@ -57,9 +50,9 @@ SURPRISED, SHY, PROUD, LOVE, SLEEPY, BORED, SAD, PLEADING, APOLOGY, WORRIED,
 ANNOYED, REFUSE, PROCESSING, ERROR, SLEEP
 ```
 
-GREETING及其余预置图案保留，不自动演示轮播。ERROR和SLEEP图案不改变SDK运行状态，也不
-使设备休眠。CoreS3适配器在原有复制投递LCD状态流程中维护表情计时，现有LVGL任务渲染，
-不新增UI线程或UTC时钟依赖。
+GREETING及其余图案保留在渲染器中，不自动演示轮播。ERROR和SLEEP图案不改变SDK运行状态，
+也不使设备休眠。CoreS3适配器在原有复制投递LCD状态流程中维护自动表情计时，现有LVGL任务
+渲染，不新增UI线程或UTC时钟依赖。
 
 ## 主题与动画
 
@@ -129,8 +122,7 @@ zh-CN耗时38秒、en-US耗时37秒，总计1分16秒。这是构建验证，不
 
 - 在320 × 240屏上检查两种语言、十种引导页面及23个表情。
 - 检查四行独立终端、签名及固定大号六位配对码。
-- 验证SURPRISED开场、阶段变化、三秒思考超时；注入可选LCD情绪指示，检查替换、同一指示
-  重播及保持到期，阶段/声纹更新不得重置保持计时。SDK MCP通路不能触发这些表情测试。
+- 验证SURPRISED开场、阶段变化、三秒思考超时；阶段和声纹更新不得重置开场保持计时。
 - 开关动画，检查超宽SSID/提示滚动及网页控制台配对。
 - 回归短触、三秒配网、断网恢复和反复SDK启停。
 - 视频关闭及原1 fps摄像头上行开启时分别验证全双工音频。

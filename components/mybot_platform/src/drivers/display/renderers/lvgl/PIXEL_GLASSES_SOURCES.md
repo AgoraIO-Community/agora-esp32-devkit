@@ -49,10 +49,10 @@ and both banks remain valid for the view's lifetime. The view owns one LVGL
 timer, stopped and deleted before its widgets on destruction.
 
 All 23 simulator expressions are retained. The platform's independent
-expression policy owns SDK phases, opening expression and MCP hold/replay
-timing; the renderer owns only their drawing. State/VP changes update the
-third terminal row without restarting a selected expression. No reset,
-motor-control or backend-protocol implementation is imported into the view.
+expression policy maps SDK phases and the opening expression; the renderer owns
+only their drawing. State/VP changes update the third terminal row without
+restarting the opener hold. No reset, motor-control or backend-protocol
+implementation is imported into the view.
 
 ## Masks and fonts
 
