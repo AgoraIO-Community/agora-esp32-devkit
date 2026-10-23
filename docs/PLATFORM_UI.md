@@ -28,14 +28,11 @@ The AtomEchoS3R and ReSpeaker Flex profiles have no LCD and do not include LVGL.
 Wi-Fi variants, along with the audio/video protocols, are independent of the display backend.
 The Xingzhi Cube uses SPI3 mode 3 at 40 MHz, zero offsets, and GPIO13 LEDC backlight with
 5 kHz, 13-bit PWM at 60% duty.
-Its display and power behavior require real-device validation.
 Bread Compact Wi-Fi LCD uses SPI3 mode 0 at 40 MHz, zero offsets, RGB order with color inversion,
 and GPIO42 LEDC backlight at 5 kHz, 13-bit resolution, and 60% duty. It has one Boot input and
-uses the shared view at its portrait geometry. Chinese and English build support has been validated;
-real-device validation remains pending.
+uses the shared view at its portrait geometry.
 AMOLED 2.16 uses a zero panel gap and 40 MHz QSPI. Its CO5300 transfer regions retain even pixel
-boundaries on both axes, and touch/panel orientation must be verified on the physical board.
-Chinese and English 2.16 build support has been validated; real-device testing remains pending.
+boundaries on both axes.
 
 ## CoreS3 pixel-glasses view
 
@@ -100,15 +97,7 @@ sdkconfig when changing defaults, because defaults do not override saved configu
 
 ## Validation status
 
-The earlier CoreS3 status-card UI passed real-device testing. The new CoreS3 pixel-glasses view
-passed its initial Chinese/English ESP-IDF v5.5.2 standard-builder video builds and still needs
-host/real-device validation; previous results do not
-validate its layout, expression timing or resource load. The shared-view cleanup, provisioning
-SSID display/scrolling and narrow-screen font changes retain their existing regression needs.
-CI defines all thirteen profiles in both languages, CoreS3 video in both languages and two
-theme/animation variants (30 configurations); that matrix is not a claim that this change has
-completed all builds. No new board is claimed to have passed real-device color, touch, audio,
-provisioning, or teardown validation. Complete hardware testing must cover all workflow screens,
-orientation and colors, Chinese/English small-screen text, SSID and hint scrolling with activity
-animation disabled, touch/buttons, Wi-Fi recovery, repeated mybot stop/start, full-duplex audio,
-and memory/CPU measurements.
+Current build and device status is tracked only in the [validation matrix](VALIDATION.md).
+Host adapter tests cover lifecycle, DMA, copied content and teardown behavior. They do not cover
+the complete LVGL page rendering, panel behavior or hardware integration; those remain part of
+full LVGL page and real-device regression.

@@ -87,9 +87,8 @@ Board defaults 管理 Flash、PSRAM 与分区设置；产品公共设置放在 `
 公共设置放在 `sdkconfig.defaults.<target>`。
 
 随附 RTSA 包只支持 60 ms 音频帧。虽然 menuconfig 仍列出 20 ms 和 40 ms，但在提供匹配的
-RTSA 包前，SDK 构建封装会拒绝这些配置。[CI 工作流](../.github/workflows/ci.yml)当前有
-30 项固件构建：十三个板型分别构建中英文版本，另加 CoreS3 两种语言的视频构建、一个浅色
-主题构建，以及一个关闭会话动画的视频构建。这是构建覆盖，不代表真机验收。
+RTSA 包前，SDK 构建封装会拒绝这些配置。当前构建与真机状态见
+[验证矩阵](VALIDATION.md)。
 
 ## 新增 Board
 
@@ -166,8 +165,7 @@ Board 常驻的 `boards/bread-compact-wifi-lcd/bread_input.c` 只提供 Boot GPI
 音量键、触摸、摄像头、GPIO48 LED 或 GPIO18 灯输出。SDK 边界为 16 kHz 单声道 signed-16
 PCM，物理标准 I2S 使用 16 kHz、32-bit mono left slot。参考输出为 24 kHz，仅在真机验证
 确认必要后增加平台内有状态重采样。其他面板尺寸和共享时钟 I2S 接线应采用独立 profile，
-而非运行时切换。该固定 N16R8 profile 的中英文构建支持已在 ESP-IDF v5.5.2 验证，真机
-验证仍未完成。
+而非运行时切换。该固定 N16R8 profile 的构建与真机状态见[验证矩阵](VALIDATION.md)。
 
 `esp-vocat` 在一个编译期 Board profile 中支持 PCB V1.0 与 V1.2，因为两个版本使用相同的
 target、存储、分区与 component 配置。这属于运行时硬件版本探测，不是运行时 Board 选择。
@@ -220,11 +218,10 @@ TX 运行以提供 MCLK/BCLK/WS。播放参考输入与本地 AEC 不通过 mybo
 CO5300 QSPI 使用共享 LVGL 界面与 RGB565 局部 DMA 缓冲。1.75 与 1.75C 为 466 x 466、
 (6, 0) panel gap；2.16 为 480 x 480、(0, 0) gap 与 40 MHz QSPI。每次传输两个方向均保持
 偶数像素起止边界，不分配完整 framebuffer。CST9217 与 Boot 输入由 Board 常驻持有，使
-mybot 停止期间任一输入仍能请求配网。在各自匹配的发布硬件完成电源、音频 slot、显示和触摸
-验证前，三个 profile 均仅属于构建支持。
+mybot 停止期间任一输入仍能请求配网。真机状态见[验证矩阵](VALIDATION.md)。
 2.16 参考音频为 24 kHz，继承的 16 kHz 主麦和双声道物理 I2S 需要真机验证；如需重采样，
 应留在平台驱动内，并保持 Cloud AEC。摄像头、RTC、IMU、TF 卡、电量、关机与低功耗尚未支持。
-2.16 中英文固件构建支持已在 ESP-IDF v5.5.2 验证，真机验证仍未完成。
+2.16 的构建与真机状态见[验证矩阵](VALIDATION.md)。
 
 ReSpeaker Flex profile 是硬件音频前端而非原始麦克风 codec 的示例。XVF3800 必须预先单独
 烧录 Circular-4 16 kHz 双通道 I2S 固件，并负责 AEC、波束成形、AGC 与降噪。ESP32-S3

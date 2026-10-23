@@ -9,8 +9,8 @@
 | 项目 | 当前实现 |
 | --- | --- |
 | 主控 | ESP32-S3 |
-| Flash | 16 MB QIO profile；实际容量需在目标设备核对 |
-| PSRAM | Octal，80 MHz；实际容量需在目标设备核对 |
+| Flash | 16 MB QIO profile |
+| PSRAM | Octal，80 MHz |
 | 分区 | [16 MB 分区表](../../../../partitions/v2/16m.csv)，双 OTA 应用分区及 8 MB assets 分区 |
 | 控制台 | 未覆盖 ESP-IDF 默认控制台配置，使用 UART0 |
 | 音频 | 独立麦克风/扬声器 I2S，16 kHz 单声道；软件音量及 NVS 持久化 |
@@ -46,26 +46,4 @@ SDK 音频边界为 16 kHz、单声道、signed-16 PCM；物理标准 I2S 使用
 连接该热点后访问 `http://192.168.4.1` 配置 Wi-Fi。进入配网时播放对应语言提示音，取得
 可用 IP 后才启动 mybot。
 
-## 构建与烧录
-
-在工程根目录激活 ESP-IDF v5.5.2 后构建中英文固件：
-
-```sh
-python3 scripts/build_all.py --board xingzhi-cube-1.54tft-wifi --language both
-```
-
-合并固件输出为 `releases/xingzhi-cube-1.54tft-wifi-zh-CN.bin` 和对应的 `en-US.bin`。
-批量脚本默认清理其专用构建和输出目录，详见[构建说明](../../../../README.zh-CN.md#构建)。
-
-使用独立构建目录和 sdkconfig 的手动构建、烧录示例，将 `PORT` 替换为本机串口设备：
-
-```sh
-idf.py -B build/xingzhi-cube-1.54tft-wifi \
-  -DMYBOT_BOARD=xingzhi-cube-1.54tft-wifi \
-  -DSDKCONFIG=build/xingzhi-cube-1.54tft-wifi/sdkconfig build
-idf.py -B build/xingzhi-cube-1.54tft-wifi -p PORT flash monitor
-```
-
-构建成功不代表实机验收。实际 Flash/PSRAM 容量、GPIO21 供电保持、PWM 背光、显示方向、
-音频速度/音调和同时采集播放均需在目标硬件核对；验收范围见
-[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
+构建、烧录与验证状态见[板卡索引](../README.md)和[验证矩阵](../../../../docs/VALIDATION.md)。

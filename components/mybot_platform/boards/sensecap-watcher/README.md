@@ -26,17 +26,9 @@ LCD QSPI 为 CLK GPIO7、D0 GPIO9、D1 GPIO1、D2 GPIO14、D3 GPIO13、CS GPIO45
 降低，旋转方向需实机确认。音量保存到 NVS。无 Wi-Fi 信息时自动进入配网并显示热点名称、
 播放提示音；手动配网前先停止 MyBot。
 
-## 构建与烧录
+## 出厂数据保护
 
-在仓库根目录使用 ESP-IDF v5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board sensecap-watcher --language both
-```
-
-脚本输出 `releases/sensecap-watcher-zh-CN.bin` 和对应英文合并镜像；清理行为见
-[板卡索引](../README.md)。为保留出厂分区，设备烧录请使用下面的独立构建与 `idf.py flash`，
+为保留出厂分区，设备必须使用[板卡索引](../README.md)中的独立构建与 `idf.py flash`，
 不要直接向整片 Flash 写入合并镜像。
 
 首次烧录前备份出厂分区，将串口替换为本机设备，并妥善保存备份：
@@ -48,19 +40,5 @@ python -m esptool --chip esp32s3 --port /dev/ttyUSB0 --baud 2000000 \
 ```
 
 出厂分区 `nvsfactory` 从 `0x9000` 开始，长度为 200 KiB。禁止执行 `erase-flash` 或使用
-其他板型的分区表。下面的标准烧录流程不会写入 `nvsfactory`：
-
-```sh
-idf.py -B build/sensecap-watcher \
-  -DMYBOT_BOARD=sensecap-watcher \
-  -DSDKCONFIG=build/sensecap-watcher/sdkconfig \
-  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
-idf.py -B build/sensecap-watcher -p /dev/ttyUSB0 flash monitor
-```
-
-## 验证范围
-
-当前 profile 尚未完成真机验收；需验证电源时序、codec 的 16 kHz 工作模式、双向音频、
-编码器、配网和显示。摄像头、触摸、LED、电池状态、关机及低功耗尚未接入。
-详见[平台移植](../../../../docs/BOARD_PORTING.zh-CN.md)及
-[平台 UI](../../../../docs/PLATFORM_UI.zh-CN.md)。
+其他板型的分区表。标准 `idf.py flash` 不会写入 `nvsfactory`。构建与验证状态见
+[板卡索引](../README.md)和[验证矩阵](../../../../docs/VALIDATION.md)。

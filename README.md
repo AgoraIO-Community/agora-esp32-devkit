@@ -115,20 +115,14 @@ CPU, heap, and playback diagnostics can be enabled with
 
 ## Validation
 
-The [CI workflow](.github/workflows/ci.yml) defines 30 ESP-IDF v5.5.2 firmware builds: both
-languages for all thirteen profiles, two additional CoreS3 video builds, one CoreS3 light-theme
-build, and one CoreS3 video build with conversation animations disabled. Host tests cover the
-board lifecycles and CoreS3 pixel UI.
-
-CI builds and host tests do not establish panel behavior, power sequencing, audio quality, Wi-Fi
-recovery, or other real-device results. Earlier CoreS3 audio and camera paths passed hardware
-tests; the current pixel-glasses UI and shared LVGL changes still require hardware regression.
-Validation status and unsupported features for every profile are recorded in its board README.
-Bread Compact Wi-Fi LCD, Xingzhi Cube, and AMOLED 2.16 currently have build validation only.
+Build coverage, recorded real-device results and unsupported areas are maintained in one
+[validation matrix](docs/VALIDATION.md). CI builds and host tests do not establish panel behavior,
+power sequencing, audio quality, Wi-Fi recovery or other real-device results.
 
 ## Documentation
 
 - [Board profiles](components/mybot_platform/boards/README.md)
+- [Validation matrix](docs/VALIDATION.md)
 - [Board porting](docs/BOARD_PORTING.md)
 - [Buffered audio playback](docs/AUDIO_PLAYBACK.md)
 - [Platform LVGL UI](docs/PLATFORM_UI.md)

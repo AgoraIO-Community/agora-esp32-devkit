@@ -28,19 +28,10 @@ verify physical rotation on the device. Volume is persisted in NVS. With no save
 credentials, provisioning starts automatically, displays the hotspot name and plays a prompt.
 Manual provisioning stops MyBot before entering setup.
 
-## Build and flash
+## Factory-data protection
 
-Use ESP-IDF v5.5.2 from the repository root:
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board sensecap-watcher --language both
-```
-
-The script produces `releases/sensecap-watcher-zh-CN.bin` and its English merged image.
-See the [board index](../README.md) for cleanup behavior. To preserve factory data, flash this
-device through the dedicated build and `idf.py flash` below; do not write a merged image
-across the entire Flash.
+To preserve factory data, use the dedicated build and `idf.py flash` instructions in the
+[board index](../README.md); do not write a merged image across the entire Flash.
 
 Before the first flash, back up the factory partition. Replace the serial port with your
 device's port and keep the backup safe:
@@ -52,21 +43,6 @@ python -m esptool --chip esp32s3 --port /dev/ttyUSB0 --baud 2000000 \
 ```
 
 The `nvsfactory` partition starts at `0x9000` and occupies 200 KiB. Do not run `erase-flash`
-or substitute another board's partition table. Standard flashing below does not write
-`nvsfactory`:
-
-```sh
-idf.py -B build/sensecap-watcher-en-US \
-  -DMYBOT_BOARD=sensecap-watcher \
-  -DSDKCONFIG=build/sensecap-watcher-en-US/sdkconfig \
-  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults;ci/en-us.defaults" build
-idf.py -B build/sensecap-watcher-en-US -p /dev/ttyUSB0 flash monitor
-```
-
-## Validation scope
-
-This profile has not completed real-device acceptance. Verify power sequencing, the codecs'
-16 kHz mode, bidirectional audio, the encoder, provisioning and the display. Camera, touch,
-LEDs, battery status, shutdown and low-power support are not integrated. See
-[board porting](../../../../docs/BOARD_PORTING.md) and
-[platform UI](../../../../docs/PLATFORM_UI.md).
+or substitute another board's partition table. Standard `idf.py flash` does not write
+`nvsfactory`. Build and validation status: see the [board index](../README.md) and
+[validation matrix](../../../../docs/VALIDATION.md).
