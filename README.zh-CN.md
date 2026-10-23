@@ -105,18 +105,14 @@ NVS 中没有 Wi-Fi 凭据时，设备创建名为 `mybot-xxxx` 的配置 AP，�
 
 ## 验证
 
-[CI 工作流](.github/workflows/ci.yml)定义 30 项 ESP-IDF v5.5.2 固件构建：13 个板型分别
-构建中英文版本，另有两种语言的 CoreS3 视频构建、一个浅色主题构建，以及一个关闭会话动画
-的视频构建。宿主测试覆盖板级生命周期和 CoreS3 像素 UI。
-
-CI 构建和宿主测试不能证明屏幕行为、上电时序、音频质量、Wi-Fi 恢复等真机结果。此前
-CoreS3 音频和摄像头通路已完成真机测试；当前像素眼镜 UI 与共享 LVGL 改动仍需真机回归。
-各 profile 的验证状态和未支持能力记录在对应板卡说明中。Bread Compact Wi-Fi LCD、行者
-Cube 和 AMOLED 2.16 当前只有构建验证。
+构建覆盖、已记录的真机结果和未支持能力统一维护在
+[验证矩阵](docs/VALIDATION.md)中。CI 构建和宿主测试不能证明屏幕行为、上电时序、音频质量、
+Wi-Fi 恢复等真机结果。
 
 ## 文档
 
 - [板卡说明](components/mybot_platform/boards/README.md)
+- [验证矩阵](docs/VALIDATION.md)
 - [板级移植](docs/BOARD_PORTING.zh-CN.md)
 - [音频播放缓冲](docs/AUDIO_PLAYBACK.zh-CN.md)
 - [平台 LVGL UI](docs/PLATFORM_UI.zh-CN.md)

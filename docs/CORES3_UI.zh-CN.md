@@ -95,7 +95,8 @@ idf.py -B build/cores3-pixel \
 idf.py -B build/cores3-pixel -p <PORT> flash monitor
 ```
 
-语言、视频、动画对比使用独立sdkconfig，defaults不会覆盖已保存值；构建验证单独记录于下文。
+语言、视频、动画对比使用独立sdkconfig，defaults不会覆盖已保存值；当前状态见
+[验证矩阵](VALIDATION.md)。
 
 ## 渲染、资源与来源
 
@@ -113,12 +114,9 @@ alpha数据合计13,631字节，不含描述符。终端字库由DejaVu Sans Mon
 视觉/几何参考用户提供的threejs模拟器，未见模拟器独立许可证声明，不为其另行指定许可。
 详情见[依赖基线](../VENDORED_SOURCES.md)及[第三方声明](../THIRD_PARTY_NOTICES.md)。
 
-## 验证状态
+## 真机验收清单
 
-首轮CoreS3中英文通过ESP-IDF v5.5.2标准脚本构建，自动开启视频、60 ms音频包长：
-zh-CN耗时38秒、en-US耗时37秒，总计1分16秒。这是构建验证，不是硬件结果；宿主预览与
-真机回归仍需分别检查。此前CoreS3真机结果属于旧状态卡片及已有音频/摄像头/输入通路，
-不代表新像素渲染器通过。仍需完成：
+当前构建与真机状态统一记录在[验证矩阵](VALIDATION.md)中。仍需完成：
 
 - 在320 × 240屏上检查两种语言、十种引导页面及23个表情。
 - 检查四行独立终端、签名及固定大号六位配对码。

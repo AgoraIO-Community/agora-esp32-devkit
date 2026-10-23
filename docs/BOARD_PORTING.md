@@ -88,10 +88,8 @@ Board defaults own Flash, PSRAM, and partition settings. Product-wide settings r
 `sdkconfig.defaults`; target-wide settings remain in `sdkconfig.defaults.<target>`.
 
 The bundled RTSA package supports only 60 ms audio frames. Although menuconfig lists 20 ms and
-40 ms, the SDK component wrapper rejects them without a matching RTSA package. The
-[CI workflow](../.github/workflows/ci.yml) currently has 30 firmware builds: thirteen boards in both
-languages, two additional CoreS3 video builds, one CoreS3 light-theme build, and one CoreS3 video
-build with conversation animations disabled. This is build coverage, not hardware certification.
+40 ms, the SDK component wrapper rejects them without a matching RTSA package. See the
+[validation matrix](VALIDATION.md) for current build and hardware status.
 
 ## Adding a Board
 
@@ -180,7 +178,7 @@ output. Its SDK boundary is 16 kHz mono signed-16 PCM; the physical standard-I2S
 32-bit mono left slots. The reference output rate is 24 kHz; add stateful platform resampling only
 after hardware tests establish it is required. Other panel sizes and shared-clock I2S wiring
 require separate profiles rather than runtime selection. Chinese and English build support for this
-fixed N16R8 profile has been validated with ESP-IDF v5.5.2; real-device validation remains pending.
+fixed N16R8 profile is tracked in the [validation matrix](VALIDATION.md).
 
 The `esp-vocat` profile supports PCB V1.0 and V1.2 under one compile-time Board because they share
 the same target, storage, partition, and component configuration. This is runtime hardware-revision
@@ -247,13 +245,11 @@ CO5300 QSPI rendering uses the shared LVGL view and a partial RGB565 DMA buffer.
 1.75C panels use 466 x 466 with a (6, 0) gap; 2.16 uses 480 x 480, a (0, 0) gap, and 40 MHz QSPI.
 Every transfer region keeps even start/end pixel boundaries on both axes; no full-screen framebuffer
 is allocated. CST9217 and Boot input remain Board-owned so either can request provisioning while mybot
-is stopped. Each profile is a build target only until power, audio-slot, display, and touch behavior
-are verified on its matching release device.
+is stopped. Device status is tracked in the [validation matrix](VALIDATION.md).
 The 2.16 reference uses 24 kHz audio; validate the inherited 16 kHz primary-mic and stereo physical
 I2S link on real hardware. Keep any required resampling in the platform driver and keep Cloud AEC.
 Camera, RTC, IMU, TF card, battery reporting, shutdown, and low-power behavior remain unsupported.
-Chinese and English firmware build support for 2.16 has been validated with ESP-IDF v5.5.2;
-real-device validation remains pending.
+Build and device status for 2.16 is tracked in the [validation matrix](VALIDATION.md).
 
 The ReSpeaker Flex profile is an example of a hardware audio front end rather than a raw microphone
 codec. Its XVF3800 must run separately flashed Circular-4 16 kHz, two-channel I2S firmware and owns

@@ -10,7 +10,7 @@
 | --- | --- |
 | 主控 | ESP32-S3 |
 | Flash | 16 MB，QIO |
-| PSRAM | Octal，80 MHz；实际容量以启动日志为准 |
+| PSRAM | Octal，80 MHz |
 | 分区 | [16 MB 分区表](../../../../partitions/v2/16m.csv)，双 OTA 应用分区及 8 MB assets 分区 |
 | 控制台 | 未覆盖 ESP-IDF 默认控制台配置，使用 UART0 |
 | 音频 | 独立麦克风/扬声器 I2S，16 kHz 单声道；软件音量及 NVS 持久化 |
@@ -48,26 +48,4 @@ SDK 音频边界为 16 kHz、单声道、signed-16 PCM；物理标准 I2S 使用
 连接该热点后访问 `http://192.168.4.1` 配置 Wi-Fi。进入配网时播放对应语言提示音，取得
 可用 IP 后才启动 mybot。
 
-## 构建与烧录
-
-在工程根目录激活 ESP-IDF v5.5.2 后构建中英文固件：
-
-```sh
-python3 scripts/build_all.py --board zhengchen-1.54tft-wifi --language both
-```
-
-合并固件输出为 `releases/zhengchen-1.54tft-wifi-zh-CN.bin` 和对应的 `en-US.bin`。
-批量脚本默认清理其专用构建和输出目录，详见[构建说明](../../../../README.zh-CN.md#构建)。
-
-需要使用 `idf.py` 逐步构建、烧录时，使用独立的构建目录和 sdkconfig：
-
-```sh
-idf.py -B build/zhengchen-1.54tft-wifi \
-  -DMYBOT_BOARD=zhengchen-1.54tft-wifi \
-  -DSDKCONFIG=build/zhengchen-1.54tft-wifi/sdkconfig build
-idf.py -B build/zhengchen-1.54tft-wifi -p /dev/tty.wchusbserial1430 flash monitor
-```
-
-上述串口名为该征辰板在 macOS 上的设备名，其他系统按实际枚举结果选择端口。构建成功
-不代表实机验收；音频、屏幕颜色/方向、按键及重复配网应在目标设备上验证，参见
-[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
+构建、烧录与验证状态见[板卡索引](../README.md)和[验证矩阵](../../../../docs/VALIDATION.md)。

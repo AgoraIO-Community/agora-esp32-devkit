@@ -2,10 +2,12 @@
 
 These documents describe the board profiles implemented by `mybot-esp32`. Pins, power sequencing,
 drivers and build constraints are defined by the checked-in `board.cmake`, `board_config.h` and
-`sdkconfig.defaults` files. Use ESP-IDF v5.5.2 and select a board with `MYBOT_BOARD`.
+`sdkconfig.defaults` files. Current validation status is centralized in
+[`docs/VALIDATION.md`](../../../docs/VALIDATION.md).
 
-以下说明对应本工程已实现的 13 个板型。硬件配置、输入行为、构建约束和验证状态以当前
-板级代码及本工程文档为准。不同尺寸、芯片或硬件版本的板卡不能仅凭外观共用固件。
+以下说明对应本工程已实现的 13 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
+验证状态统一见[验证矩阵](../../../docs/VALIDATION.md)。不同尺寸、芯片或硬件版本的板卡
+不能仅凭外观共用固件。
 
 | Board profile | 板卡说明 | 显示 | 视频 |
 | --- | --- | --- | --- |
@@ -23,38 +25,42 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 | `zhengchen-1.54tft-ml307` | [README](zhengchen-1.54tft-ml307/README.md) | ST7789 | 无 |
 | `zhengchen-1.54tft-wifi` | [README](zhengchen-1.54tft-wifi/README.md) | ST7789 | 无 |
 
-## 构建
+## Build, flash and validation / 构建、烧录与验证
 
-在工程根目录激活 ESP-IDF v5.5.2，并指定板型：
+Activate ESP-IDF v5.5.2 from the repository root:
 
 ```sh
 . /path/to/esp-idf/export.sh
 test "$(idf.py --version)" = "ESP-IDF v5.5.2"
-python3 scripts/build_all.py --board m5stack-core-s3 --language both
 ```
 
-脚本默认编译中英文版本，构建目录在 `build/`，合并固件在 `releases/`；常规构建会先清理
-脚本管理的生成目录，增量构建使用 `--no-clean`。仅英文使用 `--language en-US`，仅中文
-使用 `--language zh-CN`。有屏幕的板型自动使用 LVGL；只有 CoreS3 具备视频能力，脚本默认
-开启，音频对照固件可使用 `--video off`。
-
-手动构建时，为每块板指定独立目录和 sdkconfig：
+Build both languages for one profile:
 
 ```sh
-idf.py -B build/m5stack-core-s3 \
-  -DMYBOT_BOARD=m5stack-core-s3 \
-  -DSDKCONFIG=build/m5stack-core-s3/sdkconfig build
-idf.py -B build/m5stack-core-s3 -p PORT flash monitor
+python3 scripts/build_all.py --board <board-id> --language both
 ```
 
-手动构建使用当前 sdkconfig 的视频选项；上面的命令不自动开启视频。SenseCAP Watcher 的
-工厂分区保留与烧录步骤见其专用说明。
+The script writes managed builds to `build/` and merged images to `releases/`, derives display
+and video capability from the profile, uses the bundled 60 ms RTSA cadence and enables CoreS3
+video by default. Use `--video off` for a no-video comparison. See the
+[project README](../../../README.md#build) for root ownership and cleanup rules.
 
-## 输入、配网与验证
+For a direct build and flash, use a dedicated build directory and port:
+
+```sh
+idf.py -B build/<board-id> \
+  -DMYBOT_BOARD=<board-id> \
+  -DSDKCONFIG=build/<board-id>/sdkconfig \
+  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
+idf.py -B build/<board-id> -p PORT flash monitor
+```
+
+Add `ci/en-us.defaults` for English. Add `ci/video.defaults` only when building CoreS3 with
+video. SenseCAP Watcher requires the factory-partition backup procedure in its board README.
+
+Board input, provisioning and hardware-specific prerequisites remain in each board README.
+Completed build and hardware results are tracked only in the
+[validation matrix](../../../docs/VALIDATION.md).
 
 设备首次启动无 Wi-Fi 凭据时自动配网；长按配网输入会先停止 mybot，再进入配网流程，
 联网后重新启动 mybot。各板的配网输入、短按/触摸和音量输入见对应 README。
-
-文档依据代码描述已实现能力，不代表每块硬件均已实机验证。已有验证记录和限制见
-[平台移植说明](../../../docs/BOARD_PORTING.zh-CN.md)，构建/烧录完整说明见
-[中文项目文档](../../../README.zh-CN.md#构建)或 [English guide](../../../README.md#build)。

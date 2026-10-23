@@ -109,7 +109,7 @@ idf.py -B build/cores3-pixel -p <PORT> flash monitor
 ```
 
 Use separate sdkconfigs for language, video and animation comparisons; defaults do not overwrite
-saved configuration values. Build validation is recorded separately below.
+saved configuration values. Current status is tracked in the [validation matrix](VALIDATION.md).
 
 ## Rendering, resources and provenance
 
@@ -131,15 +131,10 @@ existing display license. Geometry and colors refer to the user-provided threejs
 no separate simulator license declaration was found, and this does not assign one.
 See [dependency baselines](../VENDORED_SOURCES.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).
 
-## Validation status
+## Device acceptance checklist
 
-The first Chinese and English CoreS3 builds passed with ESP-IDF v5.5.2 through the standard
-builder, using automatic video and 60 ms audio packet time: 38 s for zh-CN, 37 s for en-US,
-1 min 16 s for the batch. This is build validation, not a hardware result. Host previews and
-device regression remain separate checks.
-
-Earlier CoreS3 hardware tests cover the previous status-card UI and established audio/camera/
-input paths. They do not validate this new pixel renderer. Real-device testing remains required.
+Current build and hardware status is tracked only in the
+[validation matrix](VALIDATION.md). The remaining device checks are:
 
 - Check all ten guidance screens and 23 expressions in both languages on the 320 × 240 panel.
 - Verify four separate terminal rows, the signature and full-size six-digit pairing codes.

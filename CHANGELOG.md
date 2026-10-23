@@ -7,8 +7,8 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Per-board hardware, input, configuration, build and flashing instructions for all thirteen
-  profiles, with a linked board documentation index.
+- Per-board hardware, input and operation documentation for all thirteen profiles, with shared
+  build/flash instructions and one validation matrix.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
   Automatic faces follow READY/conversation phases. Expressions affect only the LCD.
@@ -69,11 +69,14 @@ Versioning and Conventional Commits.
   AIC3104 output initialization, XIAO Boot input, and XVF onboard-button polling.
 - SenseCAP Watcher Board profile with ES8311/ES7243E audio, SPD2010 status display, rotary input,
   TCA9555 power sequencing, and a factory-data-preserving 32 MB partition layout.
-- Target firmware CI with 30 configurations: all thirteen board profiles in both languages,
-  CoreS3 video in both languages, and light-theme/static-indicator variants, using 60 ms audio.
+- Target firmware CI for all board profiles in both languages, CoreS3 video and UI variants,
+  using 60 ms audio. Current status is tracked in the [validation matrix](docs/VALIDATION.md).
 
 ### Changed
 
+- Centralize build and flash commands in the board index and current validation status in
+  `docs/VALIDATION.md`; remove repeated status paragraphs, volatile build timings and per-board
+  command copies from board and topic documentation.
 - Refresh the SDK snapshot to `baf41ba` and register the new shared URL and HTTP-header sources.
   Adopt bounded URL validation and printable header checks, remove unused outbound RTM, media-mute
   and LCD emotion paths, and update the CoreS3 adapter and host tests to the current LCD contract.
@@ -157,40 +160,8 @@ Versioning and Conventional Commits.
 
 ### Known limitations
 
-- CoreS3 LVGL, including the theme/emoji stage, has passed real-device testing. The subsequent
-  rollout and renderer cleanup across display boards, and the latest provisioning SSID/scrolling
-  changes, still need hardware regression testing. The newer 5 fps DVP sampling and larger DMA
-  buffers also require CPU, internal-memory, and concurrent-audio measurements. Conversation
-  transcripts and GIF animation are not included.
-- ML307/4G and wake words are not yet supported.
-- Zhengchen Wi-Fi real-device validation, physical PSRAM-capacity confirmation, 16 kHz playback
-  validation, charge/battery inputs, temperature monitoring, and power management are not yet
-  complete.
-- Xingzhi Cube real-device validation, physical Flash/PSRAM-capacity confirmation, 16 kHz
-  playback, display/power/button checks, battery/charging inputs, shutdown, sleep, and low-power
-  behavior are not yet complete.
-- Bread Compact Wi-Fi LCD real-device validation is pending. Its fixed
-  N16R8/ST7789/separate-I2S wiring, 16 kHz playback, panel/backlight/input, and detected capacities
-  require verification. Camera, touch, volume buttons, LED, lamp, and power management are unsupported.
-- ESP-VoCat real-device validation for both PCB revisions is not yet complete. Battery reporting,
-  IMU, PCB capacitive controls, SD card, LED, camera expansion, local AEC, reference audio,
-  shutdown, and low-power behavior are not supported by the initial profile.
-- Waveshare AMOLED 1.75 and 1.75C real-device validation, playback-reference input, local AEC,
-  battery reporting, and low-power operation are not yet complete. The 1.75C profile does not
-  support RTC, IMU, TF card, or TCA9554 and conservatively addresses 16 MB of Flash pending
-  real-device capacity confirmation.
-- Waveshare AMOLED 2.16 real-device power/audio/display/touch testing, physical Flash/PSRAM
-  capacities, and optional TCA9554 presence remain unconfirmed. Video, playback-reference input,
-  local AEC, RTC, IMU, TF card, battery reporting, shutdown, and low-power behavior are unsupported.
-- ReSpeaker Flex requires separately flashed XVF3800 Circular-4 16 kHz I2S firmware; hardware
-  validation, Linear-4 support, XVF firmware update, LED-ring status, and LCD output are not yet
-  complete.
-- SenseCAP Watcher real-device validation, camera, touch, LED, battery reporting, shutdown, and
-  low-power behavior are not yet complete.
-- M5Stack StickS3 real-device validation, GPIO12, IMU, infrared, battery reporting, shutdown, and
-  low-power behavior are not yet complete.
-- M5Stack AtomEchoS3R real-device validation, GPIO41 user-button mapping, and 16 kHz bidirectional
-  audio testing are not yet complete.
+Current build coverage, real-device results and unsupported features are tracked only in the
+[validation matrix](docs/VALIDATION.md).
 
 ### Fixed
 
