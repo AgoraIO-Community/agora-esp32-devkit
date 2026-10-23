@@ -47,26 +47,4 @@ SDK 音频边界为 16 kHz、单声道、signed-16 PCM；物理标准 I2S 使用
 连接该热点后访问 `http://192.168.4.1` 配置 Wi-Fi。进入配网时播放对应语言提示音，取得
 可用 IP 后才启动 SDK。
 
-## 构建与烧录
-
-在工程根目录激活 ESP-IDF v5.5.2 后构建中英文固件：
-
-```sh
-python3 scripts/build_all.py --board bread-compact-wifi-lcd --language both
-```
-
-合并固件输出为 `releases/bread-compact-wifi-lcd-zh-CN.bin` 和对应的 `en-US.bin`。
-批量脚本默认清理其专用构建和输出目录，详见[构建说明](../../../../README.zh-CN.md#构建)。
-
-使用独立构建目录和 sdkconfig 的手动构建、烧录示例，将 `PORT` 替换为本机串口设备：
-
-```sh
-idf.py -B build/bread-compact-wifi-lcd \
-  -DMYBOT_BOARD=bread-compact-wifi-lcd \
-  -DSDKCONFIG=build/bread-compact-wifi-lcd/sdkconfig build
-idf.py -B build/bread-compact-wifi-lcd -p PORT flash monitor
-```
-
-该固定 profile 的中英文构建支持已在 ESP-IDF v5.5.2 验证，真机验证尚未完成。目标设备仍需
-核对模组与检测容量、屏幕颜色/方向、PWM 背光、音频速度/音调、全双工交互及重复配网。
-验收范围见[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
+构建、烧录与验证状态见[板卡索引](../README.md)和[验证矩阵](../../../../docs/VALIDATION.md)。

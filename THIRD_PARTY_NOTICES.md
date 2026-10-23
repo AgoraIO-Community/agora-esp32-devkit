@@ -5,7 +5,7 @@ It does not replace third-party terms. This file is informational and is not leg
 
 | Component | Terms | Location |
 | --- | --- | --- |
-| agent-studio-device-firmware SDK 1.3.0 (`32ac74b`) | Apache-2.0; bundled JSON parser portions MIT | `components/mybot_stack/mybot_sdk/mybot` |
+| agent-studio-device-firmware SDK 1.3.0 (`46e265a`) | Apache-2.0; bundled JSON parser portions MIT | `components/mybot_stack/mybot_sdk/mybot` |
 | AOSL (`84e0860`) | Bundled license: Apache-2.0 text plus additional deployment restrictions | `components/mybot_stack/aosl` |
 | Agora RTSA Lite for ESP32-S3 1.10.1 (build 1270872) | Separate Agora distribution terms | `components/mybot_stack/agora_rtc` |
 | esp-wifi-connect 3.2.2 | MIT | `components/esp-wifi-connect` |
@@ -79,7 +79,7 @@ Source Han Sans UI glyphs retain the SIL OFL 1.1 terms in
 ## Vendored SDK Notice
 
 The SDK's public headers and core sources are pinned to
-[agent-studio-device-firmware commit `32ac74bc59cb72db70e9a68337753561b59b13d0`](https://github.com/AgoraIO-Community/agent-studio-device-firmware/tree/32ac74bc59cb72db70e9a68337753561b59b13d0).
+[agent-studio-device-firmware commit `46e265a960fac48d93ae6755bdf694aeb09ab366`](https://github.com/AgoraIO-Community/agent-studio-device-firmware/tree/46e265a960fac48d93ae6755bdf694aeb09ab366).
 The exact trees and reproducible archive checksum are recorded in
 [VENDORED_SOURCES.md](VENDORED_SOURCES.md).
 

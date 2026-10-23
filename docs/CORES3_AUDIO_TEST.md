@@ -24,9 +24,9 @@ agent-studio-device-firmware SDK, 16 kHz sample rate, and codec settings remain 
 Buffering adds playback latency: after the offline test, verify normal conversations, end-of-speech
 tails, interruption/hangup, and Cloud AEC.
 
-The three buffered stages have already passed CoreS3 real-device listening tests, as have normal
-conversations with video enabled and disabled. The later shared-buffer extraction and platform/UI
-changes still need regression testing; those changes do not establish results for other boards.
+Current build and hardware status is tracked only in the
+[validation matrix](VALIDATION.md). Results from this test do not establish behavior for other
+boards.
 
 ## Build and run
 

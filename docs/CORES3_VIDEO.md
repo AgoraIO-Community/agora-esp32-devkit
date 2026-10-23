@@ -83,6 +83,10 @@ result in fewer than one delivered frame per second. SDK acceptance does not pro
 
 ## Diagnostics and acceptance
 
+Current build and hardware status is tracked only in the
+[validation matrix](VALIDATION.md). The following checks remain the device and server acceptance
+procedure.
+
 `cores3_video` emits lifecycle logs and `event=video_stats` every 10 seconds during streaming:
 `window_ms`, `captured`, `encoded`, `sent`, `rejected`, `dropped`, `capture_errors`, `last_bytes`, `quality`, `target_bps`,
 and `encode_max_us`. Counters and `encode_max_us` reset each interval; `last_bytes`, `quality`, and
@@ -92,14 +96,10 @@ requested while the queue is empty do not count as `dropped`. `sent` means RTSA 
 callback. Normal capture can approach 50 frames per 10 seconds; encoding/send duration and
 200 ms sampling intervals can put uplink near 8–10 frames per 10 seconds, always capped at 1 fps.
 
-CoreS3 camera bring-up has already passed real-device testing. Normal audio was also verified with
-video enabled and disabled. These are the recorded hardware results; the newer capture scheduling,
-larger DMA buffer, and UI changes still require hardware regression and CPU measurements.
-
 Validate GC0308 detection, correct colors/orientation, server reception/inference, send spacing,
 JPEG quality, CPU/heap use, and audio continuity. Exercise repeated conversation start/stop,
 Wi-Fi loss, long-touch provisioning, bitrate reduction, and missing camera. Confirm no frames after
-stop and stable memory after repeated cycles. Both Chinese/English video builds are covered in CI;
-hardware and server acceptance must be recorded separately. Compare `captured/window_ms`,
+stop and stable memory after repeated cycles. Hardware and server acceptance must be recorded
+separately. Compare `captured/window_ms`,
 per-core CPU, internal free heap, and the largest free block while keeping the same scene and
 audio activity. The expected reduction in DMA traffic is not a measured CPU reduction.

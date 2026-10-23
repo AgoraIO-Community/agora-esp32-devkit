@@ -25,34 +25,5 @@ SCLK GPIO36、CS GPIO3、DC GPIO35。
 无已保存的 Wi-Fi 信息时自动进入配网并显示热点名称、播放提示音。已有网络时联网后启动
 SDK；长按触摸会先停止 SDK 再配网。设备音量保存在 NVS，重启后恢复。
 
-## 构建与烧录
-
-在仓库根目录使用 ESP-IDF v5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board m5stack-core-s3 --language both
-```
-
-脚本默认开启视频，输出 `releases/m5stack-core-s3-zh-CN-video.bin` 和对应英文固件。
-需要关闭视频时追加 `--video off`。CoreS3-SE 不带 GC0308，不能使用视频固件。
-构建脚本的清理行为见[板卡索引](../README.md)。
-
-直接构建中文视频固件并烧录时，使用独立目录；将串口替换为本机设备：
-
-```sh
-idf.py -B build/m5stack-core-s3 \
-  -DMYBOT_BOARD=m5stack-core-s3 \
-  -DSDKCONFIG=build/m5stack-core-s3/sdkconfig \
-  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults;ci/video.defaults" build
-idf.py -B build/m5stack-core-s3 -p /dev/ttyUSB0 flash monitor
-```
-
-英文直接构建需在新目录的 defaults 列表追加 `;ci/en-us.defaults`。
-
-## 验证范围
-
-已有音频和摄像头通路完成过真机验证；当前像素眼镜 UI、采集调度和 DMA 配置仍需按对应
-文档回归。构建成功不等于硬件验收。详见[像素眼镜 UI](../../../../docs/CORES3_UI.zh-CN.md)、
-[摄像头上行](../../../../docs/CORES3_VIDEO.zh-CN.md)及
-[音频对照测试](../../../../docs/CORES3_AUDIO_TEST.zh-CN.md)。
+CoreS3-SE 不带 GC0308，不能使用视频固件。构建、烧录与验证状态见[板卡索引](../README.md)、
+[像素眼镜 UI](../../../../docs/CORES3_UI.zh-CN.md)和[验证矩阵](../../../../docs/VALIDATION.md)。

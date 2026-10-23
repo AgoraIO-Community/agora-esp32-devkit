@@ -40,31 +40,6 @@
 未保存 Wi-Fi 信息时自动进入配网，屏幕显示热点名称并播放提示音；按屏幕提示连接热点
 完成配置。触摸与 Boot 由板级常驻模块管理，SDK 停止期间仍可请求配网。
 
-## 编译与烧录
-
-在工程根目录使用 ESP-IDF 5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board esp32-s3-touch-amoled-1.75 --language both
-```
-
-脚本自动启用 LVGL，生成 `releases/esp32-s3-touch-amoled-1.75-zh-CN.bin` 和
-`releases/esp32-s3-touch-amoled-1.75-en-US.bin`，默认清理脚本管理的 `build/` 和 `releases/`。
-
-需要独立构建、烧录并查看控制台时，可使用：
-
-```sh
-idf.py -B build/esp32-s3-touch-amoled-1.75 \
-  -DMYBOT_BOARD=esp32-s3-touch-amoled-1.75 \
-  -DSDKCONFIG=build/esp32-s3-touch-amoled-1.75/sdkconfig build flash monitor
-```
-
-如需指定端口，在命令中增加 `-p` 参数。其他板型必须使用不同的构建目录和 sdkconfig。
-
-## 支持边界
-
 本板与 1.75C 共用生命周期、音频和输入实现，但 MCLK、屏幕复位、触摸复位和 TCA9554
-配置不同。RTC、IMU、TF 卡、电池状态、自动休眠、关机、播放参考通道和本地 AEC 尚未集成。
-当前支持范围为构建集成；电源时序、音频 slot、显示颜色/方向和触摸仍需在匹配实物上验证。
-完整说明见[工程文档](../../../../README.zh-CN.md)和[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
+配置不同。构建、烧录与验证状态见[板卡索引](../README.md)和
+[验证矩阵](../../../../docs/VALIDATION.md)。

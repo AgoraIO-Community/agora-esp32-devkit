@@ -42,8 +42,8 @@ struct Context {
 #if MYBOT_CORES3_PIXEL_UI
     mybot_expression_policy_t policy{};
     mybot_display_runtime_status_t runtime{};
-    /* Only new foreground commands/workflow changes advance this generation.
-     * Overlay refreshes must not affect the foreground display clock. */
+    /* Only workflow changes advance this generation. Overlay refreshes must not
+     * affect the foreground display clock. */
     uint32_t expression_generation = 0;
 #endif
 };
@@ -339,26 +339,6 @@ int render(void *opaque, const mybot_lcd_content_t *content) {
         memcpy(snapshot.pair_code, content->pair_code, length);
     }
 #if MYBOT_CORES3_PIXEL_UI
-    mybot_expression_t expression = MYBOT_EXPRESSION_NEUTRAL;
-    const uint32_t emotion = snapshot.indicators & MYBOT_LCD_INDICATOR_EMOTION_MASK;
-    switch (emotion) {
-    case MYBOT_LCD_INDICATOR_NONE:
-        break;
-    case MYBOT_LCD_INDICATOR_HAPPY:
-        expression = MYBOT_EXPRESSION_HAPPY;
-        break;
-    case MYBOT_LCD_INDICATOR_SAD:
-        expression = MYBOT_EXPRESSION_SAD;
-        break;
-    case MYBOT_LCD_INDICATOR_ANGRY:
-        expression = MYBOT_EXPRESSION_ANNOYED;
-        break;
-    case MYBOT_LCD_INDICATOR_SURPRISED:
-        expression = MYBOT_EXPRESSION_SURPRISED;
-        break;
-    default:
-        return -1;
-    }
     const uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
 #endif
     if (!lock_lifecycle()) {
@@ -370,15 +350,10 @@ int render(void *opaque, const mybot_lcd_content_t *content) {
 #if MYBOT_CORES3_PIXEL_UI
         const bool screen_changed = context.policy.screen != snapshot.screen;
         mybot_expression_policy_update(&context.policy, &snapshot, now);
-        if (emotion) {
-            (void)mybot_expression_policy_mcp(&context.policy, expression);
-        }
-        if (screen_changed || emotion) {
+        if (screen_changed) {
             ++context.expression_generation;
             context.pending = true;
         }
-        /* Consume one-shot commands before retaining the coalesced snapshot. */
-        snapshot.indicators &= ~MYBOT_LCD_INDICATOR_EMOTION_MASK;
 #endif
         if (memcmp(&snapshot, &context.latest, sizeof(snapshot)) != 0) {
             context.latest = snapshot;

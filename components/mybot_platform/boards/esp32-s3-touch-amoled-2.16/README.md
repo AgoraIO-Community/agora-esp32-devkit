@@ -20,8 +20,7 @@
 | 视频 | 未集成摄像头采集，不支持 `CONFIG_MYBOT_ENABLE_VIDEO` |
 
 公共 I2C0 使用 SDA GPIO15、SCL GPIO14，先完成 AXP2101 上电，再挂接屏幕、触摸和音频设备。
-本 profile 可选探测地址 `0x20` 的 TCA9554，未发现时可以继续初始化；实际板上是否搭载
-该器件仍需确认。
+本 profile 可选探测地址 `0x20` 的 TCA9554，未发现时可以继续初始化。
 
 | 信号 | GPIO |
 | --- | --- |
@@ -42,32 +41,5 @@
 未保存 Wi-Fi 信息时自动进入配网，屏幕显示热点名称并播放提示音；按屏幕提示连接热点
 完成配置。触摸与 Boot 由板级常驻模块管理，SDK 停止期间仍可请求配网。
 
-## 编译与烧录
-
-在工程根目录使用 ESP-IDF 5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board esp32-s3-touch-amoled-2.16 --language both
-```
-
-脚本自动启用 LVGL，生成 `releases/esp32-s3-touch-amoled-2.16-zh-CN.bin` 和
-`releases/esp32-s3-touch-amoled-2.16-en-US.bin`，默认清理脚本管理的 `build/` 和 `releases/`。
-
-需要独立构建、烧录并查看控制台时，可使用：
-
-```sh
-idf.py -B build/esp32-s3-touch-amoled-2.16 \
-  -DMYBOT_BOARD=esp32-s3-touch-amoled-2.16 \
-  -DSDKCONFIG=build/esp32-s3-touch-amoled-2.16/sdkconfig build flash monitor
-```
-
-如需指定端口，在命令中增加 `-p` 参数。其他板型必须使用不同的构建目录和 sdkconfig。
-
-## 支持边界
-
-中英文固件构建已在 ESP-IDF 5.5.2 验证，真机验证尚未完成。发布前需核对实际 Flash/PSRAM
-容量，验证电源时序、480 × 480 显示颜色/方向、触摸和 16 kHz 双向音频。若硬件需要其他
-音频采样率，转换应留在平台驱动内，SDK 的 16 kHz 单声道 PCM 契约保持不变。
-RTC、IMU、TF 卡、电池状态、自动休眠、关机、播放参考通道和本地 AEC 尚未集成。
-完整说明见[工程文档](../../../../README.zh-CN.md)和[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
+若硬件需要其他音频采样率，转换应留在平台驱动内，SDK 的 16 kHz 单声道 PCM 契约保持不变。
+构建、烧录与验证状态见[板卡索引](../README.md)和[验证矩阵](../../../../docs/VALIDATION.md)。

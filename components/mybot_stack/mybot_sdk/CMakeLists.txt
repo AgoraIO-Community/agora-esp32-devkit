@@ -48,9 +48,11 @@ set(MYBOT_SOURCES
     "${MYBOT_ROOT}/src/platform/mybot_wifi.c"
     "${MYBOT_ROOT}/src/rtc/mybot_agora_rtc.c"
     "${MYBOT_ROOT}/src/service/mybot_device_client.c"
+    "${MYBOT_ROOT}/src/support/mybot_http_header.c"
     "${MYBOT_ROOT}/src/support/mybot_http_client.c"
     "${MYBOT_ROOT}/src/support/mybot_json.c"
     "${MYBOT_ROOT}/src/support/mybot_ringbuf.c"
+    "${MYBOT_ROOT}/src/support/mybot_url.c"
 )
 
 idf_component_register(

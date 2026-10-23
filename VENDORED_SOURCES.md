@@ -5,7 +5,7 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 
 | Path | Source | Pinned revision |
 | --- | --- | --- |
-| `components/mybot_stack/mybot_sdk/mybot` | [agent-studio-device-firmware](https://github.com/AgoraIO-Community/agent-studio-device-firmware/tree/32ac74bc59cb72db70e9a68337753561b59b13d0) | tag `v1.3.0`, commit `32ac74bc59cb72db70e9a68337753561b59b13d0` |
+| `components/mybot_stack/mybot_sdk/mybot` | [agent-studio-device-firmware](https://github.com/AgoraIO-Community/agent-studio-device-firmware/tree/46e265a960fac48d93ae6755bdf694aeb09ab366) | v1.3.0, `main` commit `46e265a960fac48d93ae6755bdf694aeb09ab366` |
 | `components/mybot_stack/aosl` | `github.com/AgoraIO-Community/aosl` | v1.0.4 + post-release fixes, commit `84e086084ebcd0ae2455a0ce5721950c5fe2e656` |
 | `components/mybot_stack/agora_rtc` | Agora RTSA Lite package archive | v1.10.1, build 1270872 (`20260828_194128`) |
 | `components/esp-wifi-connect` | `github.com/78/esp-wifi-connect` | 3.2.2, commit `c24b97c194e6b4a1d7be0237b3c28980661cac1e` |
@@ -35,10 +35,10 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 
 The SDK's public headers and core sources match the pinned official commit. ESP-IDF integration
 also supplies the generated `include/mybot/mybot_version.h`. The official Git tree IDs are
-`9ee3a8bd4f85a9b211c68e2a4edcb466fb6580b2` for `include/` and
-`c0032496b56ae8c40bdc5f7fe41847ca4e720153` for `src/`. In a checkout of the SDK repository,
-`git archive 32ac74bc59cb72db70e9a68337753561b59b13d0 include src | sha256sum` produces
-`6443be044e8210057b0291e53b8ea6dcb92664f54b78fd9c71ac2f10c34e292e`.
+`f0f111a3b7790a650dac9cb29c93edc2c52a5086` for `include/` and
+`a6b52ae939875a49f0d8b04b512358aa9edea849` for `src/`. In a checkout of the SDK repository,
+`git archive 46e265a960fac48d93ae6755bdf694aeb09ab366 include src | sha256sum` produces
+`6c6717a50fab6132443a9fe98216b32d9edfc95b11a5a18514f72394c59f873d`.
 
 ## Board reference documents
 

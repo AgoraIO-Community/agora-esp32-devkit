@@ -42,31 +42,6 @@ CS GPIO12、D0-D3 GPIO4/GPIO5/GPIO6/GPIO7，以及 CST9217 INT GPIO11。
 未保存 Wi-Fi 信息时自动进入配网，屏幕显示热点名称并播放提示音；按屏幕提示连接热点
 完成配置。触摸与 Boot 由板级常驻模块管理，SDK 停止期间仍可请求配网。
 
-## 编译与烧录
-
-在工程根目录使用 ESP-IDF 5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board esp32-s3-touch-amoled-1.75c --language both
-```
-
-脚本自动启用 LVGL，生成 `releases/esp32-s3-touch-amoled-1.75c-zh-CN.bin` 和
-`releases/esp32-s3-touch-amoled-1.75c-en-US.bin`，默认清理脚本管理的 `build/` 和 `releases/`。
-
-需要独立构建、烧录并查看控制台时，可使用：
-
-```sh
-idf.py -B build/esp32-s3-touch-amoled-1.75c \
-  -DMYBOT_BOARD=esp32-s3-touch-amoled-1.75c \
-  -DSDKCONFIG=build/esp32-s3-touch-amoled-1.75c/sdkconfig build flash monitor
-```
-
-如需指定端口，在命令中增加 `-p` 参数。其他板型必须使用不同的构建目录和 sdkconfig。
-
-## 支持边界
-
 本板复用 `esp32-s3-touch-amoled-1.75-common` 的板级生命周期、音频和输入实现，保留独立
-板型身份。RTC、IMU、TF 卡、电池状态、自动休眠、关机、播放参考通道和本地 AEC 尚未集成。
-当前支持范围为构建集成；电源时序、音频 slot、显示颜色/方向和触摸仍需在匹配实物上验证。
-完整说明见[工程文档](../../../../README.zh-CN.md)和[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
+板型身份，并且不探测或依赖 TCA9554。构建、烧录与验证状态见[板卡索引](../README.md)和
+[验证矩阵](../../../../docs/VALIDATION.md)。
