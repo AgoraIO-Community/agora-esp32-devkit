@@ -5,7 +5,8 @@
 ## Prepare
 
 - [ ] Choose a Semantic Version and update `PROJECT_VER` in `CMakeLists.txt` and `CHANGELOG.md`.
-- [ ] Confirm README, board support, known limitations, and configuration documentation are current.
+- [ ] Confirm README, board support and configuration documentation are current, and update the
+      single [validation matrix](VALIDATION.md) for this release.
 - [ ] Review all dependency revisions, bundled licenses, and `THIRD_PARTY_NOTICES.md`.
 - [ ] Verify the agent-studio-device-firmware snapshot, AOSL sources, and RTSA headers/library in
       `components/mybot_stack` match `VENDORED_SOURCES.md`; keep the SDK snapshot unchanged
@@ -27,9 +28,8 @@ idf.py -B build/release size
 git diff --check
 ```
 
-- [ ] All 30 firmware builds in the [CI workflow](../.github/workflows/ci.yml) pass: thirteen boards
-      in both languages, two additional CoreS3 video builds, one CoreS3 light-theme build, and one
-      CoreS3 video build with conversation animations disabled. All use 60 ms audio frames.
+- [ ] All firmware builds in the [CI workflow](../.github/workflows/ci.yml) pass. All use 60 ms
+      audio frames.
 - [ ] Confirm unsupported 20 ms and 40 ms settings still fail configuration with the bundled RTSA.
 - [ ] Record firmware builds, host-side tests, and real-device results separately. Host layout or
       lifecycle tests do not validate panel transfers, power sequencing, or acoustic performance.
@@ -103,4 +103,5 @@ git diff --check
 - [ ] Create an annotated `v<version>` tag matching `PROJECT_VER`.
 - [ ] Attach source and firmware artifacts only after third-party authorization review.
 - [ ] Include `LICENSE`, `THIRD_PARTY_NOTICES.md`, the changelog, partition layout, and checksums.
-- [ ] List known limitations and distinguish build validation from real-hardware validation.
+- [ ] Confirm the [validation matrix](VALIDATION.md) distinguishes build coverage from real-hardware
+      results and lists current limitations.

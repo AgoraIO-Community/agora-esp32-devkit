@@ -5,7 +5,8 @@
 ## 准备
 
 - [ ] 确定语义化版本，并同步更新 `CMakeLists.txt` 中的 `PROJECT_VER` 与 `CHANGELOG.md`。
-- [ ] 确认 README、板卡支持、已知限制与配置文档符合当前实现。
+- [ ] 确认 README、板卡支持与配置文档符合当前实现，并更新唯一的
+      [验证矩阵](VALIDATION.md)。
 - [ ] 审查全部依赖版本、随附许可证与 `THIRD_PARTY_NOTICES.md`。
 - [ ] 核对 `components/mybot_stack` 中的 agent-studio-device-firmware 快照、AOSL 源码及
       RTSA 头文件/库与 `VENDORED_SOURCES.md` 一致；除明确同步上游版本外，不修改 SDK 快照。
@@ -25,9 +26,8 @@ idf.py -B build/release size
 git diff --check
 ```
 
-- [ ] [CI 工作流](../.github/workflows/ci.yml)的 30 项固件构建全部通过：十三个板型分别构建
-      中英文版本，另加 CoreS3 两种语言的视频构建、一个浅色主题构建，以及一个关闭会话
-      动画的视频构建。所有构建使用 60 ms 音频帧。
+- [ ] [CI 工作流](../.github/workflows/ci.yml)中的固件构建全部通过，所有构建使用 60 ms
+      音频帧。
 - [ ] 确认随附 RTSA 仍会在配置阶段拒绝不支持的 20 ms 和 40 ms 设置。
 - [ ] 分别记录固件构建、主机测试和真机结果。主机布局或生命周期测试不能验证屏幕传输、
       上电时序或声学表现。
@@ -91,4 +91,4 @@ git diff --check
 - [ ] 创建与 `PROJECT_VER` 一致的带注释 `v<version>` tag。
 - [ ] 仅在第三方授权审查后附加源码与固件制品。
 - [ ] 包含 `LICENSE`、`THIRD_PARTY_NOTICES.md`、changelog、分区布局与校验和。
-- [ ] 列出已知限制，并区分编译验证与真实硬件验证。
+- [ ] 确认[验证矩阵](VALIDATION.md)区分构建覆盖与真机结果，并列出当前限制。

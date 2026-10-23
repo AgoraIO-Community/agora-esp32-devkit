@@ -41,14 +41,14 @@ static host_panel panel{};
 static host_display display{};
 static host_timer timer{};
 static bool port_open, port_locked, view_open, finish_on_delay;
-static unsigned pending_dma, replay_count, updates, closes;
+static unsigned pending_dma, updates, closes;
 static int64_t now_us;
 static std::string fail_step, fail_cleanup;
 static mybot_lcd_content_t applied{};
 static mybot_display_runtime_status_t applied_runtime{};
 static std::string applied_ssid;
 static mybot_expression_t visible = MYBOT_EXPRESSION_NEUTRAL;
-static bool replay_ok = true, inject_same_command, inject_phase_update;
+static bool replay_ok = true;
 static void *active_owner;
 extern "C" const mybot_lcd_ops_t *mybot_cores3_lcd_ops(void);
 
@@ -255,19 +255,10 @@ int mybot_pixel_glasses_show_expression(mybot_expression_t expression) {
 }
 int mybot_pixel_glasses_replay_expression(mybot_expression_t expression) {
     CHECK(view_open && port_locked);
+    if (!replay_ok)
+        return -1;
     visible = expression;
-    ++replay_count;
-    if (inject_same_command) {
-        inject_same_command = false;
-        send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_HAPPY);
-    }
-    if (inject_phase_update) {
-        inject_phase_update = false;
-        send(MYBOT_LCD_SCREEN_IN_CONVERSATION,
-             MYBOT_LCD_INDICATOR_THINKING | MYBOT_LCD_INDICATOR_VP_REGISTERED);
-        CHECK(mybot_display_set_runtime_status("in_conversation", true) == 0);
-    }
-    return replay_ok ? 0 : -1;
+    return 0;
 }
 }
 
@@ -349,64 +340,37 @@ static void ui_tests() {
     CHECK(visible == MYBOT_EXPRESSION_SURPRISED);
     tick(1);
     CHECK(visible == MYBOT_EXPRESSION_LISTENING);
-    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_HAPPY);
-    tick();
-    CHECK(visible == MYBOT_EXPRESSION_HAPPY &&
-          !(applied.indicators & MYBOT_LCD_INDICATOR_EMOTION_MASK));
-    const unsigned played = replay_count;
-    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_HAPPY);
-    tick();
-    CHECK(replay_count == played + 1);
     send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_THINKING);
-    tick(500);
-    CHECK(visible == MYBOT_EXPRESSION_HAPPY && replay_count == played + 1);
-    CHECK(mybot_display_set_runtime_status("in_conversation", true) == 0);
-    tick(1749);
-    CHECK(visible == MYBOT_EXPRESSION_HAPPY);
-    tick(1);
-    CHECK(visible == MYBOT_EXPRESSION_THINKING);
-    tick(750);
-    CHECK(visible == MYBOT_EXPRESSION_PROCESSING);
-    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_SAD);
     tick();
+    CHECK(visible == MYBOT_EXPRESSION_THINKING);
+    tick(2999);
+    CHECK(visible == MYBOT_EXPRESSION_THINKING);
+    tick(1);
+    CHECK(visible == MYBOT_EXPRESSION_PROCESSING);
+    send(MYBOT_LCD_SCREEN_IN_CONVERSATION,
+         MYBOT_LCD_INDICATOR_LISTENING | MYBOT_LCD_INDICATOR_VP_REGISTERED);
+    tick();
+    CHECK(visible == MYBOT_EXPRESSION_LISTENING);
+    CHECK(applied.indicators ==
+          (MYBOT_LCD_INDICATOR_LISTENING | MYBOT_LCD_INDICATOR_VP_REGISTERED));
+
     send(MYBOT_LCD_SCREEN_READY);
     tick();
     CHECK(visible == MYBOT_EXPRESSION_NEUTRAL);
-
-    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_HAPPY);
-    inject_same_command = true;
-    const unsigned race_before = replay_count;
-    tick();
-    tick(10);
-    CHECK(replay_count == race_before + 2);
-    tick(2249);
-    CHECK(visible == MYBOT_EXPRESSION_HAPPY);
-    tick(1);
-    CHECK(visible == MYBOT_EXPRESSION_NEUTRAL);
-    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_HAPPY);
-    inject_phase_update = true;
-    const unsigned overlay_before = replay_count;
-    tick();
-    tick();
-    CHECK(replay_count == overlay_before + 1);
-    tick(2250);
-    CHECK(visible == MYBOT_EXPRESSION_THINKING);
-    tick(750);
-    CHECK(visible == MYBOT_EXPRESSION_PROCESSING);
-
     replay_ok = false;
-    send(MYBOT_LCD_SCREEN_IN_CONVERSATION,
-         MYBOT_LCD_INDICATOR_HAPPY | MYBOT_LCD_INDICATOR_THINKING);
+    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_LISTENING);
     tick();
-    tick(3000);
-    CHECK(visible == MYBOT_EXPRESSION_HAPPY); // failed submissions don't start hold
+    CHECK(visible == MYBOT_EXPRESSION_NEUTRAL);
     replay_ok = true;
     tick();
-    tick(2250);
-    CHECK(visible == MYBOT_EXPRESSION_PROCESSING);
+    CHECK(visible == MYBOT_EXPRESSION_SURPRISED);
+
+    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_LISTENING | (1u << 31));
+    tick();
+    CHECK(visible == MYBOT_EXPRESSION_SURPRISED);
+
     void *sdk = nullptr;
     CHECK(mybot_cores3_lcd_ops()->init(&sdk) == 0 && sdk == active_owner);
-    send(MYBOT_LCD_SCREEN_IN_CONVERSATION, MYBOT_LCD_INDICATOR_HAPPY);
     tick();
     mybot_cores3_lcd_ops()->destroy(sdk);
     tick();
@@ -414,10 +378,6 @@ static void ui_tests() {
     send(MYBOT_LCD_SCREEN_WIFI_PROVISIONING);
     tick();
     CHECK(applied_ssid == "mybot-test");
-    mybot_lcd_content_t bad{};
-    bad.screen = MYBOT_LCD_SCREEN_IN_CONVERSATION;
-    bad.indicators = MYBOT_LCD_INDICATOR_HAPPY | MYBOT_LCD_INDICATOR_SAD;
-    CHECK(mybot_cores3_lcd_ops()->render(active_owner, &bad) < 0);
     stop();
     CHECK(mybot_display_set_runtime_status("ready", false) < 0);
 }
@@ -425,5 +385,5 @@ static void ui_tests() {
 int main() {
     lifecycle_tests();
     ui_tests();
-    std::puts("CoreS3 pixel adapter: lifecycle, DMA, policy and command-race checks passed");
+    std::puts("CoreS3 pixel adapter: lifecycle, DMA, indicator and phase checks passed");
 }

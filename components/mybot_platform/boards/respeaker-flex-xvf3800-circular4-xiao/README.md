@@ -31,31 +31,5 @@ Cloud AEC，避免重复处理。音量由平台软件增益控制并保存在 N
 36 轮询读取。无 Wi-Fi 信息时自动创建配置热点并播放提示音；手动配网前先停止 SDK。
 设备没有屏幕，配网与配对状态通过语音和控制台日志查看。
 
-## 构建与烧录
-
-在仓库根目录使用 ESP-IDF v5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board respeaker-flex-xvf3800-circular4-xiao --language both
-```
-
-输出 `releases/respeaker-flex-xvf3800-circular4-xiao-zh-CN.bin` 和对应英文固件。
-构建脚本的清理行为见[板卡索引](../README.md)。
-
-直接构建中文固件并烧录时，使用独立目录；将串口替换为本机 USB Serial/JTAG 设备：
-
-```sh
-idf.py -B build/respeaker-flex-xvf3800-circular4-xiao \
-  -DMYBOT_BOARD=respeaker-flex-xvf3800-circular4-xiao \
-  -DSDKCONFIG=build/respeaker-flex-xvf3800-circular4-xiao/sdkconfig \
-  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
-idf.py -B build/respeaker-flex-xvf3800-circular4-xiao -p /dev/ttyACM0 flash monitor
-```
-
-## 验证范围
-
-当前 profile 尚未完成真机验收。需验证 XVF 固件版本、时钟方向、通道路由、双向音频、
-声学处理、按键与重复配网。构建成功不能证明这些硬件行为正确。
-详见[平台移植文档](../../../../docs/BOARD_PORTING.zh-CN.md)及
-[项目说明](../../../../README.zh-CN.md)。
+通过 USB Serial/JTAG 构建和烧录；具体命令见[板卡索引](../README.md)，验证状态见
+[验证矩阵](../../../../docs/VALIDATION.md)。

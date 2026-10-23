@@ -27,31 +27,4 @@ LCD SPI3 为 MOSI GPIO39、SCLK GPIO40、CS GPIO41、DC GPIO45、RESET GPIO21；
 当前 ES8311 硬件音量按逻辑值的 60% 映射。无 Wi-Fi 信息时自动进入配网并显示热点名称、
 播放提示音；长按主按键会先停止 SDK 再重新配网。
 
-## 构建与烧录
-
-在仓库根目录使用 ESP-IDF v5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board m5stack-stick-s3 --language both
-```
-
-输出 `releases/m5stack-stick-s3-zh-CN.bin` 和对应英文固件；LVGL 自动启用。
-构建脚本的清理行为见[板卡索引](../README.md)。
-
-直接构建中文固件并烧录时，使用独立目录；将串口替换为本机设备：
-
-```sh
-idf.py -B build/m5stack-stick-s3 \
-  -DMYBOT_BOARD=m5stack-stick-s3 \
-  -DSDKCONFIG=build/m5stack-stick-s3/sdkconfig \
-  -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;ci/ptime60.defaults" build
-idf.py -B build/m5stack-stick-s3 -p /dev/ttyUSB0 flash monitor
-```
-
-## 验证范围
-
-当前 profile 尚未完成真机验收，需验证电源时序、16 kHz 双向音频、按键与屏幕颜色/方向。
-GPIO12、IMU、红外、电池状态、关机手势和低功耗未接入。详见
-[平台移植](../../../../docs/BOARD_PORTING.zh-CN.md)及
-[平台 UI](../../../../docs/PLATFORM_UI.zh-CN.md)。
+构建、烧录与验证状态见[板卡索引](../README.md)和[验证矩阵](../../../../docs/VALIDATION.md)。

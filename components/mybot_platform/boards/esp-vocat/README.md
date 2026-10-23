@@ -43,32 +43,5 @@ D0-D3 GPIO46/GPIO13/GPIO11/GPIO12，背光为 GPIO44，触摸中断为 GPIO10。
 CST816S 使用中断触发读取，仅在按住时定时检查长按，不持续轮询空闲触摸。当前配置关闭
 触摸 ID 寄存器读取，以兼容不响应该寄存器的固件批次。
 
-## 编译与烧录
-
-在工程根目录使用 ESP-IDF 5.5.2：
-
-```sh
-source /path/to/esp-idf/export.sh
-python3 scripts/build_all.py --board esp-vocat --language both
-```
-
-脚本自动启用 LVGL，生成 `releases/esp-vocat-zh-CN.bin` 和
-`releases/esp-vocat-en-US.bin`，默认清理脚本管理的 `build/` 和 `releases/`。
-
-需要独立构建、烧录并查看控制台时，可使用：
-
-```sh
-idf.py -B build/esp-vocat \
-  -DMYBOT_BOARD=esp-vocat \
-  -DSDKCONFIG=build/esp-vocat/sdkconfig build flash monitor
-```
-
-使用原生 USB 数据接口并打开硬件电源；如需指定端口，在命令中增加 `-p` 参数。
-其他板型必须使用不同的构建目录和 sdkconfig。
-
-## 支持边界
-
-第二麦克风、播放参考通道、本地 AEC、电量计、IMU、电容控制、SD 卡、LED、关机和低功耗
-尚未集成。硬件能力不等同于本工程已实现的功能。
-两个 PCB 版本的电源、引脚映射、音频和触摸均需在对应实物上验证；构建通过不能替代真机测试。
-完整说明见[工程文档](../../../../README.zh-CN.md)和[平台移植说明](../../../../docs/BOARD_PORTING.zh-CN.md)。
+烧录时使用原生 USB 并打开硬件电源。构建、烧录与验证状态见[板卡索引](../README.md)和
+[验证矩阵](../../../../docs/VALIDATION.md)。

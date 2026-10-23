@@ -84,11 +84,9 @@ SDK packet delivery. The removed renderer's `event=ui_stats` is no longer emitte
 `rebuffer_events` estimates when playback needs buffering again and may include speech pauses.
 It is not a DMA-underrun counter.
 
-CoreS3 real-device testing passed all three offline stages after buffering was added; normal
-conversations also passed with video enabled and disabled. That is the recorded hardware baseline.
-The subsequent shared-buffer extraction and platform/UI changes still need per-board regression;
-host simulations and firmware builds cannot establish their audible result. The
-[offline comparison](CORES3_AUDIO_TEST.md) remains CoreS3-only.
+Current build and hardware status is tracked only in the
+[validation matrix](VALIDATION.md). Host simulations and firmware builds cannot establish the
+audible result. The [offline comparison](CORES3_AUDIO_TEST.md) remains CoreS3-only.
 
 For each additional board, test continuous conversation with capture active, first-boot and
 button-triggered Wi-Fi prompts, pairing-code tails, repeated hangup/restart, volume persistence,

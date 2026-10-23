@@ -7,12 +7,11 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Per-board hardware, input, configuration, build and flashing instructions for all thirteen
-  profiles, with a linked board documentation index.
+- Per-board hardware, input and operation documentation for all thirteen profiles, with shared
+  build/flash instructions and one validation matrix.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
-  Automatic faces follow READY/conversation phases; four MCP emotions use bounded holds,
-  replacement and same-name new-command replay. Expressions affect only the LCD.
+  Automatic faces follow READY/conversation phases. Expressions affect only the LCD.
   `MYBOT_BOARD` selects the view automatically; other twelve profiles retain their UI/hardware.
 - Shared LVGL status UI for the other display-board profiles, with Chinese/English text,
   pairing codes, voiceprint status, and listening/thinking/speaking indicators.
@@ -47,8 +46,7 @@ Versioning and Conventional Commits.
   CST816S touch input, and ES7210/ES8311 full-duplex audio.
 - Pinned ST77916 2.0.2 and CST816S 1.1.1~1 production components.
 - Pinned CO5300 2.1.0, LCD touch 1.2.1, and CST9217 1.0.4 production components.
-- agent-studio-device-firmware SDK 1.2.0 plus post-release fixes, Agora RTSA 1.10.1 and
-  reference-counted AOSL integration.
+- agent-studio-device-firmware 1.2.0 plus post-release fixes, Agora RTSA 1.10.1 and reference-counted AOSL integration.
 - Wi-Fi provisioning/reconnect, NVS, verified HTTPS, I2S audio, buttons and LVGL status UI.
 - Persistent 0-100 speaker volume using the Zhengchen board's software I2S gain path.
 - Embedded Chinese and English Ogg/Opus pairing-code announcements decoded to PSRAM at runtime.
@@ -71,27 +69,28 @@ Versioning and Conventional Commits.
   AIC3104 output initialization, XIAO Boot input, and XVF onboard-button polling.
 - SenseCAP Watcher Board profile with ES8311/ES7243E audio, SPD2010 status display, rotary input,
   TCA9555 power sequencing, and a factory-data-preserving 32 MB partition layout.
-- Target firmware CI with 30 configurations: all thirteen board profiles in both languages,
-  CoreS3 video in both languages, and light-theme/static-indicator variants, using 60 ms audio.
+- Target firmware CI for all board profiles in both languages, CoreS3 video and UI variants,
+  using 60 ms audio. Current status is tracked in the [validation matrix](docs/VALIDATION.md).
 
 ### Changed
 
-- Refresh the Chinese and English Wi-Fi provisioning prompts while preserving 20 ms mono Opus/Ogg.
-
-- Refresh the 22 Chinese and English pairing prompt and digit recordings. Preserve the 20 ms
-  mono Opus/Ogg format.
-
-Historical SDK commit IDs below refer to the
-[agent-studio-device-firmware history](https://github.com/AgoraIO-Community/agent-studio-device-firmware/commits/main/).
-
-- Use agent-studio-device-firmware v1.3.0 (`32ac74b`) and report version 1.3.0 from
+- Centralize build and flash commands in the board index and current validation status in
+  `docs/VALIDATION.md`; remove repeated status paragraphs, volatile build timings and per-board
+  command copies from board and topic documentation.
+- Refresh the SDK snapshot to `baf41ba` and register the new shared URL and HTTP-header sources.
+  Adopt bounded URL validation and printable header checks, remove unused outbound RTM, media-mute
+  and LCD emotion paths, and update the CoreS3 adapter and host tests to the current LCD contract.
+- Update the local Chinese and English Wi-Fi provisioning prompts, retaining 20 ms mono Opus/Ogg
+  and recording checksums and decoded frame counts.
+- Refresh the SDK snapshot to `3f9a1ad` (version 1.3.0) and update all 22 Chinese/English pairing
+  prompt and digit recordings from its PCM assets. Encode 20 ms mono Opus/Ogg for the existing
+  firmware decoder and record source/output hashes.
+- Sync the SDK snapshot to the v1.3.0 release (`58f0ef9`) and report version 1.3.0 from
   the ESP-IDF wrapper. Changes since the previous snapshot are release metadata and comments.
-- Document the pinned SDK, announcement assets and delivered platform implementations with
-  reproducible checksums and retained third-party notices.
-- Use agent-studio-device-firmware SDK `d158022` (1.2.0 plus post-release fixes), accepting cloud
+- Sync the SDK snapshot to `39d5ed1` (1.2.0 plus post-release fixes), accepting cloud
   `message.user` envelopes with absolute and relative volume commands. Remove MCP mute,
   expression, and bare-command parsing upstream; retain the platform's LCD emotion rendering.
-- Replace only the CoreS3 status-card renderer with the BK7259 pixel-glasses display implementation,
+- Replace only the CoreS3 status-card renderer with the BK7259 `dc4c854` display implementation,
   adapted to the existing ESP32 adapter/API. READY uses NEUTRAL; conversation entry uses
   SURPRISED for 300 ms plus its 250 ms enabled transition, continuous thinking becomes
   PROCESSING after three seconds, and MCP holds are 2/3/1.2/0.8 seconds plus transition.
@@ -99,17 +98,17 @@ Historical SDK commit IDs below refer to the
   Existing touch, audio, video auto-selection, power, memory and immutable SDK inputs are retained.
 - Update the language-derived device-service addresses to `https://botstation.shengwang.cn/api`
   for zh-CN and `https://botstation.agora.io/api` for en-US, matching the SDK's regional guidance.
-- Use agent-studio-device-firmware SDK `e7793eb` (1.2.0 plus post-release fixes),
-  adding cloud volume/mute commands and moving status polls and stop notifications off the control worker.
+- Sync the SDK snapshot to `e7793eb` (1.2.0 plus post-release fixes), adding cloud
+  volume/mute commands and moving status polls and stop notifications off the control worker.
   Register the new device-command source in ESP-IDF. The shared workflow view on other boards
   continues to ignore optional emotion indicators; CoreS3 maps them to pixel expressions.
-- Sync the agent-studio-device-firmware SDK snapshot to `0643978` (1.2.0 plus post-release fixes), preventing control
+- Sync the SDK snapshot to `0643978` (1.2.0 plus post-release fixes), preventing control
   queue stalls, clearing pending starts on re-pairing, discarding stale announcement PCM, and
   hardening HTTP and JSON boundaries. The RTC queue limit increases from 64 to 1000 pending calls.
 - Direct pairing-code entry to the web console and scroll the instruction on narrow displays.
 - Select the device API region from the firmware language: zh-CN uses Shanghai (sh2), and en-US
   uses Singapore (sg3).
-- Sync the agent-studio-device-firmware SDK snapshot to `83fbcb0` (1.2.0 plus post-release fixes), serializing video
+- Sync the SDK snapshot to `83fbcb0` (1.2.0 plus post-release fixes), serializing video
   control with shutdown, retaining announcements until RTC callbacks stop, and consolidating
   RTM-to-LCD indicator handling and device-service response parsing.
 - Request CoreS3 DVP capture at most five times per second, holding capture buffers between
@@ -119,9 +118,9 @@ Historical SDK commit IDs below refer to the
 - Count in-flight SPI callbacks across consecutive CoreS3 LVGL UI flushes so teardown waits
   for all pending transfers.
 
-- Refresh the agent-studio-device-firmware SDK to commit `4ae239c` (1.2.0 plus post-release fixes): set
-  AOSL to NOTICE at SDK startup, reduce routine RTM logging, and preserve the log level across RTSA initialization.
-- Group the agent-studio-device-firmware SDK, AOSL, and Agora RTSA under `components/mybot_stack`, retaining independent
+- Refresh the SDK to commit `4ae239c` (1.2.0 plus post-release fixes): set AOSL to NOTICE
+  at SDK startup, reduce routine RTM logging, and preserve the log level across RTSA initialization.
+- Group agent-studio-device-firmware, AOSL, and Agora RTSA under `components/mybot_stack`, retaining independent
   ESP-IDF component names and registering them explicitly through `EXTRA_COMPONENT_DIRS`.
 - Organize the platform as board profiles, platform registration, services, drivers, internal
   headers, and assets. Separate display panel lifecycle, LVGL adapters, and the shared view.
@@ -129,11 +128,11 @@ Historical SDK commit IDs below refer to the
   AtomEchoS3R and ReSpeaker Flex remain headless; theme and activity-animation settings remain
   configurable.
 - Set the ESP32 FreeRTOS tick rate to 1000 Hz so one operating-system tick is 1 ms.
-- Sync the vendored agent-studio-device-firmware SDK to Unreleased commit `27324e7`, adding RTM channel subscription for
+- Sync the vendored SDK to Unreleased commit `27324e7`, adding RTM channel subscription for
   voice-print status.
-- Sync the vendored agent-studio-device-firmware SDK to v1.1.0 + Unreleased commit `e515f07`, including the serialized RTC
+- Sync the vendored SDK to v1.1.0 + Unreleased commit `e515f07`, including the serialized RTC
   MPQ implementation, pairing-state projection, media-session cleanup, and bounded service parsing.
-- Sync the vendored agent-studio-device-firmware SDK to v1.2.0 (`674dcbf`), adding optional multimodal video uplink and
+- Sync the vendored SDK to v1.2.0 (`674dcbf`), adding optional multimodal video uplink and
   mutually exclusive server-state LCD indicators while keeping video disabled on ESP32-S3 boards.
 - Enforce the bundled ESP32-S3 RTSA package's fixed 60 ms cadence at component configuration time;
   non-60 ms packet durations now require a matching RTSA package.
@@ -141,16 +140,16 @@ Historical SDK commit IDs below refer to the
   adaptations.
 - Align the bilingual project, contribution, support, porting, and release documentation with the
   standalone ESP32 firmware scope.
-- Decouple network provisioning from agent-studio-device-firmware startup. Connectivity is now a
-  prerequisite, and holding Boot stops the SDK before provisioning, shows the Wi-Fi setup screen,
-  and restarts the SDK after the station obtains an IP address.
+- Decouple network provisioning from SDK startup. Connectivity is now a prerequisite, and holding
+  Boot stops the SDK before provisioning, shows the Wi-Fi setup screen, and restarts the SDK after the
+  station obtains an IP address.
 - Select the target Board at compile time and separate common platform services, reusable drivers,
   and the Zhengchen board profile without changing its runtime behavior.
 - Share the Zhengchen Board lifecycle between the ML307 and Wi-Fi profiles while keeping their
   compile-time hardware configuration isolated.
 - Log volume-up and volume-down button presses in the ESP32-S3 platform layer.
 - Shorten the provisioning AP SSID to `mybot-aabb`, using the first two STA MAC bytes.
-- Sync the vendored agent-studio-device-firmware SDK to the v1.0.0 release (`117a44d`), retaining the ESP32-S3 RTC and
+- Sync the vendored SDK to the v1.0.0 release (`117a44d`), retaining the ESP32-S3 RTC and
   HTTPS-only compatibility patches.
 
 ### Removed
@@ -161,40 +160,8 @@ Historical SDK commit IDs below refer to the
 
 ### Known limitations
 
-- CoreS3 LVGL, including the theme/emoji stage, has passed real-device testing. The subsequent
-  rollout and renderer cleanup across display boards, and the latest provisioning SSID/scrolling
-  changes, still need hardware regression testing. The newer 5 fps DVP sampling and larger DMA
-  buffers also require CPU, internal-memory, and concurrent-audio measurements. Conversation transcripts, cloud emotion
-  messages, and GIF animation are not included.
-- ML307/4G and wake words are not yet supported.
-- Zhengchen Wi-Fi real-device validation, physical PSRAM-capacity confirmation, 16 kHz playback
-  validation, charge/battery inputs, temperature monitoring, and power management are not yet
-  complete.
-- Xingzhi Cube real-device validation, physical Flash/PSRAM-capacity confirmation, 16 kHz
-  playback, display/power/button checks, battery/charging inputs, shutdown, sleep, and low-power
-  behavior are not yet complete.
-- Bread Compact Wi-Fi LCD real-device validation is pending. Its fixed
-  N16R8/ST7789/separate-I2S wiring, 16 kHz playback, panel/backlight/input, and detected capacities
-  require verification. Camera, touch, volume buttons, LED, lamp, and power management are unsupported.
-- ESP-VoCat real-device validation for both PCB revisions is not yet complete. Battery reporting,
-  IMU, PCB capacitive controls, SD card, LED, camera expansion, local AEC, reference audio,
-  shutdown, and low-power behavior are not supported by the initial profile.
-- Waveshare AMOLED 1.75 and 1.75C real-device validation, playback-reference input, local AEC,
-  battery reporting, and low-power operation are not yet complete. The 1.75C profile does not
-  support RTC, IMU, TF card, or TCA9554 and conservatively addresses 16 MB of Flash pending
-  real-device capacity confirmation.
-- Waveshare AMOLED 2.16 real-device power/audio/display/touch testing, physical Flash/PSRAM
-  capacities, and optional TCA9554 presence remain unconfirmed. Video, playback-reference input,
-  local AEC, RTC, IMU, TF card, battery reporting, shutdown, and low-power behavior are unsupported.
-- ReSpeaker Flex requires separately flashed XVF3800 Circular-4 16 kHz I2S firmware; hardware
-  validation, Linear-4 support, XVF firmware update, LED-ring status, and LCD output are not yet
-  complete.
-- SenseCAP Watcher real-device validation, camera, touch, LED, battery reporting, shutdown, and
-  low-power behavior are not yet complete.
-- M5Stack StickS3 real-device validation, GPIO12, IMU, infrared, battery reporting, shutdown, and
-  low-power behavior are not yet complete.
-- M5Stack AtomEchoS3R real-device validation, GPIO41 user-button mapping, and 16 kHz bidirectional
-  audio testing are not yet complete.
+Current build coverage, real-device results and unsupported features are tracked only in the
+[validation matrix](docs/VALIDATION.md).
 
 ### Fixed
 
@@ -219,7 +186,7 @@ Historical SDK commit IDs below refer to the
   pipe.
 - Preserve the requested AOSL thread stack size on ESP-IDF instead of dividing the byte count by
   `sizeof(StackType_t)`.
-- Increase the lwIP socket budget so agent-studio-device-firmware and Agora can open network sockets after AOSL creates
+- Increase the lwIP socket budget so mybot and Agora can open network sockets after AOSL creates
   its MPQ wakeup pipes.
 - Make ESP32-S3 AOSL millisecond sleeps block for at least one FreeRTOS tick so MPQ teardown cannot
   starve the task that releases its final queue reference.
