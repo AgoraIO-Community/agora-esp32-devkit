@@ -43,15 +43,13 @@ CoreS3 alone uses the fixed process-gray skin, 23 expressions and four terminal 
 text and a 10 px signature. Six-digit numeric pairing codes remain 32 px. READY shows NEUTRAL;
 entering a conversation shows SURPRISED for 300 ms plus its entering transition. LISTENING and
 THINKING select their faces, continuous THINKING becomes PROCESSING after three seconds, and
-SPEAKING/no phase uses NEUTRAL. Four optional one-shot LCD emotion indicators temporarily override
-the face and replay on each submission, with 2000/3000/1200/800 ms holds plus a 250 ms enabled
-entering transition. The current SDK MCP path accepts only `audio.set_volume` and
-`audio.adjust_volume` inside a `message.user` envelope; it does not emit emotion indicators.
-These are LCD-only changes. See [CoreS3 UI](CORES3_UI.md) for timing, resources and validation.
+SPEAKING/no phase uses NEUTRAL. The current SDK no longer exposes one-shot emotion indicators;
+MCP device commands are limited to `audio.set_volume` and `audio.adjust_volume`. These are
+LCD-only changes. See [CoreS3 UI](CORES3_UI.md) for timing, resources and validation.
 
 CoreS3's legacy light-theme setting is retained but does not change the pixel skin. Its animation
-option controls expression motion and transitions; disabling it retains state/hold progression
-and necessary guidance scrolling. The other twelve profiles retain their existing UI/hardware;
+option controls expression motion and transitions; disabling it retains the opener hold and
+necessary guidance scrolling. The other twelve profiles retain their existing UI/hardware;
 SDK, AOSL, RTSA, camera/video policy, input, power and memory configuration are unchanged.
 
 ## Shared workflow view on other display boards

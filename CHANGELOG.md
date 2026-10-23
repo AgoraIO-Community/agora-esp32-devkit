@@ -11,8 +11,7 @@ Versioning and Conventional Commits.
   profiles, with a linked board documentation index.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
-  Automatic faces follow READY/conversation phases; four MCP emotions use bounded holds,
-  replacement and same-name new-command replay. Expressions affect only the LCD.
+  Automatic faces follow READY/conversation phases. Expressions affect only the LCD.
   `MYBOT_BOARD` selects the view automatically; other twelve profiles retain their UI/hardware.
 - Shared LVGL status UI for the other display-board profiles, with Chinese/English text,
   pairing codes, voiceprint status, and listening/thinking/speaking indicators.
@@ -75,6 +74,9 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Refresh the SDK snapshot to `baf41ba` and register the new shared URL and HTTP-header sources.
+  Adopt bounded URL validation and printable header checks, remove unused outbound RTM, media-mute
+  and LCD emotion paths, and update the CoreS3 adapter and host tests to the current LCD contract.
 - Update the local Chinese and English Wi-Fi provisioning prompts, retaining 20 ms mono Opus/Ogg
   and recording checksums and decoded frame counts.
 - Refresh the SDK snapshot to `3f9a1ad` (version 1.3.0) and update all 22 Chinese/English pairing
@@ -158,8 +160,8 @@ Versioning and Conventional Commits.
 - CoreS3 LVGL, including the theme/emoji stage, has passed real-device testing. The subsequent
   rollout and renderer cleanup across display boards, and the latest provisioning SSID/scrolling
   changes, still need hardware regression testing. The newer 5 fps DVP sampling and larger DMA
-  buffers also require CPU, internal-memory, and concurrent-audio measurements. Conversation transcripts, cloud emotion
-  messages, and GIF animation are not included.
+  buffers also require CPU, internal-memory, and concurrent-audio measurements. Conversation
+  transcripts and GIF animation are not included.
 - ML307/4G and wake words are not yet supported.
 - Zhengchen Wi-Fi real-device validation, physical PSRAM-capacity confirmation, 16 kHz playback
   validation, charge/battery inputs, temperature monitoring, and power management are not yet
