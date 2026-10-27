@@ -322,6 +322,8 @@ jobs:
           - movecall-moji-esp32s3
           - bread-compact-wifi
           - hu-087
+          - kevin-sp-v4-dev
+          - du-chatx
         language: [zh-CN, en-US]
     steps:
       - uses: actions/checkout@v4

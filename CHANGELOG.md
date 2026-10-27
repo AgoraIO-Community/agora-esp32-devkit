@@ -7,6 +7,10 @@ Versioning and Conventional Commits.
 
 ### Added
 
+- KEVIN SP V4 Dev with a 240×280 ST7789 panel and ES8311 audio, plus DuChat X with a 128×160
+  ST7789 panel, separate raw I2S audio and GPIO1 power hold. Both passed local ESP-IDF v5.5.2
+  Chinese and English reconfigure/build/size/merge-bin validation; real-device validation
+  remains pending.
 - Six additional ESP32-S3 profiles: DOIT S3 AI Box with PDM capture, Magiclick 2.4 with
   NV3023, Movecall CuiCan/Moji with GC9A01, and Bread Compact Wi-Fi/HU-087 as headless raw-I2S
   subsets. Chinese and English local merged builds passed; real-device validation remains pending.

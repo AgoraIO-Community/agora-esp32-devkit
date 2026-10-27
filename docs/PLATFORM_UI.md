@@ -48,6 +48,8 @@ retain their existing board behavior.
 | `atk-dnesp32s3-box0`, `nulllab-ai-vox-v3` | ST7789, 240 × 240 | shared ST7789 adapter | buttons |
 | `magiclick-2p4` | NV3023, 128 × 128 | shared panel adapter | three buttons |
 | `movecall-cuican-esp32s3`, `movecall-moji-esp32s3` | GC9A01, 240 × 240 | shared panel adapter | Boot |
+| `kevin-sp-v4-dev` | ST7789, 240 × 280 | shared ST7789 adapter | Boot |
+| `du-chatx` | ST7789, 128 × 160 | shared ST7789 compact layout | Boot |
 
 The AtomEchoS3R, DOIT S3 AI Box, Bread Compact Wi-Fi, HU-087 and ReSpeaker Flex profiles have no
 LCD and do not include LVGL. The ML307 and
@@ -62,6 +64,9 @@ boundaries on both axes.
 AMOLED 1.8 V2 uses a 16-pixel X gap and 40 MHz QSPI with the same even-pixel CO5300 transfer
 constraint. LCD 1.85 uses GPIO5 LEDC backlight at 60% and a 360 × 360 ST77916 panel. GenjuTech
 1.54 uses ST7789 SPI3 mode 3 at 80 MHz, color inversion, and GPIO2 LEDC backlight at 60%.
+KEVIN SP V4 Dev uses ST7789 SPI3 mode 3 at 80 MHz, a 20-pixel Y offset, color inversion, and a
+GPIO48 LEDC backlight. DuChat X uses ST7789 SPI3 mode 0 at 40 MHz, a 2×1-pixel offset, mirrored
+axes, and a GPIO9 LEDC backlight.
 
 ## CoreS3 pixel-glasses view
 
@@ -93,8 +98,8 @@ available when `CONFIG_MYBOT_LVGL_UI_ANIMATIONS` disables state activity animati
 The pairing-code screen directs users to enter the code in the web console. Its instruction
 scrolls only when wider than the footer label and stops scrolling on exit.
 
-On screens narrower than 240 pixels (currently StickS3), Chinese labels retain the 20 px bilingual
-font; English status, notification, and ordinary labels use 10 px text. The provisioning SSID
+On screens narrower than 240 pixels, Chinese labels retain the 20 px bilingual font; English
+status, notification, and ordinary labels use 10 px text. The provisioning SSID
 uses 20 px in both languages and scrolls if needed. Pairing codes select a 32, 20, or 10 px font
 to fit, with tighter spacing for long codes on narrow screens. The built-in Chinese subset covers
 the UI labels, not arbitrary conversation text.

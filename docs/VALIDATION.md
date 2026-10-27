@@ -75,6 +75,8 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `doit-s3-aibox` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless PDM capture, I2S playback, GPIO48 power and keys require device validation; LED, sleep and shutdown are not implemented. |
 | `bread-compact-wifi` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless raw I2S, Boot/volume keys and storage require validation; OLED UI, GPIO47 key, lamp and LED are not implemented. |
 | `hu-087` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless raw I2S, GPIO17 amplifier enable and GPIO18 input require validation; SSD1306 UI is not implemented and long press is used for provisioning. |
+| `kevin-sp-v4-dev` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Physical Flash/PSRAM, ST7789 mode 3 timing, ES8311 on I2C1, PA and Boot input require device validation; camera, LED, battery, sleep and shutdown are not implemented. |
+| `du-chatx` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Physical Flash/PSRAM, GPIO1 power hold, ST7789 orientation, raw audio slots and Boot input require device validation; battery, charging, LED, sleep and shutdown are not implemented. |
 
 ## Global boundaries / 全局边界
 
