@@ -316,6 +316,12 @@ jobs:
           - atk-dnesp32s3-box0
           - nulllab-ai-vox-v3
           - aipi-lite
+          - doit-s3-aibox
+          - magiclick-2p4
+          - movecall-cuican-esp32s3
+          - movecall-moji-esp32s3
+          - bread-compact-wifi
+          - hu-087
         language: [zh-CN, en-US]
     steps:
       - uses: actions/checkout@v4

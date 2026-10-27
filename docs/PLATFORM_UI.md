@@ -46,8 +46,11 @@ retain their existing board behavior.
 | `esp32-s3-touch-lcd-1.85b`, `esp32-s3-touch-lcd-1.85c` | ST77916, 360 × 360 | shared panel adapter | CST816S-compatible touch and Boot |
 | `sp-esp32-s3-1.54-muma` | ST7789, 240 × 240 | shared ST7789 adapter | CST816S and Boot |
 | `atk-dnesp32s3-box0`, `nulllab-ai-vox-v3` | ST7789, 240 × 240 | shared ST7789 adapter | buttons |
+| `magiclick-2p4` | NV3023, 128 × 128 | shared panel adapter | three buttons |
+| `movecall-cuican-esp32s3`, `movecall-moji-esp32s3` | GC9A01, 240 × 240 | shared panel adapter | Boot |
 
-The AtomEchoS3R and ReSpeaker Flex profiles have no LCD and do not include LVGL. The ML307 and
+The AtomEchoS3R, DOIT S3 AI Box, Bread Compact Wi-Fi, HU-087 and ReSpeaker Flex profiles have no
+LCD and do not include LVGL. The ML307 and
 Wi-Fi variants, along with the audio/video protocols, are independent of the display backend.
 The Xingzhi Cube uses SPI3 mode 3 at 40 MHz, zero offsets, and GPIO13 LEDC backlight with
 5 kHz, 13-bit PWM at 60% duty.

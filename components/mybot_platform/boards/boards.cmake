@@ -1,6 +1,7 @@
 set(MYBOT_SUPPORTED_BOARDS
     "atom-echos3r"
     "bread-compact-wifi-lcd"
+    "bread-compact-wifi"
     "esp-vocat"
     "esp32-s3-touch-amoled-1.75"
     "esp32-s3-touch-amoled-1.75c"
@@ -26,12 +27,17 @@ set(MYBOT_SUPPORTED_BOARDS
     "aipi-lite"
     "atk-dnesp32s3-box0"
     "df-k10"
+    "doit-s3-aibox"
     "freenove-esp32s3-display-2.8-lcd"
+    "hu-087"
     "lichuang-dev"
+    "magiclick-2p4"
     "m5stack-core-s3"
     "m5stack-stick-s3"
     "m5stack-stopwatch"
     "mixgo-nova"
+    "movecall-cuican-esp32s3"
+    "movecall-moji-esp32s3"
     "nulllab-ai-vox-v3"
     "quandong-s3-dev"
     "respeaker-flex-xvf3800-circular4-xiao"
@@ -55,6 +61,8 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/atom-echos3r/board.cmake")
     elseif(board STREQUAL "bread-compact-wifi-lcd")
         set(profile "${_MYBOT_BOARDS_ROOT}/bread-compact-wifi-lcd/board.cmake")
+    elseif(board STREQUAL "bread-compact-wifi")
+        set(profile "${_MYBOT_BOARDS_ROOT}/bread-compact-wifi/board.cmake")
     elseif(board STREQUAL "esp-vocat")
         set(profile "${_MYBOT_BOARDS_ROOT}/esp-vocat/board.cmake")
     elseif(board STREQUAL "esp32-s3-touch-amoled-1.75")
@@ -105,8 +113,14 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/atk-dnesp32s3-box0/board.cmake")
     elseif(board STREQUAL "df-k10")
         set(profile "${_MYBOT_BOARDS_ROOT}/df-k10/board.cmake")
+    elseif(board STREQUAL "doit-s3-aibox")
+        set(profile "${_MYBOT_BOARDS_ROOT}/doit-s3-aibox/board.cmake")
+    elseif(board STREQUAL "hu-087")
+        set(profile "${_MYBOT_BOARDS_ROOT}/hu-087/board.cmake")
     elseif(board STREQUAL "lichuang-dev")
         set(profile "${_MYBOT_BOARDS_ROOT}/lichuang-dev/board.cmake")
+    elseif(board STREQUAL "magiclick-2p4")
+        set(profile "${_MYBOT_BOARDS_ROOT}/magiclick-2p4/board.cmake")
     elseif(board STREQUAL "m5stack-core-s3")
         set(profile "${_MYBOT_BOARDS_ROOT}/m5stack-core-s3/board.cmake")
     elseif(board STREQUAL "m5stack-stick-s3")
@@ -115,6 +129,10 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/m5stack-stopwatch/board.cmake")
     elseif(board STREQUAL "mixgo-nova")
         set(profile "${_MYBOT_BOARDS_ROOT}/mixgo-nova/board.cmake")
+    elseif(board STREQUAL "movecall-cuican-esp32s3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/movecall-cuican-esp32s3/board.cmake")
+    elseif(board STREQUAL "movecall-moji-esp32s3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/movecall-moji-esp32s3/board.cmake")
     elseif(board STREQUAL "nulllab-ai-vox-v3")
         set(profile "${_MYBOT_BOARDS_ROOT}/nulllab-ai-vox-v3/board.cmake")
     elseif(board STREQUAL "quandong-s3-dev")

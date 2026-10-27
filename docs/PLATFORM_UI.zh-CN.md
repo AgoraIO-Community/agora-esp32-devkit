@@ -44,8 +44,11 @@
 | `esp32-s3-touch-lcd-1.85b`、`esp32-s3-touch-lcd-1.85c` | ST77916，360 × 360 | 通用面板适配器 | CST816S 兼容触摸与 Boot |
 | `sp-esp32-s3-1.54-muma` | ST7789，240 × 240 | 通用 ST7789 | CST816S 与 Boot |
 | `atk-dnesp32s3-box0`、`nulllab-ai-vox-v3` | ST7789，240 × 240 | 通用 ST7789 | 按键 |
+| `magiclick-2p4` | NV3023，128 × 128 | 通用面板适配器 | 三个按键 |
+| `movecall-cuican-esp32s3`、`movecall-moji-esp32s3` | GC9A01，240 × 240 | 通用面板适配器 | Boot |
 
-AtomEchoS3R 与 ReSpeaker Flex 没有 LCD，不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
+AtomEchoS3R、DOIT S3 AI Box、Bread Compact Wi-Fi、HU-087 与 ReSpeaker Flex 没有 LCD，
+不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
 相互独立。
 行者 Cube 使用 SPI3 mode 3 / 40 MHz、零偏移与 GPIO13 LEDC 背光，PWM 为 5 kHz、13-bit、
 60% 占空比。
