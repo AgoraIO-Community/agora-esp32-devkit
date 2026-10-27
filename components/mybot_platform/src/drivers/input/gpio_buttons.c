@@ -117,16 +117,18 @@ int mybot_esp32s3_buttons_start(void) {
     button_handle_t boot = NULL;
     button_handle_t volume_up = NULL;
     button_handle_t volume_down = NULL;
+    const bool has_volume_up = MYBOT_VOLUME_UP_BUTTON_GPIO != GPIO_NUM_NC;
+    const bool has_volume_down = MYBOT_VOLUME_DOWN_BUTTON_GPIO != GPIO_NUM_NC;
     if (create_button(MYBOT_BOOT_BUTTON_GPIO, &boot) < 0 ||
-        create_button(MYBOT_VOLUME_UP_BUTTON_GPIO, &volume_up) < 0 ||
-        create_button(MYBOT_VOLUME_DOWN_BUTTON_GPIO, &volume_down) < 0 ||
+        (has_volume_up && create_button(MYBOT_VOLUME_UP_BUTTON_GPIO, &volume_up) < 0) ||
+        (has_volume_down && create_button(MYBOT_VOLUME_DOWN_BUTTON_GPIO, &volume_down) < 0) ||
         iot_button_register_cb(boot, BUTTON_SINGLE_CLICK, NULL, boot_click, NULL) != ESP_OK ||
         iot_button_register_cb(boot, BUTTON_LONG_PRESS_START, NULL, boot_long_press, NULL) !=
             ESP_OK ||
-        iot_button_register_cb(volume_up, BUTTON_SINGLE_CLICK, NULL, volume_up_click, NULL) !=
-            ESP_OK ||
-        iot_button_register_cb(volume_down, BUTTON_SINGLE_CLICK, NULL, volume_down_click, NULL) !=
-            ESP_OK) {
+        (volume_up && iot_button_register_cb(volume_up, BUTTON_SINGLE_CLICK, NULL, volume_up_click,
+                                             NULL) != ESP_OK) ||
+        (volume_down && iot_button_register_cb(volume_down, BUTTON_SINGLE_CLICK, NULL,
+                                               volume_down_click, NULL) != ESP_OK)) {
         if (volume_down) {
             (void)iot_button_delete(volume_down);
         }
@@ -155,7 +157,7 @@ static int buttons_init(void **out_ctx, mybot_key_event_handler_t emit, void *us
     *out_ctx = NULL;
 
     portENTER_CRITICAL(&s_context.lock);
-    if (s_context.active || !s_context.boot || !s_context.volume_up || !s_context.volume_down) {
+    if (s_context.active || !s_context.boot) {
         portEXIT_CRITICAL(&s_context.lock);
         return -1;
     }

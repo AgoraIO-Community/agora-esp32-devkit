@@ -85,9 +85,19 @@ git diff --check
       480x480 CO5300 output with zero gap, even pixel boundaries, panel colors/orientation/brightness,
       CST9217 press/release/hold, 16 kHz primary-mic and full-duplex audio against the reference
       24 kHz setting, PA noise, volume persistence, and repeated provisioning/start/stop.
+- [ ] For Waveshare AMOLED 1.8 V2, verify physical Flash/PSRAM, TCA9554/AXP2101 initialization,
+      the 368x448 CO5300 gap/colors/orientation/brightness, CST816S press/release/hold, ES8311
+      bi-directional audio, PA noise, volume persistence, and provisioning while mybot is stopped.
+- [ ] For Waveshare LCD 1.85, verify physical Flash/PSRAM, GPIO7 power hold, TCA9554 LCD/touch reset,
+      panel-version selection, 360x360 colors/orientation, GPIO5 backlight, CST816S, right-slot
+      microphone capture, both-slot playback, full-duplex audio, volume persistence, and repeated
+      provisioning/start/stop.
+- [ ] For GenjuTech 1.54, verify physical Flash/PSRAM, ST7789 colors/orientation/inversion and GPIO2
+      backlight, ES8311 audio and GPIO21 PA/display coupling, Boot/volume buttons, volume
+      persistence, prompt drain, and repeated provisioning/start/stop.
 - [ ] Verify an existing build directory rejects a change of `MYBOT_BOARD`, and keep separate
-      artifacts for all three Waveshare AMOLED profiles. A clean build accepts any profile; it
-      cannot detect the connected board's revision. Match the physical revision before flashing.
+      artifacts for every Waveshare touch profile. A clean build accepts any profile; it cannot
+      detect the connected board's revision. Match the physical device before flashing.
 - [ ] For SenseCAP Watcher, back up and checksum the 200 KiB `nvsfactory` region before first flash;
       verify normal flashing leaves it unchanged and never publish an `erase-flash` procedure.
 - [ ] For M5Stack StickS3, test USB and battery boot, M5PM1 G2/G3 sequencing, speaker pop/noise,
@@ -97,6 +107,10 @@ git diff --check
       polarity and short/long presses, first-boot Wi-Fi AP and localized prompt, 16 kHz capture and
       playback pitch/noise and full-duplex quality, volume persistence, and repeated provisioning
       after SDK stop/start. Confirm the headless build omits LVGL.
+- [ ] For every additional profile marked "Not completed" in the validation matrix, verify the
+      applicable panel/controller, touch or keys, codec/I2S path, reset and power ordering, round or
+      narrow UI clipping, provisioning, volume persistence, and repeated SDK start/stop. Do not
+      promote a profile to hardware-validated from build or host-test evidence alone.
 
 ## Publish
 

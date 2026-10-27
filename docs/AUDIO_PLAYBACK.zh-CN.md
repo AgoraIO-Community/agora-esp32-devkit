@@ -2,7 +2,7 @@
 
 [English](AUDIO_PLAYBACK.md) | [简体中文](AUDIO_PLAYBACK.zh-CN.md)
 
-当前 13 个 Board profile 通过 7 个板级音频驱动共用同一套 PCM 播放缓冲。SDK 边界保持
+当前全部 Board profile 通过板级音频适配器共用同一套 PCM 播放缓冲。SDK 边界保持
 16 kHz、单声道 signed-16 PCM，独立任务持续向 I2S 供数。公共实现位于
 [`pcm_playback_buffer.c`](../components/mybot_platform/src/services/audio/pcm_playback_buffer.c)，
 各板级驱动提供原生 I2S sink。
@@ -46,6 +46,9 @@ SDK 和缓冲接口中的帧数始终表示**单声道 PCM 帧数**，不随 I2S
 | `esp32-s3-touch-amoled-1.75` | `amoled175_codec_audio.c` | 16 位双声道，将单声道复制到两个槽 |
 | `esp32-s3-touch-amoled-1.75c` | `amoled175_codec_audio.c` | 16 位双声道，将单声道复制到两个槽 |
 | `esp32-s3-touch-amoled-2.16` | `amoled175_codec_audio.c` | 16 位双声道，将单声道复制到两个槽 |
+| `esp32-s3-touch-amoled-1.8-v2` | `es8311_codec_audio.c` | 16 位双声道，将单声道复制到两个槽 |
+| `esp32-s3-touch-lcd-1.85` | `raw_i2s_audio.c` | 32 位右 slot 采集；播放将单声道复制到两个 slot |
+| `genjutech-s3-1.54tft` | `es8311_codec_audio.c` | 16 位双声道，将单声道复制到两个槽 |
 | `respeaker-flex-xvf3800-circular4-xiao` | `xvf3800_audio.c` | 32 位双声道，保留音量缩放及槽内对齐 |
 
 短写或超时后继续重试剩余帧，保持 PCM 顺序。返回非法字节数、非超时驱动错误，或连续
@@ -59,8 +62,8 @@ SDK 和缓冲接口中的帧数始终表示**单声道 PCM 帧数**，不随 I2S
 对话音频残留在软件队列中。
 
 使用 codec 的板型先静音或关闭输出，再等待旧 DMA 数据清除；如果采集仍需要 TX 时钟，
-则保留该时钟。征辰、行者 Cube、Bread 和 XVF3800 停用播放通道并向 DMA 预装静音后再复用。电源、时钟、
-音量行为仍由板级驱动维护。
+则保留该时钟。原始 I2S 板型（征辰、行者 Cube、Bread 与 LCD 1.85）和 XVF3800 停用播放
+通道并向 DMA 预装静音后再复用。电源、时钟、音量行为仍由板级驱动维护。
 
 配网提示音及离线测试停止前使用单独的排空操作，等待 FIFO 和硬件尾音完成。
 配网提示音以 320 帧为一块写入同一 FIFO，不经过 SDK 的 960 帧供数节奏。最后一次

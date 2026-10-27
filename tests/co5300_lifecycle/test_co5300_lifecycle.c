@@ -9,6 +9,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef MYBOT_DISPLAY_SPI_HOST
+#define TEST_SPI_HOST MYBOT_DISPLAY_SPI_HOST
+#define TEST_PIXEL_CLOCK_HZ MYBOT_DISPLAY_PIXEL_CLOCK_HZ
+#else
+#define TEST_SPI_HOST MYBOT_AMOLED175_LCD_SPI_HOST
+#define TEST_PIXEL_CLOCK_HZ MYBOT_AMOLED175_LCD_PIXEL_CLOCK_HZ
+#endif
+
 #define CHECK(condition)                                                                           \
     do {                                                                                           \
         if (!(condition)) {                                                                        \
@@ -116,6 +124,24 @@ static const co5300_lcd_init_cmd_t s_216_commands[] = {
     {0x29, NULL, 0, 600},
 };
 
+static const co5300_lcd_init_cmd_t s_18_v2_commands[] = {
+    {0x11, NULL, 0, 600},
+    {0xfe, (uint8_t[]){0x20}, 1, 0},
+    {0x19, (uint8_t[]){0x10}, 1, 0},
+    {0x1c, (uint8_t[]){0xa0}, 1, 0},
+    {0xfe, (uint8_t[]){0x00}, 1, 0},
+    {0xc4, (uint8_t[]){0x80}, 1, 0},
+    {0x3a, (uint8_t[]){0x55}, 1, 0},
+    {0x35, (uint8_t[]){0x00}, 1, 0},
+    {0x53, (uint8_t[]){0x20}, 1, 0},
+    {0x51, (uint8_t[]){0xff}, 1, 0},
+    {0x63, (uint8_t[]){0xff}, 1, 0},
+    {0x2a, (uint8_t[]){0x00, 0x00, 0x01, 0xdf}, 4, 0},
+    {0x2b, (uint8_t[]){0x00, 0x00, 0x01, 0xdf}, 4, 0},
+    {0x36, (uint8_t[]){0x00}, 1, 0},
+    {0x29, NULL, 0, 600},
+};
+
 static void check_command(const co5300_lcd_init_cmd_t *actual,
                           const co5300_lcd_init_cmd_t *expected) {
     CHECK(actual->cmd == expected->cmd && actual->data_bytes == expected->data_bytes);
@@ -136,6 +162,13 @@ static void check_vendor_commands(const co5300_vendor_config_t *vendor) {
         for (size_t i = 0; i < vendor->init_cmds_size; ++i) {
             check_command(&vendor->init_cmds[i], &s_216_commands[i]);
         }
+    } else if (!strcmp(MYBOT_BOARD_NAME, "esp32-s3-touch-amoled-1.8-v2")) {
+        CHECK(MYBOT_DISPLAY_WIDTH == 368 && MYBOT_DISPLAY_HEIGHT == 448);
+        CHECK(MYBOT_DISPLAY_OFFSET_X == 16 && MYBOT_DISPLAY_OFFSET_Y == 0);
+        CHECK(vendor->init_cmds_size == sizeof(s_18_v2_commands) / sizeof(s_18_v2_commands[0]));
+        for (size_t i = 0; i < vendor->init_cmds_size; ++i) {
+            check_command(&vendor->init_cmds[i], &s_18_v2_commands[i]);
+        }
     } else {
         CHECK(!strcmp(MYBOT_BOARD_NAME, "esp32-s3-touch-amoled-1.75") ||
               !strcmp(MYBOT_BOARD_NAME, "esp32-s3-touch-amoled-1.75c"));
@@ -154,7 +187,7 @@ const char *esp_err_to_name(esp_err_t error) {
 }
 
 esp_err_t spi_bus_initialize(int host, const spi_bus_config_t *config, int dma) {
-    CHECK(host == MYBOT_AMOLED175_LCD_SPI_HOST && dma == SPI_DMA_CH_AUTO && !s_spi_open);
+    CHECK(host == TEST_SPI_HOST && dma == SPI_DMA_CH_AUTO && !s_spi_open);
     CHECK(config->sclk_io_num == MYBOT_DISPLAY_PCLK);
     CHECK(config->data0_io_num == MYBOT_DISPLAY_DATA0 &&
           config->data1_io_num == MYBOT_DISPLAY_DATA1);
@@ -176,7 +209,7 @@ esp_err_t spi_bus_initialize(int host, const spi_bus_config_t *config, int dma) 
 }
 
 esp_err_t spi_bus_free(int host) {
-    CHECK(host == MYBOT_AMOLED175_LCD_SPI_HOST && s_spi_open && !s_io.open && !s_panel.open);
+    CHECK(host == TEST_SPI_HOST && s_spi_open && !s_io.open && !s_panel.open);
     const esp_err_t result = step("spi_free", EVENT_SPI_FREE);
     if (result == ESP_OK) {
         s_spi_open = false;
@@ -187,9 +220,9 @@ esp_err_t spi_bus_free(int host) {
 esp_err_t esp_lcd_new_panel_io_spi(esp_lcd_spi_bus_handle_t host,
                                    const esp_lcd_panel_io_spi_config_t *config,
                                    esp_lcd_panel_io_handle_t *out) {
-    CHECK(host == MYBOT_AMOLED175_LCD_SPI_HOST && s_spi_open && !s_io.open);
+    CHECK(host == TEST_SPI_HOST && s_spi_open && !s_io.open);
     CHECK(config->cs_gpio_num == MYBOT_DISPLAY_CS && config->dc_gpio_num == GPIO_NUM_NC);
-    CHECK(config->spi_mode == 0 && config->pclk_hz == MYBOT_AMOLED175_LCD_PIXEL_CLOCK_HZ);
+    CHECK(config->spi_mode == 0 && config->pclk_hz == TEST_PIXEL_CLOCK_HZ);
     CHECK(config->lcd_cmd_bits == 32 && config->lcd_param_bits == 8 && config->flags.quad_mode);
     CHECK(config->trans_queue_depth == 2);
     const esp_err_t result = step("io_new", EVENT_IO_NEW);

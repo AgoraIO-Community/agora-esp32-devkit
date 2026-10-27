@@ -74,6 +74,8 @@ Octal PSRAM。
 实际 Flash/PSRAM 容量必须在发布设备上核对。
 `esp32-s3-touch-amoled-2.16` 同样采用保守的 16 MB QIO Flash profile 与 80 MHz Octal PSRAM；
 发布前确认实际容量。
+GenjuTech 1.54、AMOLED 1.8 V2 与 LCD 1.85 profile 同样使用 16 MB QIO Flash 与 80 MHz
+Octal PSRAM；发布前应逐台确认实际容量。
 `bread-compact-wifi-lcd` 固定为 ESP32-S3 N16R8 profile，16 MB QIO Flash、80 MHz 8 MB
 Octal PSRAM；需在实际接线设备验证模组和检测到的容量。
 
@@ -105,13 +107,33 @@ RTSA 包前，SDK 构建封装会拒绝这些配置。[CI 工作流](../.github/
 6. 保持 SDK 音频边界：16 kHz、单声道、signed 16-bit PCM，接口传帧数而不是字节数。
 7. 在 `components/mybot_platform/CMakeLists.txt` 选择显示能力：带屏板型使用
    `Kconfig.display` 启用 LVGL，无屏板型使用 `Kconfig.headless`。当前无屏选择覆盖
-   AtomEchoS3R 与 ReSpeaker Flex，新增无屏板型时需同步此选择。
+   AtomEchoS3R、行者 Cube 0.96 OLED 与 ReSpeaker Flex，新增无屏板型时需同步此选择。
 8. 增加两种语言的隔离 CI 构建与尺寸报告，并记录真实设备的配网、HTTPS、RTC、双向音频、
    输入、显示、挂断与重复启停验证。
 
 所有带屏板型使用共享 LVGL 界面，不保留旧渲染器或后端选择开关。控制器初始化和销毁放在
 `src/drivers/display/panels/`，通过 `display.cmake` 和可复用的 LVGL 适配器接入。
 `CONFIG_MYBOT_LVGL_UI` 是根据板型确定的隐藏配置，无屏板型不启用；主题与动画仍可配置。
+
+## 共享板型骨架
+
+`boards/common/generic_profile.cmake` 组合共享板级生命周期、音频适配器、面板、触摸/按键、
+可选的 PCA9557/TCA9554/AXP2101 初始化、显示背光和 SDK 注册。每个板型仍独立维护
+`board.cmake`、`board_config.h`、`sdkconfig.defaults` 与 `board.c`。通用路径支持 ES8311、
+ES8311+ES7210、ES8374 和原始 I2S；原始采集可使用标准 I2S 或 PDM。会改变启动顺序的板级
+电源或扩展器逻辑不应塞入公共路径。
+
+`M5Stack StopWatch` 在显示和 codec 启动前初始化 M5PM1 与 M5IOE1：打开 LCD/codec 电源，
+复位 LCD/触摸，控制扬声器 PA，并默认关闭振动电机。共享圆屏布局把控件收窄到中央安全
+矩形；这不替代面板和触摸真机验证。
+
+系统电源与 codec 电源分开的板型可在 `MYBOT_GENERIC_POWER_GPIO` 之外设置
+`MYBOT_GENERIC_AUX_POWER_GPIO`。两路电源都会在创建 I2C、显示和 codec 客户端之前打开，
+并在板级销毁时释放。
+
+`Taiji Pi S3` 在 I2S0 上使用 PDM 采集、I2S1 上使用标准 I2S 播放。PDM 解调后直接提供
+16 kHz 单声道 signed-16 数据，SDK 边界不再做 slot 转换。低有效 GPIO48 静音脚随播放
+启停。
 共享面板契约位于 `src/internal/display/display_panel.h`，内部头文件不属于 SDK API；
 板级电源和背光控制仍归 Board 层所有。
 
@@ -225,6 +247,20 @@ SDK 停止期间任一输入仍能请求配网。在各自匹配的发布硬件�
 2.16 参考音频为 24 kHz，继承的 16 kHz 主麦和双声道物理 I2S 需要真机验证；如需重采样，
 应留在平台驱动内，并保持 Cloud AEC。摄像头、RTC、IMU、TF 卡、电量、关机与低功耗尚未支持。
 2.16 中英文固件构建支持已在 ESP-IDF v5.5.2 验证，真机验证仍未完成。
+
+`genjutech-s3-1.54tft` 复用 ES8311、raw 按键、ST7789 与共享 LVGL 路径。该板功放引脚与显示
+I/O 存在设计耦合，因此首次播放开启 PA 后保持有效，仅在板级拆除时关闭；停止播放只让 I2S
+流空闲。触摸、LED、电量/充电、休眠、关机与视频尚未实现。
+
+`esp32-s3-touch-amoled-1.8-v2` 使用独立的 368 x 448 CO5300 变体和 16 像素 X 偏移。
+TCA9554 先复位面板，AXP2101 再配置电源轨；CST816S 与 Boot 共用进程级输入路径。SDK 与
+ES8311 I2S 均保持 16 kHz 单声道 signed-16 PCM。AXP2101 电源键行为、电量、休眠、关机与
+视频尚未实现。
+
+`esp32-s3-touch-lcd-1.85` 使用独立的控制 I2C、触摸 I2C、麦克风 I2S 与扬声器 I2S。麦克风读取
+右 slot，播放将单声道复制到两个 TX slot，SDK 边界仍为单声道 16 kHz signed-16 PCM。
+TCA9554 释放 LCD/触摸复位，GPIO7 保持电源，GPIO5 控制背光。GPIO6 电源键、电量、休眠、
+关机与视频尚未实现。
 
 ReSpeaker Flex profile 是硬件音频前端而非原始麦克风 codec 的示例。XVF3800 必须预先单独
 烧录 Circular-4 16 kHz 双通道 I2S 固件，并负责 AEC、波束成形、AGC 与降噪。ESP32-S3
