@@ -126,6 +126,10 @@ ES8311+ES7210、ES8374 和原始 I2S；原始采集可使用标准 I2S 或 PDM�
 复位 LCD/触摸，控制扬声器 PA，并默认关闭振动电机。共享圆屏布局把控件收窄到中央安全
 矩形；这不替代面板和触摸真机验证。
 
+系统电源与 codec 电源分开的板型可在 `MYBOT_GENERIC_POWER_GPIO` 之外设置
+`MYBOT_GENERIC_AUX_POWER_GPIO`。两路电源都会在创建 I2C、显示和 codec 客户端之前打开，
+并在板级销毁时释放。
+
 `Taiji Pi S3` 在 I2S0 上使用 PDM 采集、I2S1 上使用标准 I2S 播放。PDM 解调后直接提供
 16 kHz 单声道 signed-16 数据，SDK 边界不再做 slot 转换。低有效 GPIO48 静音脚随播放
 启停。

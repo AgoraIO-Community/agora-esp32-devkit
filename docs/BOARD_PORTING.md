@@ -197,6 +197,10 @@ and codec power, resets LCD/touch, controls the speaker PA and leaves the motor 
 round layout narrows widgets to a center safe rectangle; this is not a substitute for panel and
 touch validation.
 
+Profiles with separate system and codec rails may set `MYBOT_GENERIC_AUX_POWER_GPIO` in addition
+to `MYBOT_GENERIC_POWER_GPIO`. Both rails are asserted before I2C, display and codec clients are
+created and are released during board teardown.
+
 `Taiji Pi S3` uses PDM RX on I2S0 and standard-I2S playback on I2S1. PDM samples enter the
 platform already as signed 16-bit mono values, so the SDK receives 16 kHz mono signed-16 without
 another slot conversion. The active-low GPIO48 mute path follows playback start/stop.

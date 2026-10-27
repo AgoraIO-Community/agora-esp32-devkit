@@ -11,6 +11,11 @@ set(MYBOT_SUPPORTED_BOARDS
     "esp32-s3-touch-amoled-1.43c"
     "esp32-s3-touch-amoled-2.06"
     "esp32-s3-touch-lcd-1.85"
+    "esp32-s3-touch-lcd-1.85b"
+    "esp32-s3-touch-lcd-1.85c"
+    "esp32-s3-touch-lcd-1.54"
+    "esp32-s3-touch-lcd-1.83"
+    "esp32-s3-lcd-0.85"
     "esp-box"
     "esp-box-3"
     "esp-box-lite"
@@ -18,17 +23,22 @@ set(MYBOT_SUPPORTED_BOARDS
     "genjutech-s3-1.54tft"
     "atoms3r-echo-base"
     "atoms3r-echo-pyramid"
+    "aipi-lite"
+    "atk-dnesp32s3-box0"
     "df-k10"
+    "freenove-esp32s3-display-2.8-lcd"
     "lichuang-dev"
     "m5stack-core-s3"
     "m5stack-stick-s3"
     "m5stack-stopwatch"
     "mixgo-nova"
+    "nulllab-ai-vox-v3"
     "quandong-s3-dev"
     "respeaker-flex-xvf3800-circular4-xiao"
     "rymcu-bigsmart"
     "sensecap-watcher"
     "sp-esp32-s3-1.28-box"
+    "sp-esp32-s3-1.54-muma"
     "taiji-pi-s3"
     "xingzhi-abs-2.0"
     "xingzhi-cube-0.85tft-wifi"
@@ -65,6 +75,16 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-amoled-2.06/board.cmake")
     elseif(board STREQUAL "esp32-s3-touch-lcd-1.85")
         set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-lcd-1.85/board.cmake")
+    elseif(board STREQUAL "esp32-s3-touch-lcd-1.85b")
+        set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-lcd-1.85b/board.cmake")
+    elseif(board STREQUAL "esp32-s3-touch-lcd-1.85c")
+        set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-lcd-1.85c/board.cmake")
+    elseif(board STREQUAL "esp32-s3-touch-lcd-1.54")
+        set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-lcd-1.54/board.cmake")
+    elseif(board STREQUAL "esp32-s3-touch-lcd-1.83")
+        set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-lcd-1.83/board.cmake")
+    elseif(board STREQUAL "esp32-s3-lcd-0.85")
+        set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-lcd-0.85/board.cmake")
     elseif(board STREQUAL "esp-box")
         set(profile "${_MYBOT_BOARDS_ROOT}/esp-box/board.cmake")
     elseif(board STREQUAL "esp-box-3")
@@ -79,6 +99,10 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/atoms3r-echo-base/board.cmake")
     elseif(board STREQUAL "atoms3r-echo-pyramid")
         set(profile "${_MYBOT_BOARDS_ROOT}/atoms3r-echo-pyramid/board.cmake")
+    elseif(board STREQUAL "aipi-lite")
+        set(profile "${_MYBOT_BOARDS_ROOT}/aipi-lite/board.cmake")
+    elseif(board STREQUAL "atk-dnesp32s3-box0")
+        set(profile "${_MYBOT_BOARDS_ROOT}/atk-dnesp32s3-box0/board.cmake")
     elseif(board STREQUAL "df-k10")
         set(profile "${_MYBOT_BOARDS_ROOT}/df-k10/board.cmake")
     elseif(board STREQUAL "lichuang-dev")
@@ -91,6 +115,8 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/m5stack-stopwatch/board.cmake")
     elseif(board STREQUAL "mixgo-nova")
         set(profile "${_MYBOT_BOARDS_ROOT}/mixgo-nova/board.cmake")
+    elseif(board STREQUAL "nulllab-ai-vox-v3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/nulllab-ai-vox-v3/board.cmake")
     elseif(board STREQUAL "quandong-s3-dev")
         set(profile "${_MYBOT_BOARDS_ROOT}/quandong-s3-dev/board.cmake")
     elseif(board STREQUAL "respeaker-flex-xvf3800-circular4-xiao")
@@ -102,6 +128,8 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/sensecap-watcher/board.cmake")
     elseif(board STREQUAL "sp-esp32-s3-1.28-box")
         set(profile "${_MYBOT_BOARDS_ROOT}/sp-esp32-s3-1.28-box/board.cmake")
+    elseif(board STREQUAL "sp-esp32-s3-1.54-muma")
+        set(profile "${_MYBOT_BOARDS_ROOT}/sp-esp32-s3-1.54-muma/board.cmake")
     elseif(board STREQUAL "taiji-pi-s3")
         set(profile "${_MYBOT_BOARDS_ROOT}/taiji-pi-s3/board.cmake")
     elseif(board STREQUAL "xingzhi-abs-2.0")
@@ -118,6 +146,8 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/zhengchen-1.54tft-ml307/board.cmake")
     elseif(board STREQUAL "zhengchen-1.54tft-wifi")
         set(profile "${_MYBOT_BOARDS_ROOT}/zhengchen-1.54tft-wifi/board.cmake")
+    elseif(board STREQUAL "freenove-esp32s3-display-2.8-lcd")
+        set(profile "${_MYBOT_BOARDS_ROOT}/freenove-esp32s3-display-2.8-lcd/board.cmake")
     else()
         message(FATAL_ERROR "Unsupported MYBOT_BOARD: ${board}")
     endif()

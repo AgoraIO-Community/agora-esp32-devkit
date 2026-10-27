@@ -38,6 +38,12 @@
 | `quandong-s3-dev` | ILI9341，320 × 240 | 通用面板适配器 | Boot |
 | `mixgo-nova` | ST7789，128 × 160 | 通用面板适配器 | Boot |
 | `taiji-pi-s3` | ST77916，360 × 360 圆屏 | 通用面板适配器 | CST816S 与 Boot |
+| `freenove-esp32s3-display-2.8-lcd` | ILI9341，320 × 240 | 通用面板适配器 | Boot |
+| `esp32-s3-touch-lcd-1.54`、`esp32-s3-touch-lcd-1.83` | ST7789，240 × 240 或 240 × 284 | 通用 ST7789 | CST816S 与按键 |
+| `esp32-s3-lcd-0.85`、`aipi-lite` | ST7789，128 × 128 | 通用 ST7789 紧凑布局 | 按键 |
+| `esp32-s3-touch-lcd-1.85b`、`esp32-s3-touch-lcd-1.85c` | ST77916，360 × 360 | 通用面板适配器 | CST816S 兼容触摸与 Boot |
+| `sp-esp32-s3-1.54-muma` | ST7789，240 × 240 | 通用 ST7789 | CST816S 与 Boot |
+| `atk-dnesp32s3-box0`、`nulllab-ai-vox-v3` | ST7789，240 × 240 | 通用 ST7789 | 按键 |
 
 AtomEchoS3R 与 ReSpeaker Flex 没有 LCD，不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
 相互独立。

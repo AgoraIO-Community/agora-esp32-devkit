@@ -44,6 +44,14 @@
 #define MYBOT_GENERIC_POWER_ACTIVE_LEVEL 1
 #endif
 
+#ifndef MYBOT_GENERIC_AUX_POWER_GPIO
+#define MYBOT_GENERIC_AUX_POWER_GPIO GPIO_NUM_NC
+#endif
+
+#ifndef MYBOT_GENERIC_AUX_POWER_ACTIVE_LEVEL
+#define MYBOT_GENERIC_AUX_POWER_ACTIVE_LEVEL 1
+#endif
+
 typedef struct {
     i2c_master_bus_handle_t audio_bus;
     i2c_master_bus_handle_t touch_bus;
@@ -54,6 +62,7 @@ typedef struct {
     bool pa_ready;
     bool pa_enabled;
     bool power_ready;
+    bool aux_power_ready;
     bool backlight_ready;
     bool stopwatch_hardware_ready;
     bool initialized;
@@ -166,6 +175,12 @@ static int release_hardware(void) {
     }
 #endif
     s_hardware.power_ready = false;
+    if (s_hardware.aux_power_ready &&
+        gpio_set_level(MYBOT_GENERIC_AUX_POWER_GPIO, !MYBOT_GENERIC_AUX_POWER_ACTIVE_LEVEL) !=
+            ESP_OK) {
+        result = -1;
+    }
+    s_hardware.aux_power_ready = false;
 #if MYBOT_GENERIC_M5STACK_STOPWATCH
     if (s_hardware.stopwatch_hardware_ready && mybot_m5stack_stopwatch_hardware_deinit() < 0) {
         result = -1;
@@ -214,7 +229,7 @@ int mybot_generic_hardware_init(void) {
     }
     if ((s_hardware.audio_bus || s_hardware.touch_bus || s_hardware.expander_ready ||
          s_hardware.tca9554.device || s_hardware.axp2101 || s_hardware.pa_ready ||
-         s_hardware.power_ready || s_hardware.backlight_ready) &&
+         s_hardware.power_ready || s_hardware.aux_power_ready || s_hardware.backlight_ready) &&
         release_hardware() < 0) {
         return -1;
     }
@@ -229,6 +244,12 @@ int mybot_generic_hardware_init(void) {
 #else
     esp_err_t result = ESP_OK;
 #endif
+    result =
+        configure_output_gpio(MYBOT_GENERIC_AUX_POWER_GPIO, MYBOT_GENERIC_AUX_POWER_ACTIVE_LEVEL);
+    if (result != ESP_OK) {
+        return -1;
+    }
+    s_hardware.aux_power_ready = MYBOT_GENERIC_AUX_POWER_GPIO != GPIO_NUM_NC;
 
     const bool touch_separate_bus =
 #ifdef MYBOT_GENERIC_TOUCH_I2C_PORT

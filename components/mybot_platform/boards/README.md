@@ -5,7 +5,7 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 `sdkconfig.defaults` files. Current validation status is centralized in
 [`docs/VALIDATION.md`](../../../docs/VALIDATION.md).
 
-以下说明对应本工程已实现的 38 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
+以下说明对应本工程已实现的 48 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
 验证状态统一见[验证矩阵](../../../docs/VALIDATION.md)。不同尺寸、芯片或硬件版本的板卡
 不能仅凭外观共用固件。
 
@@ -61,6 +61,16 @@ real-device validation.
 | [df-k10](df-k10/README.md) | 240×320 ILI9341 | ES8311 + ES7210 | Boot | TCA9555 keys, camera, LED ring and power paths are not implemented. |
 | [mixgo-nova](mixgo-nova/README.md) | 128×160 ST7789 | ES8374 | Boot | RGB LED and hardware validation are pending. |
 | [taiji-pi-s3](taiji-pi-s3/README.md) | 360×360 round ST77916 QSPI | ES8311 playback + PDM capture | CST816S + Boot | PDM capture and mute/PA lifecycle are implemented; board power sequencing requires validation. |
+| [freenove-esp32s3-display-2.8-lcd](freenove-esp32s3-display-2.8-lcd/README.md) | 320×240 ILI9341 | ES8311 | Boot | Camera, LED and battery paths are not implemented. |
+| [esp32-s3-touch-lcd-1.54](esp32-s3-touch-lcd-1.54/README.md) | 240×240 ST7789 | ES8311 + ES7210 | CST816S + three buttons | Battery management, sleep and shutdown are not implemented. |
+| [esp32-s3-touch-lcd-1.83](esp32-s3-touch-lcd-1.83/README.md) | 240×284 ST7789 | ES8311 + ES7210 | CST816S + Boot | AXP2101, PWR41, battery reporting and sleep require device validation. |
+| [esp32-s3-lcd-0.85](esp32-s3-lcd-0.85/README.md) | 128×128 ST7789 | ES8311 + ES7210 | three buttons | Touchless profile; battery timing and 8 MB layout require validation. |
+| [esp32-s3-touch-lcd-1.85b](esp32-s3-touch-lcd-1.85b/README.md) | 360×360 ST77916 QSPI | ES8311 + ES7210 | CST816S-compatible touch + Boot | Vendor panel revisions and touch mapping require validation. |
+| [esp32-s3-touch-lcd-1.85c](esp32-s3-touch-lcd-1.85c/README.md) | 360×360 ST77916 QSPI | ES8311 + ES7210 V2 path | CST816S-compatible touch + Boot; TCA9554 reset | V1 raw-I2S path and touch mapping require validation. |
+| [sp-esp32-s3-1.54-muma](sp-esp32-s3-1.54-muma/README.md) | 240×240 ST7789 | ES8311 | CST816S + Boot | Vendor panel tuning, battery and power hold require validation. |
+| [atk-dnesp32s3-box0](atk-dnesp32s3-box0/README.md) | 240×240 ST7789 | ES8311 | three buttons | Sleep, shutdown, charging and battery reporting are not implemented. |
+| [nulllab-ai-vox-v3](nulllab-ai-vox-v3/README.md) | 240×240 ST7789 | ES8311 | Boot + two volume keys | Wi-Fi subset only; ML307 networking is not implemented. |
+| [aipi-lite](aipi-lite/README.md) | 128×128 ST7789 | ES8311 | Boot | Power key, sleep and battery reporting are not implemented. |
 
 ## Build, flash and validation / 构建、烧录与验证
 

@@ -306,6 +306,16 @@ jobs:
           - df-k10
           - mixgo-nova
           - taiji-pi-s3
+          - freenove-esp32s3-display-2.8-lcd
+          - esp32-s3-touch-lcd-1.54
+          - esp32-s3-touch-lcd-1.83
+          - esp32-s3-lcd-0.85
+          - esp32-s3-touch-lcd-1.85b
+          - esp32-s3-touch-lcd-1.85c
+          - sp-esp32-s3-1.54-muma
+          - atk-dnesp32s3-box0
+          - nulllab-ai-vox-v3
+          - aipi-lite
         language: [zh-CN, en-US]
     steps:
       - uses: actions/checkout@v4

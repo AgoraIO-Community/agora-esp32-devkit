@@ -7,6 +7,11 @@ Versioning and Conventional Commits.
 
 ### Added
 
+- Ten additional ESP32-S3 profiles: eight ST7789/ILI9341 boards using ES8311 or
+  ES8311+ES7210 audio, followed by ST77916 LCD 1.85B/1.85C and SP 1.54 Muma. The batch adds
+  compact 128×128 layout coverage, AXP2101/TCA9554 reset paths, a secondary board power rail,
+  CST816S touch, and board-specific READMEs. Chinese and English local merged builds passed;
+  real-device validation remains pending.
 - Twenty-two additional ESP32-S3 board profiles covering NV3023, GC9A01, ILI9341, SH8601 and
   ST77916 panels; PCA9557/TCA9554, M5PM1/M5IOE1 and AXP2101 reset/power paths; FT5x06, GT911,
   CST816S-compatible touch and GPIO input; ES8311, ES7210, ES8374 and raw/PDM audio paths.
@@ -91,6 +96,8 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Extend the shared board skeleton with an optional secondary power rail for profiles that keep
+  codec and system power on separate GPIOs.
 - Centralize generic hardware sequencing, round-screen safe-area layout, dual-I2C selection,
   speaker PA control and display/audio capability derivation so additional profiles do not copy
   board lifecycle code.
