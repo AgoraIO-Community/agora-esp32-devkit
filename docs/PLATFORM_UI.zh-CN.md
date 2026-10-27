@@ -21,9 +21,37 @@
 | `esp32-s3-touch-amoled-1.75` | CO5300，466 × 466 | 通用面板适配器 | 原有触摸/按键路径 |
 | `esp32-s3-touch-amoled-1.75c` | CO5300，466 × 466 | 通用面板适配器 | 原有触摸/按键路径 |
 | `esp32-s3-touch-amoled-2.16` | CO5300 480 变体，480 × 480 | 通用面板适配器 | CST9217 与 Boot |
+| `esp32-s3-touch-amoled-1.8-v2` | CO5300 368×448 变体，368 × 448 | 通用面板适配器 | CST816S 与 Boot |
+| `esp32-s3-touch-lcd-1.85` | ST77916，360 × 360 | 通用面板适配器 | CST816S 与 Boot |
+| `genjutech-s3-1.54tft` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量按键 |
 | `sensecap-watcher` | SPD2010，412 × 412 | 通用面板适配器 | 原有旋钮路径 |
+| `xingzhi-metal-1.54-wifi`、`xingzhi-abs-2.0` | ST7789，240 × 240 | 通用面板适配器 | Boot/触摸或 Boot/音量键 |
+| `xingzhi-cube-0.85tft-wifi` | NV3023，128 × 128 | 通用面板适配器 | Boot |
+| `xingzhi-cube-0.96oled-wifi` | 无屏 | 无 | Boot 与音量键 |
+| `m5stack-stopwatch` | CO5300，466 × 466 圆屏 | 通用面板适配器 | CST820B 兼容触摸与按键 |
+| `esp32-s3-touch-amoled-1.8` | SH8601，368 × 448 | 通用面板适配器 | FT5x06 与 Boot |
+| AMOLED 1.32/1.43c/2.06 | SH8601，466 × 466 或 410 × 502 | 通用面板适配器 | Boot；2.06 使用 FT5x06 |
+| `atoms3r-echo-base`、`atoms3r-echo-pyramid` | GC9A01 类，128 × 128 | 通用面板适配器 | Boot |
+| `sp-esp32-s3-1.28-box` | GC9A01，240 × 240 圆屏 | 通用面板适配器 | CST816S 兼容触摸与 Boot |
+| `esp-box`、`esp-box-3`、`esp-box-lite` | ILI9341，320 × 240 | 通用面板适配器 | Boot；未实现触摸 |
+| `esp32s3-korvo2-v3`、`df-k10` | ILI9341，320 × 240 | 通用面板适配器 | Boot |
+| `lichuang-dev`、`rymcu-bigsmart` | ST7789，320 × 240 | 通用面板适配器 | FT5x06 或 GT911，以及 Boot |
+| `quandong-s3-dev` | ILI9341，320 × 240 | 通用面板适配器 | Boot |
+| `mixgo-nova` | ST7789，128 × 160 | 通用面板适配器 | Boot |
+| `taiji-pi-s3` | ST77916，360 × 360 圆屏 | 通用面板适配器 | CST816S 与 Boot |
+| `freenove-esp32s3-display-2.8-lcd` | ILI9341，320 × 240 | 通用面板适配器 | Boot |
+| `esp32-s3-touch-lcd-1.54`、`esp32-s3-touch-lcd-1.83` | ST7789，240 × 240 或 240 × 284 | 通用 ST7789 | CST816S 与按键 |
+| `esp32-s3-lcd-0.85`、`aipi-lite` | ST7789，128 × 128 | 通用 ST7789 紧凑布局 | 按键 |
+| `esp32-s3-touch-lcd-1.85b`、`esp32-s3-touch-lcd-1.85c` | ST77916，360 × 360 | 通用面板适配器 | CST816S 兼容触摸与 Boot |
+| `sp-esp32-s3-1.54-muma` | ST7789，240 × 240 | 通用 ST7789 | CST816S 与 Boot |
+| `atk-dnesp32s3-box0`、`nulllab-ai-vox-v3` | ST7789，240 × 240 | 通用 ST7789 | 按键 |
+| `magiclick-2p4` | NV3023，128 × 128 | 通用面板适配器 | 三个按键 |
+| `movecall-cuican-esp32s3`、`movecall-moji-esp32s3` | GC9A01，240 × 240 | 通用面板适配器 | Boot |
+| `kevin-sp-v4-dev` | ST7789，240 × 280 | 通用 ST7789 | Boot |
+| `du-chatx` | ST7789，128 × 160 | 通用 ST7789 紧凑布局 | Boot |
 
-AtomEchoS3R 与 ReSpeaker Flex 没有 LCD，不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
+AtomEchoS3R、DOIT S3 AI Box、Bread Compact Wi-Fi、HU-087 与 ReSpeaker Flex 没有 LCD，
+不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
 相互独立。
 行者 Cube 使用 SPI3 mode 3 / 40 MHz、零偏移与 GPIO13 LEDC 背光，PWM 为 5 kHz、13-bit、
 60% 占空比；显示和电源行为仍需
@@ -34,20 +62,25 @@ GPIO42 LEDC 背光（5 kHz、13-bit、60% 占空比）。仅有一个 Boot 输�
 AMOLED 2.16 使用零 panel gap 与 40 MHz QSPI；CO5300 传输区域两个方向均保持偶数像素
 边界，触摸和面板方向必须在实际板卡上验证。
 2.16 中英文构建支持已验证，真机测试仍未完成。
+AMOLED 1.8 V2 使用 16 像素 X 偏移与 40 MHz QSPI，并保持相同的 CO5300 偶数像素约束。
+LCD 1.85 使用 GPIO5 LEDC 背光（60%）与 360 × 360 ST77916 面板。GenjuTech 1.54 使用
+ST7789 SPI3 mode 3 / 80 MHz、颜色反转与 GPIO2 LEDC 背光（60%）。
+KEVIN SP V4 Dev 使用 ST7789 SPI3 mode 3 / 80 MHz、Y 偏移 20、颜色反转与 GPIO48 LEDC
+背光。DuChat X 使用 ST7789 SPI3 mode 0 / 40 MHz、2×1 像素偏移、X/Y 镜像与 GPIO9 LEDC
+背光。
 
 ## CoreS3像素眼镜视图
 
 仅CoreS3使用固定工艺灰皮肤、23表情及四行终端，正文9 px、签名10 px，六位数字配对码
 固定32 px。READY为NEUTRAL；进入会话SURPRISED保持300 ms并另计进入过渡。LISTENING、
 THINKING显示对应表情，连续思考三秒后转PROCESSING，SPEAKING/无阶段时NEUTRAL。
-四种可选的一次性LCD情绪指示临时覆盖当前图案，每次提交都会重播，分别保持
-2000/3000/1200/800 ms；开启动画时另加250 ms进入过渡。当前SDK MCP通路仅接受
-`message.user`封装内的`audio.set_volume`与`audio.adjust_volume`，不产生情绪指示。
+当前SDK不提供一次性情绪指示；MCP通路仅接受`message.user`封装内的
+`audio.set_volume`与`audio.adjust_volume`。
 仅控制LCD，具体规则、资源与验证见[CoreS3 UI](CORES3_UI.zh-CN.md)。
 
 CoreS3保留浅色主题字段兼容但不改变像素皮肤；动画开关控制表情运动/切换，关闭后仍推进
-状态与保持到期，并保留必要的引导文字滚动。其他十二个profile保留原UI/硬件；SDK、AOSL、
-RTSA、摄像头/视频策略、输入、电源及内存配置不变。
+开场保持并保留必要的引导文字滚动。其他profile保留原UI/硬件；摄像头/视频策略、
+输入、电源及内存配置不变；SDK、AOSL 与 RTSA 输入保持不变。
 
 ## 其他带屏板型的共享流程视图
 
@@ -62,7 +95,7 @@ Flash，不加入运行时 PNG/GIF 解码器或全屏缓存。
 配对码页面提示用户在网页控制台输入配对码；提示超出底部标签宽度时才循环滚动，离开
 配对码页面后停止滚动。
 
-宽度小于 240 像素的屏幕（当前为 StickS3）保留 20 px 中文字库；英文状态、通知及普通
+宽度小于 240 像素的屏幕保留 20 px 中文字库；英文状态、通知及普通
 标签使用 10 px 字体。配网 SSID 在两种语言下均使用 20 px，超宽时滚动。配对码根据宽度
 选择 32、20 或 10 px 字体，窄屏长配对码同时收紧字距。内置中文字库覆盖 UI 文案，
 不覆盖任意中文聊天正文。
@@ -73,6 +106,10 @@ Flash，不加入运行时 PNG/GIF 解码器或全屏缓存。
 字节，StickS3 为 4,320 字节，AMOLED 2.16 为 15,360 字节，任务栈和驱动分配另计。
 硬件集成负责复位、偏移、颜色顺序、
 背光和销毁。
+
+圆屏 profile 设置 `MYBOT_DISPLAY_ROUND=1`，共享视图会把标题栏、状态卡和页脚收窄到中央
+安全矩形，避免控件落入圆角区域。当前只完成构建验证；颜色、方向、裁切和触摸坐标仍需逐板
+真机确认。
 
 ## 编译示例
 

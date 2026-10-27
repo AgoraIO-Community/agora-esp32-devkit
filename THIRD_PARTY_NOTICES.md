@@ -16,6 +16,9 @@ It does not replace third-party terms. This file is informational and is not leg
 | Espressif SCCB 0.0.8 (I2C subset) | Apache-2.0 | `components/esp_sccb_intf` |
 | Espressif JPEG 0.6.1 (ESP32-S3 binary) | Espressif MIT, use on Espressif products | `components/esp_new_jpeg` |
 | Espressif ILI9341 LCD driver 2.0.2 | Apache-2.0 | `components/esp_lcd_ili9341` |
+| Espressif GC9A01 LCD driver 2.0.4 | Apache-2.0 | `components/esp_lcd_gc9a01` |
+| Espressif NV3023 LCD driver 1.0.1 | Apache-2.0 | `components/esp_lcd_nv3023` |
+| Espressif SH8601 LCD driver 1.0.2 | Apache-2.0 | `components/esp_lcd_sh8601` |
 | LVGL 9.5.0 | MIT plus retained font/library-specific terms | `components/lvgl` |
 | Espressif LVGL port 2.8.0~1 | Apache-2.0 | `components/esp_lvgl_port` |
 | Espressif SPD2010 LCD driver 2.0.0~1 | Apache-2.0 | `components/esp_lcd_spd2010` |
@@ -24,12 +27,16 @@ It does not replace third-party terms. This file is informational and is not leg
 | Espressif LCD touch 1.2.1 | Apache-2.0 | `components/esp_lcd_touch` |
 | Espressif CST816S touch driver 1.1.1~1 | Apache-2.0 | `components/esp_lcd_touch_cst816s` |
 | Waveshare CST9217 touch driver 1.0.4 | Apache-2.0 | `components/esp_lcd_touch_cst9217` |
+| Espressif FT5x06 touch driver 1.1.0~1 | Apache-2.0 | `components/esp_lcd_touch_ft5x06` |
+| Espressif GT911 touch driver 1.2.0~2 | Apache-2.0 | `components/esp_lcd_touch_gt911` |
 | Espressif IO expander 1.2.1 | Apache-2.0 | `components/esp_io_expander` |
 | Espressif TCA95xx 16-bit IO expander 2.0.2 | Apache-2.0 | `components/esp_io_expander_tca95xx_16bit` |
 | Espressif button 4.2.0 | Apache-2.0 | `components/button` |
 | Espressif knob 1.1.0 | Apache-2.0 | `components/knob` |
 | Espressif CMake utilities 0.5.0 | Apache-2.0 | `components/cmake_utilities` |
 | M5Stack M5PM1 1.0.7 | MIT | `components/m5pm1` |
+| M5Stack M5IOE1 1.0.9 | MIT | `components/m5ioe1` |
+| Espressif ES8374 codec source | Apache-2.0 | `components/mybot_platform/src/drivers/audio/es8374_codec.c` and its private headers |
 | Source Han Sans UI glyph subset | SIL Open Font License 1.1 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` |
 | Noto Color Emoji rasterized glyphs | SIL Open Font License 1.1 | `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` |
 | MyBot Terminal bitmap subsets derived from DejaVu Sans Mono Bold | Bitstream Vera font terms, with public-domain DejaVu changes | `components/mybot_platform/src/drivers/display/renderers/lvgl/pixel_fonts.c`, `TERMINAL_FONT_LICENSE.txt` |

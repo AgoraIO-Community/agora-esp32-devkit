@@ -7,12 +7,32 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Per-board hardware, input and operation documentation for all thirteen profiles, with shared
+- KEVIN SP V4 Dev with a 240×280 ST7789 panel and ES8311 audio, plus DuChat X with a 128×160
+  ST7789 panel, separate raw I2S audio and GPIO1 power hold. Both passed local ESP-IDF v5.5.2
+  Chinese and English reconfigure/build/size/merge-bin validation; real-device validation
+  remains pending.
+- Six additional ESP32-S3 profiles: DOIT S3 AI Box with PDM capture, Magiclick 2.4 with
+  NV3023, Movecall CuiCan/Moji with GC9A01, and Bread Compact Wi-Fi/HU-087 as headless raw-I2S
+  subsets. Chinese and English local merged builds passed; real-device validation remains pending.
+- Ten additional ESP32-S3 profiles: eight ST7789/ILI9341 boards using ES8311 or
+  ES8311+ES7210 audio, followed by ST77916 LCD 1.85B/1.85C and SP 1.54 Muma. The batch adds
+  compact 128×128 layout coverage, AXP2101/TCA9554 reset paths, a secondary board power rail,
+  CST816S touch, and board-specific READMEs. Chinese and English local merged builds passed;
+  real-device validation remains pending.
+- Twenty-two additional ESP32-S3 board profiles covering NV3023, GC9A01, ILI9341, SH8601 and
+  ST77916 panels; PCA9557/TCA9554, M5PM1/M5IOE1 and AXP2101 reset/power paths; FT5x06, GT911,
+  CST816S-compatible touch and GPIO input; ES8311, ES7210, ES8374 and raw/PDM audio paths.
+  `xingzhi-cube-0.96oled-wifi` is intentionally headless. All new profiles passed local
+  ESP-IDF v5.5.2 Chinese and English reconfigure/build/size/merge-bin validation; real-device
+  validation remains pending. Each new profile has its own concise board README linked from the
+  board index.
+- Shared compile-time board/hardware skeleton for board families whose lifecycle contracts match.
+- Per-board hardware, input and operation documentation for the original profiles, with shared
   build/flash instructions and one validation matrix.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
   Automatic faces follow READY/conversation phases. Expressions affect only the LCD.
-  `MYBOT_BOARD` selects the view automatically; other twelve profiles retain their UI/hardware.
+  `MYBOT_BOARD` selects the view automatically; other profiles retain their UI/hardware.
 - Shared LVGL status UI for the other display-board profiles, with Chinese/English text,
   pairing codes, voiceprint status, and listening/thinking/speaking indicators.
 - LVGL light/dark themes, local state emoji, rounded status cards, persistent voiceprint
@@ -42,6 +62,15 @@ Versioning and Conventional Commits.
 - Waveshare ESP32-S3 Touch AMOLED 2.16 Board profile with a 480x480 CO5300 panel, zero display
   gap, CST9217/Boot input, and shared AXP2101 and ES7210/ES8311 integration. Chinese and English
   variants passed ESP-IDF v5.5.2 reconfigure/build/size/merge-bin validation.
+- Waveshare ESP32-S3 Touch AMOLED 1.8 V2 Board profile with a 368x448 CO5300 panel, TCA9554
+  reset, AXP2101 power sequencing, CST816S/Boot input, and ES8311 audio.
+- Waveshare ESP32-S3 Touch LCD 1.85 Board profile with a 360x360 ST77916 panel, panel-version
+  selection, dual I2C buses, TCA9554 reset, separated I2S, right-slot microphone capture, and
+  both-slot playback.
+- GenjuTech S3 1.54 TFT Board profile with an inverting ST7789 display, ES8311 audio, Boot and
+  volume buttons, and board-specific PA/display power coupling.
+- Chinese and English variants for all three new profiles passed ESP-IDF v5.5.2
+  reconfigure/build/size/merge-bin validation.
 - Espressif ESP-VoCat Board profile with PCB V1.0/V1.2 runtime detection, ST77916 QSPI display,
   CST816S touch input, and ES7210/ES8311 full-duplex audio.
 - Pinned ST77916 2.0.2 and CST816S 1.1.1~1 production components.
@@ -74,6 +103,11 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Extend the shared board skeleton with an optional secondary power rail for profiles that keep
+  codec and system power on separate GPIOs.
+- Centralize generic hardware sequencing, round-screen safe-area layout, dual-I2C selection,
+  speaker PA control and display/audio capability derivation so additional profiles do not copy
+  board lifecycle code.
 - Centralize build and flash commands in the board index and current validation status in
   `docs/VALIDATION.md`; remove repeated status paragraphs, volatile build timings and per-board
   command copies from board and topic documentation.

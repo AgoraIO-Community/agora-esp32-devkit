@@ -11,7 +11,7 @@
 工程负责板级初始化、Wi-Fi 配网、持久化存储、HTTPS、音频、输入、显示，以及 SDK 外围的
 固件生命周期。
 
-当前开发基线为 **ESP-IDF v5.5.2**，支持 13 个编译期 Board profile。通过 `MYBOT_BOARD`
+当前开发基线为 **ESP-IDF v5.5.2**，支持 56 个编译期 Board profile。通过 `MYBOT_BOARD`
 选择板型、Flash、PSRAM、分区表和硬件驱动。具体硬件配置、输入操作、构建命令和限制见
 [板卡说明索引](components/mybot_platform/boards/README.md)。
 
@@ -37,12 +37,29 @@
 `zhengchen-1.54tft-ml307`、`zhengchen-1.54tft-wifi`、
 `xingzhi-cube-1.54tft-wifi`、`bread-compact-wifi-lcd`、`esp-vocat`、
 `esp32-s3-touch-amoled-1.75`、`esp32-s3-touch-amoled-1.75c`、
-`esp32-s3-touch-amoled-2.16`、`m5stack-core-s3`、`m5stack-stick-s3` 和
+`esp32-s3-touch-amoled-2.16`、`esp32-s3-touch-amoled-1.8-v2`、
+`esp32-s3-touch-lcd-1.85`、`esp32-s3-touch-amoled-1.8`、
+`esp32-s3-touch-amoled-1.32`、`esp32-s3-touch-amoled-1.43c`、
+`esp32-s3-touch-amoled-2.06`、`atoms3r-echo-base`、`atoms3r-echo-pyramid`、
+`sp-esp32-s3-1.28-box`、`esp-box`、`esp-box-3`、`esp-box-lite`、
+`esp32s3-korvo2-v3`、`lichuang-dev`、`quandong-s3-dev`、`rymcu-bigsmart`、
+`df-k10`、`mixgo-nova`、`taiji-pi-s3`、`m5stack-stopwatch`、
+`xingzhi-metal-1.54-wifi`、`xingzhi-cube-0.85tft-wifi`、`xingzhi-abs-2.0`、
+`freenove-esp32s3-display-2.8-lcd`、`esp32-s3-touch-lcd-1.54`、
+`esp32-s3-touch-lcd-1.83`、`esp32-s3-lcd-0.85`、
+`esp32-s3-touch-lcd-1.85b`、`esp32-s3-touch-lcd-1.85c`、
+`sp-esp32-s3-1.54-muma`、`atk-dnesp32s3-box0`、`nulllab-ai-vox-v3`、
+`aipi-lite`、`magiclick-2p4`、`movecall-cuican-esp32s3`、
+`movecall-moji-esp32s3`、
+`kevin-sp-v4-dev`、`du-chatx`、
+`genjutech-s3-1.54tft`、`m5stack-core-s3`、`m5stack-stick-s3` 和
 `sensecap-watcher`。
 
 无屏 profile：
 
-`atom-echos3r` 和 `respeaker-flex-xvf3800-circular4-xiao`。
+`atom-echos3r`、`xingzhi-cube-0.96oled-wifi`、`doit-s3-aibox`、
+`bread-compact-wifi`、`hu-087` 和
+`respeaker-flex-xvf3800-circular4-xiao`。
 
 所有 profile 当前均使用 Wi-Fi。ML307 profile 仅预留 Modem UART 引脚，未实现 Modem 或
 4G 联网。目前仅 `m5stack-core-s3` 提供摄像头视频能力。

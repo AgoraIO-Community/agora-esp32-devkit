@@ -16,6 +16,9 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 | `components/esp_sccb_intf` | `github.com/espressif/esp-video-components`, `esp_sccb_intf` | 0.0.8, commit `3384d3510c5880edeb0f4c14d9e0196760280637` |
 | `components/esp_new_jpeg` | `github.com/espressif/esp-adf-libs`, `esp_new_jpeg` | 0.6.1, commit `35c37e1656db36dbf13b9aee8064d1b59f482f6c`; ESP32-S3 library SHA-256 `4205b1258ce0ef9fd9946abfc7cd5f105b08316ea567e1136cec60b3e6330896` |
 | `components/esp_lcd_ili9341` | `github.com/espressif/esp-bsp` | 2.0.2, commit `fc8bd325efcdef6d5802554659debba303058af6` |
+| `components/esp_lcd_gc9a01` | ESP LCD GC9A01 production driver | 2.0.4; production source only, local CMake metadata |
+| `components/esp_lcd_nv3023` | ESP LCD NV3023 production driver | 1.0.1; production source only, local CMake metadata |
+| `components/esp_lcd_sh8601` | ESP LCD SH8601 production driver | 1.0.2; production source only, local CMake metadata |
 | `components/lvgl` | `github.com/lvgl/lvgl` | 9.5.0, commit `85aa60d18b3d5e5588d7b247abf90198f07c8a63` |
 | `components/esp_lvgl_port` | `github.com/espressif/esp-bsp`, `components/esp_lvgl_port` | 2.8.0~1, commit `d14ff131266bf1392efff88db72cb4638897507c` |
 | `components/esp_lcd_spd2010` | ESP Component Registry `espressif/esp_lcd_spd2010` | 2.0.0~1, commit `12f6ca1182ec48889b17ec570fadaaf267cb336e` |
@@ -24,12 +27,16 @@ redistribution terms are documented separately in [THIRD_PARTY_NOTICES.md](THIRD
 | `components/esp_lcd_touch` | ESP Component Registry `espressif/esp_lcd_touch` | 1.2.1, commit `c927778a85eed239dd403c1719d4f543ad56e693`, content hash `3f85a7d95af876f1a6ecca8eb90a81614890d0f03a038390804e5a77e2caf862` |
 | `components/esp_lcd_touch_cst816s` | ESP Component Registry `espressif/esp_lcd_touch_cst816s` | 1.1.1~1, commit `ab5696c61e761b272a163740f94b0e5720c3dde4` |
 | `components/esp_lcd_touch_cst9217` | ESP Component Registry `waveshare/esp_lcd_touch_cst9217` | 1.0.4, commit `43e6e696bbf0cf8671a97fcfe02c4c720e4e4d27`, content hash `27a00845832b7987cacf4c4125cbed5415d940987583065b01870ac080930856` |
+| `components/esp_lcd_touch_ft5x06` | ESP Component Registry `espressif/esp_lcd_touch_ft5x06` | 1.1.0~1; production source and Apache-2.0 license retained |
+| `components/esp_lcd_touch_gt911` | ESP Component Registry `espressif/esp_lcd_touch_gt911` | 1.2.0~2; production source and Apache-2.0 license retained |
 | `components/esp_io_expander` | ESP Component Registry `espressif/esp_io_expander` | 1.2.1, commit `eb76dc6ecf21ccc4ee7ee58bfea3d3d31fa090cf` |
 | `components/esp_io_expander_tca95xx_16bit` | ESP Component Registry `espressif/esp_io_expander_tca95xx_16bit` | 2.0.2, commit `53f6127ba3a1dd80fbdf9a76b759ccd1a8dc0101` |
 | `components/button` | ESP Component Registry `espressif/button` | 4.2.0, commit `5f9cb98ae4d0e8153c4b4d1accf471214e5b6fe8` |
 | `components/knob` | ESP Component Registry `espressif/knob` | 1.1.0, commit `5f9cb98ae4d0e8153c4b4d1accf471214e5b6fe8` |
 | `components/cmake_utilities` | ESP Component Registry `espressif/cmake_utilities` | 0.5.0 |
 | `components/m5pm1` | ESP Component Registry `m5stack/m5pm1` | 1.0.7, content hash `731f79d0629e245787440f5419aac5d7a82befeb25f97689d6a2d0331a24a72d` |
+| `components/m5ioe1` | ESP Component Registry `m5stack/m5ioe1` | 1.0.9; upstream MIT license retained |
+| `components/mybot_platform/src/drivers/audio/es8374_codec.c`, `components/mybot_platform/src/internal/audio/es8374_codec.h`, `components/mybot_platform/src/internal/audio/es_common.h` | Espressif `esp_codec_dev` ES8374 device source | Same 1.5.11 source baseline as `components/esp_codec_dev`; vendored inside the platform component because the local codec-dev source set omits ES8374 |
 | `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_fonts.c`, `components/mybot_platform/src/drivers/display/assets/licenses/LVGL_VIEW_FONT_LICENSE.txt` | `github.com/lvgl/lvgl`, `scripts/built_in_font/SourceHanSansSC-Normal.otf` | LVGL 9.5.0 source font SHA-256 `1ee89e1669362dee13851129c0a8a791a87521eb4148e5efbf5d26596738e25b`; generated 20 px, 4 bpp static UI subset |
 | `components/mybot_platform/assets/ui/noto_emoji`, `components/mybot_platform/src/drivers/display/renderers/lvgl/lvgl_assets.c` | Noto Color Emoji font glyphs rasterized by `github.com/78/noto-fonts`, `png/noto-color-emoji_64` | 2.0.0, commit `d45dbc64052d57048f20ab1770074172ce9eb53b`; per-image SHA-256 values and glyph provenance in `components/mybot_platform/assets/ui/noto_emoji/SOURCES.json` |
 
@@ -88,7 +95,7 @@ are not included by these references.
 Firmware integration differences are limited to the active ESP32-S3 build:
 
 - Only `m5stack-core-s3` selects the process-gray pixel-glasses view. CMake chooses it from
-  `MYBOT_BOARD`, with no manual renderer flag; the other twelve profiles retain their current
+  `MYBOT_BOARD`, with no manual renderer flag; the other profiles retain their current
   UI/hardware. The original Source Han Sans 20 px UI subset is reused, while the CoreS3 path
   uses fixed widgets/curves, five immutable A8 masks (13,631 alpha bytes), and the terminal
   subsets above instead of the shared view's four emoji. Audio, camera/video policy, input,
@@ -109,6 +116,12 @@ Firmware integration differences are limited to the active ESP32-S3 build:
   with independent identity and 480x480 zero-gap geometry.
   Its conservative 16 MB Flash/Octal PSRAM defaults require physical capacity confirmation;
   no new dependency or upstream application service is added.
+- The GenjuTech 1.54, AMOLED 1.8 V2 and LCD 1.85 profiles add independent Board identities,
+  TCA9554 state handling, CST816S/Boot input, CO5300 368x448 and ST77916 360x360 panel variants,
+  and no new package dependency. The LCD 1.85 raw-I2S path exposes 32-bit right-slot capture and
+  duplicates mono playback into both slots while the SDK boundary remains 16 kHz mono signed-16
+  PCM. Build success and any recorded image do not establish panel, audio, touch, power or radio
+  behavior on hardware.
 - LVGL and its ESP-IDF port are local, pinned dependencies included automatically for display
   boards and omitted for headless boards. The build omits examples, tests, and registry download metadata. The UI uses
   a static bilingual font subset and existing public LCD state; no upstream application services,

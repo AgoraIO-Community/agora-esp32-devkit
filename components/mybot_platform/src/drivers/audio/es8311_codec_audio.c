@@ -8,7 +8,11 @@
 #include <api/aosl_atomic.h>
 
 #include "driver/i2s_std.h"
+#if MYBOT_GENERIC_AUDIO_KIND == 4
+#include "audio/es8374_codec.h"
+#else
 #include "es8311_codec.h"
+#endif
 #include "esp_codec_dev.h"
 #include "esp_codec_dev_defaults.h"
 #include "esp_err.h"
@@ -33,7 +37,7 @@
 #define TAG "es8311_audio"
 
 #if MYBOT_AUDIO_SAMPLE_RATE != 16000
-#error "ES8311 audio must expose 16 kHz PCM to mybot"
+#error "Onboard codec audio must expose 16 kHz PCM to mybot"
 #endif
 
 #if MYBOT_AUDIO_DEFAULT_VOLUME < MYBOT_AUDIO_VOLUME_MIN ||                                         \
@@ -372,6 +376,16 @@ static int initialize_codec_locked(void) {
         goto codec_error;
     }
 
+#if MYBOT_GENERIC_AUDIO_KIND == 4
+    es8374_codec_cfg_t codec_config = {
+        .ctrl_if = s_audio.ctrl_if,
+        .gpio_if = s_audio.gpio_if,
+        .codec_mode = ESP_CODEC_DEV_WORK_MODE_BOTH,
+        .master_mode = false,
+        .pa_pin = GPIO_NUM_NC,
+        .pa_reverted = false,
+    };
+#else
     es8311_codec_cfg_t codec_config = {
         .ctrl_if = s_audio.ctrl_if,
         .gpio_if = s_audio.gpio_if,
@@ -388,7 +402,12 @@ static int initialize_codec_locked(void) {
         .no_dac_ref = true,
         .mclk_div = 256,
     };
+#endif
+#if MYBOT_GENERIC_AUDIO_KIND == 4
+    s_audio.codec_if = es8374_codec_new(&codec_config);
+#else
     s_audio.codec_if = es8311_codec_new(&codec_config);
+#endif
     if (!s_audio.codec_if) {
         goto codec_error;
     }

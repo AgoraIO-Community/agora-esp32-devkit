@@ -8,12 +8,15 @@ test_build_dir=$(mktemp -d)
 trap 'rm -r -- "$test_build_dir"' EXIT HUP INT TERM
 
 if [ "$#" -eq 0 ]; then
-    set -- esp32-s3-touch-amoled-1.75 esp32-s3-touch-amoled-1.75c esp32-s3-touch-amoled-2.16
+    set -- esp32-s3-touch-amoled-1.75 esp32-s3-touch-amoled-1.75c esp32-s3-touch-amoled-2.16 \
+        esp32-s3-touch-amoled-1.8-v2
 fi
 for board_id do
     panel_source="$repo_root/components/mybot_platform/src/drivers/display/panels/co5300/co5300_panel.c"
     if [ "$board_id" = esp32-s3-touch-amoled-2.16 ]; then
         panel_source="$repo_root/components/mybot_platform/src/drivers/display/panels/co5300/co5300_480_panel.c"
+    elif [ "$board_id" = esp32-s3-touch-amoled-1.8-v2 ]; then
+        panel_source="$repo_root/components/mybot_platform/src/drivers/display/panels/co5300/co5300_amoled18_panel.c"
     fi
     "${CC:-cc}" -std=c11 -Wall -Wextra -Werror \
         -I"$test_dir/mocks" -I"$repo_root/tests/st7789_lifecycle/mocks" \

@@ -7,8 +7,8 @@ sh tests/st7789_lifecycle/run.sh
 ```
 
 The harness compiles the production ST7789 panel and shared LVGL adapter with
-host implementations of the ESP-IDF and LVGL APIs. It uses the
-`xingzhi-cube-1.54tft-wifi` board configuration.
+host implementations of the ESP-IDF and LVGL APIs. It runs against the
+`xingzhi-cube-1.54tft-wifi` and `genjutech-s3-1.54tft` board configurations.
 
 Coverage includes initialization failures, partially returned constructor
 handles, retained resources after cleanup failures, repeated attach/detach and

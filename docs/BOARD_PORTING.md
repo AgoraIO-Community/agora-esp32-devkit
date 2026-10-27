@@ -76,6 +76,8 @@ and Octal PSRAM.
 its physical Flash/PSRAM capacities require confirmation on the release device.
 `esp32-s3-touch-amoled-2.16` also uses a conservative 16 MB QIO Flash profile and 80 MHz Octal
 PSRAM; confirm its physical capacities before release.
+The GenjuTech 1.54, AMOLED 1.8 V2 and LCD 1.85 profiles use the same 16 MB QIO Flash and 80 MHz
+Octal PSRAM profile; confirm each device before release.
 `bread-compact-wifi-lcd` is a fixed ESP32-S3 N16R8 profile with 16 MB QIO Flash and 8 MB Octal
 PSRAM at 80 MHz; validate the module and detected capacities on the wired device.
 
@@ -108,8 +110,9 @@ build with conversation animations disabled. This is build coverage, not hardwar
 6. Preserve the SDK audio boundary: 16 kHz, mono, signed 16-bit PCM, with frame counts rather than
    byte counts.
 7. Select the appropriate display capability in `components/mybot_platform/CMakeLists.txt`:
-   `Kconfig.display` for LVGL or `Kconfig.headless` for a board without a panel. The current headless
-   selection covers AtomEchoS3R and ReSpeaker Flex; update it when adding another headless board.
+   `Kconfig.display` for LVGL or `Kconfig.headless` for a board without a panel. The current
+   headless selection covers AtomEchoS3R, Xingzhi Cube 0.96 OLED and ReSpeaker Flex; update it
+   when adding another headless board.
 8. Add isolated CI builds for both languages and size reports, then record real-device provisioning,
    HTTPS, RTC, bidirectional audio, input, display, hangup, and repeated start/stop validation.
 
@@ -183,6 +186,28 @@ after hardware tests establish it is required. Other panel sizes and shared-cloc
 require separate profiles rather than runtime selection. Chinese and English build support for this
 fixed N16R8 profile has been validated with ESP-IDF v5.5.2; real-device validation remains pending.
 
+## Shared profile skeleton / 共享板型骨架
+
+`boards/common/generic_profile.cmake` composes the shared board lifecycle, audio adapter, panel,
+touch/key input, optional PCA9557/TCA9554/AXP2101 setup, display backlight and SDK registration.
+Each board still owns its `board.cmake`, `board_config.h`, `sdkconfig.defaults` and `board.c`.
+The generic path supports ES8311, ES8311+ES7210, ES8374 and raw I2S; raw capture can use standard
+I2S or PDM. Keep board-specific power or expander code outside the common path when it changes
+the lifecycle order.
+
+`M5Stack StopWatch` uses M5PM1 and M5IOE1 before display and codec startup. The bridge raises LCD
+and codec power, resets LCD/touch, controls the speaker PA and leaves the motor off. The shared
+round layout narrows widgets to a center safe rectangle; this is not a substitute for panel and
+touch validation.
+
+Profiles with separate system and codec rails may set `MYBOT_GENERIC_AUX_POWER_GPIO` in addition
+to `MYBOT_GENERIC_POWER_GPIO`. Both rails are asserted before I2C, display and codec clients are
+created and are released during board teardown.
+
+`Taiji Pi S3` uses PDM RX on I2S0 and standard-I2S playback on I2S1. PDM samples enter the
+platform already as signed 16-bit mono values, so the SDK receives 16 kHz mono signed-16 without
+another slot conversion. The active-low GPIO48 mute path follows playback start/stop.
+
 The `esp-vocat` profile supports PCB V1.0 and V1.2 under one compile-time Board because they share
 the same target, storage, partition, and component configuration. This is runtime hardware-revision
 detection, not runtime Board selection. Board preparation creates native I2C0 on GPIO2/GPIO1, drives
@@ -255,6 +280,22 @@ I2S link on real hardware. Keep any required resampling in the platform driver a
 Camera, RTC, IMU, TF card, battery reporting, shutdown, and low-power behavior remain unsupported.
 Chinese and English firmware build support for 2.16 has been validated with ESP-IDF v5.5.2;
 real-device validation remains pending.
+
+The `genjutech-s3-1.54tft` profile reuses the ES8311, raw button, ST7789, and shared LVGL paths.
+Its PA pin is coupled to display I/O by the board design, so the platform keeps the PA enabled
+after its first playback start and only disables it during board teardown. Touch, LED, battery,
+charging, sleep, shutdown, and video are not implemented.
+
+The `esp32-s3-touch-amoled-1.8-v2` profile owns a 368 x 448 CO5300 variant with a 16-pixel X gap.
+TCA9554 resets the panel before AXP2101 rail configuration; CST816S and Boot share the process-lifetime
+input path. The SDK and ES8311 I2S path remain at 16 kHz mono signed-16 PCM. AXP2101 power-key
+actions, battery reporting, sleep, shutdown, and video are not implemented.
+
+The `esp32-s3-touch-lcd-1.85` profile uses separate control and touch I2C buses plus separate
+microphone and speaker I2S peripherals. The microphone is read from the right slot and mono playback
+is copied into both TX slots while the SDK boundary remains mono 16 kHz signed-16 PCM. TCA9554
+releases LCD/touch reset, GPIO7 holds power, and GPIO5 controls backlight. The GPIO6 power button,
+battery reporting, sleep, shutdown, and video are not implemented.
 
 The ReSpeaker Flex profile is an example of a hardware audio front end rather than a raw microphone
 codec. Its XVF3800 must run separately flashed Circular-4 16 kHz, two-channel I2S firmware and owns

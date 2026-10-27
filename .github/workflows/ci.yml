@@ -20,7 +20,7 @@ jobs:
         run: |
           find main components/mybot_platform tests/atom_echos3r \
             tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
-            tests/cores3_pixel_ui -type f \
+            tests/cst816s_input tests/tca9554 tests/cores3_pixel_ui -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -exec clang-format --dry-run --Werror {} +
       - name: Whitespace check
@@ -40,7 +40,7 @@ jobs:
         run: |
           find main components/mybot_platform tests/atom_echos3r \
             tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
-            tests/cores3_pixel_ui -type f \
+            tests/cst816s_input tests/tca9554 tests/cores3_pixel_ui -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -print0 | while IFS= read -r -d '' file; do
               head -n 5 "$file" | grep -q 'SPDX-License-Identifier:' || {
@@ -54,6 +54,10 @@ jobs:
         run: sh tests/st7789_lifecycle/run.sh
       - name: CO5300 host lifecycle tests
         run: sh tests/co5300_lifecycle/run.sh
+      - name: CST816S and Boot input host lifecycle tests
+        run: sh tests/cst816s_input/run.sh
+      - name: TCA9554 masked update host tests
+        run: sh tests/tca9554/run.sh
       - name: Bread Compact Wi-Fi LCD host lifecycle tests
         run: sh tests/bread_compact_wifi_lcd/run.sh
       - name: CoreS3 pixel UI host lifecycle tests
@@ -153,6 +157,30 @@ jobs:
             language: en-US
             ptime: 60
             defaults: ci/ptime60.defaults;ci/en-us.defaults
+          - board: esp32-s3-touch-amoled-1.8-v2
+            language: zh-CN
+            ptime: 60
+            defaults: ci/ptime60.defaults
+          - board: esp32-s3-touch-amoled-1.8-v2
+            language: en-US
+            ptime: 60
+            defaults: ci/ptime60.defaults;ci/en-us.defaults
+          - board: esp32-s3-touch-lcd-1.85
+            language: zh-CN
+            ptime: 60
+            defaults: ci/ptime60.defaults
+          - board: esp32-s3-touch-lcd-1.85
+            language: en-US
+            ptime: 60
+            defaults: ci/ptime60.defaults;ci/en-us.defaults
+          - board: genjutech-s3-1.54tft
+            language: zh-CN
+            ptime: 60
+            defaults: ci/ptime60.defaults
+          - board: genjutech-s3-1.54tft
+            language: en-US
+            ptime: 60
+            defaults: ci/ptime60.defaults;ci/en-us.defaults
           - board: m5stack-core-s3
             language: zh-CN
             ptime: 60
@@ -241,3 +269,86 @@ jobs:
             build-${{ matrix.board }}-ptime-${{ matrix.ptime }}-ui-${{ matrix.ui || 'default' }}-lang-${{ matrix.language }}-video-${{ matrix.video || 'off' }}/bootloader/bootloader.bin
             build-${{ matrix.board }}-ptime-${{ matrix.ptime }}-ui-${{ matrix.ui || 'default' }}-lang-${{ matrix.language }}-video-${{ matrix.video || 'off' }}/partition_table/partition-table.bin
             build-${{ matrix.board }}-ptime-${{ matrix.ptime }}-ui-${{ matrix.ui || 'default' }}-lang-${{ matrix.language }}-video-${{ matrix.video || 'off' }}/ota_data_initial.bin
+
+  extended-idf-build:
+    name: extended-${{ matrix.board }}-${{ matrix.language }}
+    runs-on: ubuntu-24.04
+    container:
+      image: espressif/idf:v5.5.2
+    defaults:
+      run:
+        shell: bash
+    env:
+      BUILD_DIR: build-extended-${{ matrix.board }}-${{ matrix.language }}
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - xingzhi-metal-1.54-wifi
+          - xingzhi-cube-0.85tft-wifi
+          - xingzhi-cube-0.96oled-wifi
+          - xingzhi-abs-2.0
+          - m5stack-stopwatch
+          - esp32-s3-touch-amoled-1.8
+          - esp32-s3-touch-amoled-1.32
+          - esp32-s3-touch-amoled-1.43c
+          - esp32-s3-touch-amoled-2.06
+          - atoms3r-echo-base
+          - atoms3r-echo-pyramid
+          - sp-esp32-s3-1.28-box
+          - esp-box
+          - esp-box-3
+          - esp-box-lite
+          - esp32s3-korvo2-v3
+          - lichuang-dev
+          - quandong-s3-dev
+          - rymcu-bigsmart
+          - df-k10
+          - mixgo-nova
+          - taiji-pi-s3
+          - freenove-esp32s3-display-2.8-lcd
+          - esp32-s3-touch-lcd-1.54
+          - esp32-s3-touch-lcd-1.83
+          - esp32-s3-lcd-0.85
+          - esp32-s3-touch-lcd-1.85b
+          - esp32-s3-touch-lcd-1.85c
+          - sp-esp32-s3-1.54-muma
+          - atk-dnesp32s3-box0
+          - nulllab-ai-vox-v3
+          - aipi-lite
+          - doit-s3-aibox
+          - magiclick-2p4
+          - movecall-cuican-esp32s3
+          - movecall-moji-esp32s3
+          - bread-compact-wifi
+          - hu-087
+          - kevin-sp-v4-dev
+          - du-chatx
+        language: [zh-CN, en-US]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ESP32-S3 firmware
+        run: |
+          source /opt/esp/idf/export.sh >/dev/null
+          defaults="ci/ptime60.defaults"
+          if [ "${{ matrix.language }}" = "en-US" ]; then
+            defaults="$defaults;ci/en-us.defaults"
+          fi
+          idf.py -B "$BUILD_DIR" \
+            -DMYBOT_BOARD=${{ matrix.board }} \
+            -DSDKCONFIG="$BUILD_DIR/sdkconfig" \
+            -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;$defaults" \
+            build
+      - name: Report size
+        run: |
+          source /opt/esp/idf/export.sh >/dev/null
+          idf.py -B "$BUILD_DIR" size
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: mybot-esp32-${{ matrix.board }}-${{ matrix.language }}-${{ github.sha }}
+          path: |
+            ${{ env.BUILD_DIR }}/mybot_esp32.bin
+            ${{ env.BUILD_DIR }}/bootloader/bootloader.bin
+            ${{ env.BUILD_DIR }}/partition_table/partition-table.bin
+            ${{ env.BUILD_DIR }}/ota_data_initial.bin
