@@ -335,6 +335,13 @@ void update_notifications(const mybot_lcd_content_t &content) {
 int view_width() {
     return s_view.width;
 }
+
+int title_y(bool pairing_code) {
+    if (s_view.height < 200) {
+        return pairing_code ? 8 : 36;
+    }
+    return pairing_code ? 20 : 81;
+}
 } // namespace
 
 int mybot_lvgl_view_create_sized(lv_display_t *display, int width, int height) {
@@ -345,20 +352,41 @@ int mybot_lvgl_view_create_sized(lv_display_t *display, int width, int height) {
     }
     s_view.width = width;
     s_view.height = height;
+    const bool compact = height < 200;
+#ifndef MYBOT_DISPLAY_ROUND
+#define MYBOT_DISPLAY_ROUND 0
+#endif
+#if MYBOT_DISPLAY_ROUND
+    const int margin = width / 5;
+    const int header_x = margin;
+    const int header_y = height >= 400 ? 44 : 36;
+    const int header_width = width - margin * 2;
+    const int card_y = height >= 400 ? 92 : 82;
+    const int card_height = height >= 400 ? 220 : height - 150;
+    const int footer_y = height - 66;
+#else
     const int margin = width >= 240 ? 12 : 4;
+    const int header_x = 0;
+    const int header_y = 0;
+    const int header_width = width;
+    const int card_y = compact ? 22 : 46;
+    const int card_height = compact ? height - 54 : (height >= 220 ? 138 : (height - 102));
+    const int footer_y = compact ? height - 22 : height - 44;
+#endif
     const int card_width = width - margin * 2;
     const int card_x = margin;
-    const int card_y = 46;
-    const int card_height = height >= 220 ? 138 : (height - 102);
-    const int center_x = (card_width - 64) / 2;
-    const int footer_y = height - 44;
+    const int header_height = compact ? 20 : 38;
+    const int badge_size = compact ? 32 : 64;
+    const int center_x = (card_width - badge_size) / 2;
     s_view.root =
         make_panel(lv_display_get_screen_active(display), 0, 0, width, height, kTheme.background);
     if (!s_view.root) {
         return -1;
     }
-    lv_obj_t *header = make_panel(s_view.root, 0, 0, width, 38, kTheme.background);
-    lv_obj_t *footer = make_panel(s_view.root, margin, footer_y, card_width, 34, kTheme.surface);
+    lv_obj_t *header =
+        make_panel(s_view.root, header_x, header_y, header_width, header_height, kTheme.background);
+    lv_obj_t *footer =
+        make_panel(s_view.root, margin, footer_y, card_width, compact ? 18 : 34, kTheme.surface);
     s_view.card = make_panel(s_view.root, card_x, card_y, card_width, card_height, kTheme.surface);
     if (!header || !footer || !s_view.card) {
         mybot_lvgl_view_destroy();
@@ -368,8 +396,11 @@ int mybot_lvgl_view_create_sized(lv_display_t *display, int width, int height) {
     lv_obj_set_style_border_color(s_view.card, lv_color_hex(kTheme.border), 0);
     lv_obj_set_style_border_width(s_view.card, 1, 0);
     lv_obj_set_style_radius(footer, 12, 0);
-    s_view.badge = make_panel(s_view.card, center_x, 8, 64, 64, kTheme.surface);
-    s_view.activity = make_panel(s_view.card, center_x, card_height - 26, 64, 16, kTheme.surface);
+    s_view.badge =
+        make_panel(s_view.card, center_x, compact ? 2 : 8, badge_size, badge_size, kTheme.surface);
+    s_view.activity =
+        make_panel(s_view.card, center_x, compact ? card_height - 16 : card_height - 26,
+                   compact ? 40 : 64, compact ? 10 : 16, kTheme.surface);
     if (!s_view.badge || !s_view.activity) {
         mybot_lvgl_view_destroy();
         return -1;
@@ -378,25 +409,30 @@ int mybot_lvgl_view_create_sized(lv_display_t *display, int width, int height) {
     lv_obj_set_style_border_width(s_view.badge, 2, 0);
     lv_obj_set_style_bg_opa(s_view.activity, LV_OPA_TRANSP, 0);
 
-    const int brand_width = width < 240 ? width / 2 : width / 3;
-    s_view.brand = make_label(header, 8, 4, brand_width, 30);
-    s_view.status = make_label(header, brand_width, 4, width - brand_width - 8, 30);
-    s_view.notification = make_label(header, 4, 4, width - 8, 30);
-    s_view.icon = make_label(s_view.badge, 0, 0, 60, 40);
+    const int brand_width = header_width < 240 ? header_width / 2 : header_width / 3;
+    const int header_label_height = compact ? 18 : 30;
+    s_view.brand =
+        make_label(header, compact ? 2 : 8, compact ? 1 : 4, brand_width, header_label_height);
+    s_view.status = make_label(header, brand_width, compact ? 1 : 4, header_width - brand_width - 8,
+                               header_label_height);
+    s_view.notification =
+        make_label(header, compact ? 2 : 4, compact ? 1 : 4, header_width - 4, header_label_height);
+    s_view.icon = make_label(s_view.badge, 0, 0, badge_size - 4, compact ? 22 : 40);
     s_view.emoji = lv_image_create(s_view.card);
-    s_view.title = make_label(s_view.card, 4, 81, card_width - 8, 30);
-    s_view.code = make_label(s_view.card, 2, 63, card_width - 4, 45);
-    s_view.notice = make_label(footer, 2, 3, card_width - 4, 28);
+    s_view.title = make_label(s_view.card, 4, title_y(false), card_width - 8, compact ? 22 : 30);
+    s_view.code = make_label(s_view.card, 2, compact ? 28 : 63, card_width - 4, compact ? 32 : 45);
+    s_view.notice = make_label(footer, 2, compact ? 0 : 3, card_width - 4, compact ? 18 : 28);
     if (!s_view.brand || !s_view.status || !s_view.notification || !s_view.icon || !s_view.emoji ||
         !s_view.title || !s_view.code || !s_view.notice) {
         mybot_lvgl_view_destroy();
         return -1;
     }
-    lv_obj_set_pos(s_view.emoji, center_x, 8);
-    lv_obj_set_size(s_view.emoji, 64, 64);
+    lv_obj_set_pos(s_view.emoji, center_x, compact ? 2 : 8);
+    lv_obj_set_size(s_view.emoji, badge_size, badge_size);
     lv_obj_set_style_text_align(s_view.brand, LV_TEXT_ALIGN_LEFT, 0);
     if (width < 240) {
-        lv_obj_set_style_text_font(s_view.brand, &lv_font_montserrat_14, 0);
+        lv_obj_set_style_text_font(s_view.brand,
+                                   compact ? &lv_font_montserrat_10 : &lv_font_montserrat_14, 0);
 #if CONFIG_MYBOT_LANGUAGE_ZH_CN
         lv_obj_set_style_text_font(s_view.status, &mybot_lvgl_font_20, 0);
         lv_obj_set_style_text_font(s_view.notification, &mybot_lvgl_font_20, 0);
@@ -418,8 +454,9 @@ int mybot_lvgl_view_create_sized(lv_display_t *display, int width, int height) {
     lv_obj_center(s_view.icon);
     lv_obj_set_style_text_letter_space(s_view.code, 0, 0);
     for (unsigned i = 0; i < 5; ++i) {
-        s_view.bars[i] =
-            make_panel(s_view.activity, 7 + static_cast<int>(i) * 11, 4, 6, 8, kTheme.blue);
+        s_view.bars[i] = make_panel(
+            s_view.activity, compact ? 2 + static_cast<int>(i) * 8 : 7 + static_cast<int>(i) * 11,
+            compact ? 2 : 4, compact ? 5 : 6, compact ? 6 : 8, kTheme.blue);
         if (!s_view.bars[i]) {
             mybot_lvgl_view_destroy();
             return -1;
@@ -554,7 +591,7 @@ void mybot_lvgl_view_update(const mybot_lcd_content_t *content) {
     }
     if (!s_view.has_content ||
         pairing_code != (s_view.previous.screen == MYBOT_LCD_SCREEN_PAIR_CODE)) {
-        lv_obj_set_y(s_view.title, pairing_code ? 20 : 81);
+        lv_obj_set_y(s_view.title, title_y(pairing_code));
     }
     if (pairing_code && (!s_view.has_content || normalized.screen != s_view.previous.screen ||
                          std::strcmp(normalized.pair_code, s_view.previous.pair_code) != 0)) {

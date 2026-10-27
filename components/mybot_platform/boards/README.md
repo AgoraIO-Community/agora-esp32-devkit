@@ -5,7 +5,7 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 `sdkconfig.defaults` files. Current validation status is centralized in
 [`docs/VALIDATION.md`](../../../docs/VALIDATION.md).
 
-以下说明对应本工程已实现的 16 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
+以下说明对应本工程已实现的 38 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
 验证状态统一见[验证矩阵](../../../docs/VALIDATION.md)。不同尺寸、芯片或硬件版本的板卡
 不能仅凭外观共用固件。
 
@@ -27,6 +27,40 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 | `xingzhi-cube-1.54tft-wifi` | [README](xingzhi-cube-1.54tft-wifi/README.md) | 240×240 ST7789 | 无 |
 | `zhengchen-1.54tft-ml307` | [README](zhengchen-1.54tft-ml307/README.md) | ST7789 | 无 |
 | `zhengchen-1.54tft-wifi` | [README](zhengchen-1.54tft-wifi/README.md) | ST7789 | 无 |
+
+### Additional ESP32-S3 profiles / 新增板型
+
+These profiles reuse the shared board lifecycle in `boards/common/`. Their `board_config.h` and
+`board.cmake` files are the authoritative pin and capability records. None has completed
+real-device validation.
+
+这些板型复用 `boards/common/` 的共享生命周期；引脚与能力以各自的 `board_config.h` 和
+`board.cmake` 为准。以下板型均未完成真机验证。
+
+| Board profile | Display / 显示 | Audio / 音频 | Input / 输入 | Reduced scope / 当前子集 |
+| --- | --- | --- | --- | --- |
+| [xingzhi-metal-1.54-wifi](xingzhi-metal-1.54-wifi/README.md) | 240×240 ST7789 | ES8311 | PCA9557 touch + Boot | Touch, PCA9557 power/reset and PA require device validation. |
+| [xingzhi-cube-0.85tft-wifi](xingzhi-cube-0.85tft-wifi/README.md) | 128×128 NV3023 | Raw I2S | Boot | No touch or codec control. |
+| [xingzhi-cube-0.96oled-wifi](xingzhi-cube-0.96oled-wifi/README.md) | Headless | Raw I2S | Boot + two volume keys | SSD1306 monochrome UI is not implemented. |
+| [xingzhi-abs-2.0](xingzhi-abs-2.0/README.md) | 240×240 ST7789 | ES8311 | Boot + two volume keys | Wi-Fi only; SD, vibration and cellular are not implemented. |
+| [m5stack-stopwatch](m5stack-stopwatch/README.md) | 466×466 round CO5300 | ES8311 | CST820B-compatible CST816S path + two buttons | M5PM1/M5IOE1 power sequencing and round safe area are implemented; battery reporting, motor, sleep and shutdown are not. |
+| [esp32-s3-touch-amoled-1.8](esp32-s3-touch-amoled-1.8/README.md) | 368×448 SH8601 QSPI | ES8311 | FT5x06 + Boot | Device timing and touch mapping require validation. |
+| [esp32-s3-touch-amoled-1.32](esp32-s3-touch-amoled-1.32/README.md) | 466×466 SH8601 QSPI | ES8311 | Boot | Touchless profile. |
+| [esp32-s3-touch-amoled-1.43c](esp32-s3-touch-amoled-1.43c/README.md) | 466×466 SH8601 QSPI | ES8311 + ES7210 | Boot | Touchless profile. |
+| [esp32-s3-touch-amoled-2.06](esp32-s3-touch-amoled-2.06/README.md) | 410×502 SH8601 QSPI | ES8311 + ES7210 | FT5x06 + Boot | 22-pixel X gap; device timing requires validation. |
+| [atoms3r-echo-base](atoms3r-echo-base/README.md) | 128×128 GC9A01-class SPI panel | ES8311 | Boot | Echo-base IO/power and LP5562 backlight integration are not implemented. |
+| [atoms3r-echo-pyramid](atoms3r-echo-pyramid/README.md) | 128×128 GC9A01-class SPI panel | ES8311 + ES7210 | Boot | Echo-pyramid IO/power and LP5562 backlight integration are not implemented. |
+| [sp-esp32-s3-1.28-box](sp-esp32-s3-1.28-box/README.md) | 240×240 round GC9A01 | ES8311 | CST816S-compatible touch + Boot | Battery/charging reporting and panel vendor tuning require validation. |
+| [esp-box](esp-box/README.md) | 320×240 ILI9341 | ES8311 + ES7210 | Boot | Touch, board PMIC options and power sequencing require validation. |
+| [esp-box-3](esp-box-3/README.md) | 320×240 ILI9341 | ES8311 + ES7210 | Boot | Touch, board PMIC options and power sequencing require validation. |
+| [esp-box-lite](esp-box-lite/README.md) | 320×240 ILI9341 | ES8311 + ES7210 profile | Boot | ADC buttons, codec assignment and power sequencing require validation. |
+| [esp32s3-korvo2-v3](esp32s3-korvo2-v3/README.md) | 320×240 ILI9341 | ES8311 + ES7210 | Boot | TCA9554 reset/CS is implemented; ADC keys, camera, battery and sleep are not. |
+| [lichuang-dev](lichuang-dev/README.md) | 320×240 ST7789 | ES8311 + ES7210 | FT5x06 + Boot | PCA9557 display/PA control is implemented; camera and battery are not. |
+| [quandong-s3-dev](quandong-s3-dev/README.md) | 320×240 ILI9341 | ES8311 | Boot | PCA9557 setup and active-low PA are implemented; hardware mapping requires validation. |
+| [rymcu-bigsmart](rymcu-bigsmart/README.md) | 320×240 ST7789 | ES8311 + ES7210 | GT911 + Boot | PCA9557 display/PA control is implemented; camera and battery are not. |
+| [df-k10](df-k10/README.md) | 240×320 ILI9341 | ES8311 + ES7210 | Boot | TCA9555 keys, camera, LED ring and power paths are not implemented. |
+| [mixgo-nova](mixgo-nova/README.md) | 128×160 ST7789 | ES8374 | Boot | RGB LED and hardware validation are pending. |
+| [taiji-pi-s3](taiji-pi-s3/README.md) | 360×360 round ST77916 QSPI | ES8311 playback + PDM capture | CST816S + Boot | PDM capture and mute/PA lifecycle are implemented; board power sequencing requires validation. |
 
 ## Build, flash and validation / 构建、烧录与验证
 

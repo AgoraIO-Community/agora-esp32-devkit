@@ -2,7 +2,7 @@
 
 [English](AUDIO_PLAYBACK.md) | [简体中文](AUDIO_PLAYBACK.zh-CN.md)
 
-当前 16 个 Board profile 通过 7 个板级音频驱动共用同一套 PCM 播放缓冲。SDK 边界保持
+当前全部 Board profile 通过板级音频适配器共用同一套 PCM 播放缓冲。SDK 边界保持
 16 kHz、单声道 signed-16 PCM，独立任务持续向 I2S 供数。公共实现位于
 [`pcm_playback_buffer.c`](../components/mybot_platform/src/services/audio/pcm_playback_buffer.c)，
 各板级驱动提供原生 I2S sink。

@@ -107,8 +107,9 @@ The bundled RTSA package supports only 60 ms audio frames. Although menuconfig l
 6. Preserve the SDK audio boundary: 16 kHz, mono, signed 16-bit PCM, with frame counts rather than
    byte counts.
 7. Select the appropriate display capability in `components/mybot_platform/CMakeLists.txt`:
-   `Kconfig.display` for LVGL or `Kconfig.headless` for a board without a panel. The current headless
-   selection covers AtomEchoS3R and ReSpeaker Flex; update it when adding another headless board.
+   `Kconfig.display` for LVGL or `Kconfig.headless` for a board without a panel. The current
+   headless selection covers AtomEchoS3R, Xingzhi Cube 0.96 OLED and ReSpeaker Flex; update it
+   when adding another headless board.
 8. Add isolated CI builds for both languages and size reports, then record real-device provisioning,
    HTTPS, RTC, bidirectional audio, input, display, hangup, and repeated start/stop validation.
 
@@ -181,6 +182,24 @@ output. Its SDK boundary is 16 kHz mono signed-16 PCM; the physical standard-I2S
 after hardware tests establish it is required. Other panel sizes and shared-clock I2S wiring
 require separate profiles rather than runtime selection. Chinese and English build support for this
 fixed N16R8 profile is tracked in the [validation matrix](VALIDATION.md).
+
+## Shared profile skeleton / 共享板型骨架
+
+`boards/common/generic_profile.cmake` composes the shared board lifecycle, audio adapter, panel,
+touch/key input, optional PCA9557/TCA9554/AXP2101 setup, display backlight and SDK registration.
+Each board still owns its `board.cmake`, `board_config.h`, `sdkconfig.defaults` and `board.c`.
+The generic path supports ES8311, ES8311+ES7210, ES8374 and raw I2S; raw capture can use standard
+I2S or PDM. Keep board-specific power or expander code outside the common path when it changes
+the lifecycle order.
+
+`M5Stack StopWatch` uses M5PM1 and M5IOE1 before display and codec startup. The bridge raises LCD
+and codec power, resets LCD/touch, controls the speaker PA and leaves the motor off. The shared
+round layout narrows widgets to a center safe rectangle; this is not a substitute for panel and
+touch validation.
+
+`Taiji Pi S3` uses PDM RX on I2S0 and standard-I2S playback on I2S1. PDM samples enter the
+platform already as signed 16-bit mono values, so the SDK receives 16 kHz mono signed-16 without
+another slot conversion. The active-low GPIO48 mute path follows playback start/stop.
 
 The `esp-vocat` profile supports PCB V1.0 and V1.2 under one compile-time Board because they share
 the same target, storage, partition, and component configuration. This is runtime hardware-revision

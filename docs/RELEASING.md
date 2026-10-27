@@ -107,6 +107,10 @@ git diff --check
       polarity and short/long presses, first-boot Wi-Fi AP and localized prompt, 16 kHz capture and
       playback pitch/noise and full-duplex quality, volume persistence, and repeated provisioning
       after mybot stop/start. Confirm the headless build omits LVGL.
+- [ ] For every additional profile marked "Not completed" in the validation matrix, verify the
+      applicable panel/controller, touch or keys, codec/I2S path, reset and power ordering, round or
+      narrow UI clipping, provisioning, volume persistence, and repeated mybot start/stop. Do not
+      promote a profile to hardware-validated from build or host-test evidence alone.
 
 ## Publish
 
