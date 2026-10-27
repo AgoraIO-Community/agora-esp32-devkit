@@ -59,6 +59,16 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `df-k10` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ILI9341 and dual-codec mapping require validation; TCA9555 keys, camera, LED ring and board power paths are not implemented. |
 | `mixgo-nova` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ES8374/ST7789 mapping, power, audio and 128×160 UI require device validation; RGB LED is not implemented. |
 | `taiji-pi-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST77916, CST816S, PDM capture, I2S playback, mute/PA and round UI require device validation; board power sequencing is not complete. |
+| `freenove-esp32s3-display-2.8-lcd` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ILI9341, ES8311, PA and backlight require device validation; camera, LED and battery paths are not implemented. |
+| `esp32-s3-touch-lcd-1.54` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789, CST816S, dual codec, auxiliary power and three keys require device validation; battery management, sleep and shutdown are not implemented. |
+| `esp32-s3-touch-lcd-1.83` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789, CST816S, AXP2101 and dual codec require device validation; PWR41, battery reporting, sleep and shutdown are not implemented. |
+| `esp32-s3-lcd-0.85` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789 128×128 layout, dual codec, battery enable and keys require device validation; touch is not implemented. |
+| `esp32-s3-touch-lcd-1.85b` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST77916 panel revisions, CST816S-compatible touch, dual codec, reset/backlight and power require device validation. |
+| `esp32-s3-touch-lcd-1.85c` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST77916, TCA9554 reset, CST816S-compatible touch, dual codec V2 path and power require device validation; V1 raw-I2S is not implemented. |
+| `sp-esp32-s3-1.54-muma` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789 vendor tuning, CST816S, ES8311, battery and power hold require device validation; sleep and shutdown are not implemented. |
+| `atk-dnesp32s3-box0` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789, ES8311, GPIO2/GPIO14 power sequencing, three keys and battery require device validation; sleep, shutdown and charging are not implemented. |
+| `nulllab-ai-vox-v3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Wi-Fi subset; ST7789, ES8311, battery and keys require device validation. ML307 networking is not implemented. |
+| `aipi-lite` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789 128×128, ES8311, power hold and battery require device validation; power key, sleep and shutdown are not implemented. |
 
 ## Global boundaries / 全局边界
 

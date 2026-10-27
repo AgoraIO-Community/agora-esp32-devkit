@@ -40,6 +40,12 @@ retain their existing board behavior.
 | `quandong-s3-dev` | ILI9341, 320 × 240 | shared panel adapter | Boot |
 | `mixgo-nova` | ST7789, 128 × 160 | shared panel adapter | Boot |
 | `taiji-pi-s3` | ST77916, 360 × 360 round | shared panel adapter | CST816S and Boot |
+| `freenove-esp32s3-display-2.8-lcd` | ILI9341, 320 × 240 | shared panel adapter | Boot |
+| `esp32-s3-touch-lcd-1.54`, `esp32-s3-touch-lcd-1.83` | ST7789, 240 × 240 or 240 × 284 | shared ST7789 adapter | CST816S and buttons |
+| `esp32-s3-lcd-0.85`, `aipi-lite` | ST7789, 128 × 128 | shared ST7789 compact layout | buttons |
+| `esp32-s3-touch-lcd-1.85b`, `esp32-s3-touch-lcd-1.85c` | ST77916, 360 × 360 | shared panel adapter | CST816S-compatible touch and Boot |
+| `sp-esp32-s3-1.54-muma` | ST7789, 240 × 240 | shared ST7789 adapter | CST816S and Boot |
+| `atk-dnesp32s3-box0`, `nulllab-ai-vox-v3` | ST7789, 240 × 240 | shared ST7789 adapter | buttons |
 
 The AtomEchoS3R and ReSpeaker Flex profiles have no LCD and do not include LVGL. The ML307 and
 Wi-Fi variants, along with the audio/video protocols, are independent of the display backend.
