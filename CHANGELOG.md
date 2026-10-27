@@ -7,12 +7,12 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Per-board hardware, input and operation documentation for all thirteen profiles, with shared
+- Per-board hardware, input and operation documentation for all sixteen profiles, with shared
   build/flash instructions and one validation matrix.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
   Automatic faces follow READY/conversation phases. Expressions affect only the LCD.
-  `MYBOT_BOARD` selects the view automatically; other twelve profiles retain their UI/hardware.
+  `MYBOT_BOARD` selects the view automatically; other fifteen profiles retain their UI/hardware.
 - Shared LVGL status UI for the other display-board profiles, with Chinese/English text,
   pairing codes, voiceprint status, and listening/thinking/speaking indicators.
 - LVGL light/dark themes, local state emoji, rounded status cards, persistent voiceprint
@@ -42,6 +42,15 @@ Versioning and Conventional Commits.
 - Waveshare ESP32-S3 Touch AMOLED 2.16 Board profile with a 480x480 CO5300 panel, zero display
   gap, CST9217/Boot input, and shared AXP2101 and ES7210/ES8311 integration. Chinese and English
   variants passed ESP-IDF v5.5.2 reconfigure/build/size/merge-bin validation.
+- Waveshare ESP32-S3 Touch AMOLED 1.8 V2 Board profile with a 368x448 CO5300 panel, TCA9554
+  reset, AXP2101 power sequencing, CST816S/Boot input, and ES8311 audio.
+- Waveshare ESP32-S3 Touch LCD 1.85 Board profile with a 360x360 ST77916 panel, panel-version
+  selection, dual I2C buses, TCA9554 reset, separated I2S, right-slot microphone capture, and
+  both-slot playback.
+- GenjuTech S3 1.54 TFT Board profile with an inverting ST7789 display, ES8311 audio, Boot and
+  volume buttons, and board-specific PA/display power coupling.
+- Chinese and English variants for all three new profiles passed ESP-IDF v5.5.2
+  reconfigure/build/size/merge-bin validation.
 - Espressif ESP-VoCat Board profile with PCB V1.0/V1.2 runtime detection, ST77916 QSPI display,
   CST816S touch input, and ES7210/ES8311 full-duplex audio.
 - Pinned ST77916 2.0.2 and CST816S 1.1.1~1 production components.

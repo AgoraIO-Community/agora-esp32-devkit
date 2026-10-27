@@ -59,7 +59,7 @@ are not vendored into this repository.
 Firmware integration differences are limited to the active ESP32-S3 build:
 
 - Only `m5stack-core-s3` selects the process-gray pixel-glasses view. CMake chooses it from
-  `MYBOT_BOARD`, with no manual renderer flag; the other twelve profiles retain their current
+  `MYBOT_BOARD`, with no manual renderer flag; the other fifteen profiles retain their current
   UI/hardware. The original Source Han Sans 20 px UI subset is reused, while the CoreS3 path
   uses fixed widgets/curves, five immutable A8 masks (13,631 alpha bytes), and the terminal
   subsets above instead of the shared view's four emoji. Audio, camera/video policy, input,
@@ -82,6 +82,12 @@ Firmware integration differences are limited to the active ESP32-S3 build:
   with independent identity and 480x480 zero-gap geometry.
   Its conservative 16 MB Flash/Octal PSRAM defaults require physical capacity confirmation;
   no new dependency or upstream application service is added.
+- The GenjuTech 1.54, AMOLED 1.8 V2 and LCD 1.85 profiles add independent Board identities,
+  TCA9554 state handling, CST816S/Boot input, CO5300 368x448 and ST77916 360x360 panel variants,
+  and no new package dependency. The LCD 1.85 raw-I2S path exposes 32-bit right-slot capture and
+  duplicates mono playback into both slots while the SDK boundary remains 16 kHz mono signed-16
+  PCM. Build success and any recorded image do not establish panel, audio, touch, power or radio
+  behavior on hardware.
 - LVGL and its ESP-IDF port are local, pinned dependencies included automatically for display
   boards and omitted for headless boards. The build omits examples, tests, and registry download metadata. The UI uses
   a static bilingual font subset and existing public LCD state; no upstream application services,

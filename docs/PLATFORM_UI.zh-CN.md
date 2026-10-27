@@ -20,6 +20,9 @@
 | `esp32-s3-touch-amoled-1.75` | CO5300，466 × 466 | 通用面板适配器 | 原有触摸/按键路径 |
 | `esp32-s3-touch-amoled-1.75c` | CO5300，466 × 466 | 通用面板适配器 | 原有触摸/按键路径 |
 | `esp32-s3-touch-amoled-2.16` | CO5300 480 变体，480 × 480 | 通用面板适配器 | CST9217 与 Boot |
+| `esp32-s3-touch-amoled-1.8-v2` | CO5300 368×448 变体，368 × 448 | 通用面板适配器 | CST816S 与 Boot |
+| `esp32-s3-touch-lcd-1.85` | ST77916，360 × 360 | 通用面板适配器 | CST816S 与 Boot |
+| `genjutech-s3-1.54tft` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量按键 |
 | `sensecap-watcher` | SPD2010，412 × 412 | 通用面板适配器 | 原有旋钮路径 |
 
 AtomEchoS3R 与 ReSpeaker Flex 没有 LCD，不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
@@ -31,6 +34,9 @@ GPIO42 LEDC 背光（5 kHz、13-bit、60% 占空比）。仅有一个 Boot 输�
 布局。
 AMOLED 2.16 使用零 panel gap 与 40 MHz QSPI；CO5300 传输区域两个方向均保持偶数像素
 边界。
+AMOLED 1.8 V2 使用 16 像素 X 偏移与 40 MHz QSPI，并保持相同的 CO5300 偶数像素约束。
+LCD 1.85 使用 GPIO5 LEDC 背光（60%）与 360 × 360 ST77916 面板。GenjuTech 1.54 使用
+ST7789 SPI3 mode 3 / 80 MHz、颜色反转与 GPIO2 LEDC 背光（60%）。
 
 ## CoreS3像素眼镜视图
 
@@ -42,7 +48,7 @@ THINKING显示对应表情，连续思考三秒后转PROCESSING，SPEAKING/无�
 [CoreS3 UI](CORES3_UI.zh-CN.md)。
 
 CoreS3保留浅色主题字段兼容但不改变像素皮肤；动画开关控制表情运动/切换，关闭后仍推进
-开场保持并保留必要的引导文字滚动。其他十二个profile保留原UI/硬件；摄像头/视频策略、
+开场保持并保留必要的引导文字滚动。其他十五个profile保留原UI/硬件；摄像头/视频策略、
 输入、电源及内存配置不变。
 
 ## 其他带屏板型的共享流程视图

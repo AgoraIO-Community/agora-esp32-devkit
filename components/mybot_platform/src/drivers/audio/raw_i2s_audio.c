@@ -26,6 +26,20 @@
 #define AUDIO_VOLUME_NVS_NAMESPACE "audio"
 #define TAG "mybot_audio"
 
+#ifndef MYBOT_AUDIO_I2S_CAPTURE_RIGHT_SLOT
+#define MYBOT_AUDIO_I2S_CAPTURE_RIGHT_SLOT 0
+#endif
+
+#ifndef MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS
+#define MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS 0
+#endif
+
+#if MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS
+#define AUDIO_SCRATCH_FRAMES (AUDIO_MAX_FRAMES * 2)
+#else
+#define AUDIO_SCRATCH_FRAMES AUDIO_MAX_FRAMES
+#endif
+
 typedef struct {
     i2s_chan_handle_t channel;
     aosl_atomic_t started;
@@ -35,7 +49,7 @@ typedef struct {
     bool playback;
     bool enabled;
     bool stop_pending;
-    int32_t scratch[AUDIO_MAX_FRAMES];
+    int32_t scratch[AUDIO_SCRATCH_FRAMES];
 } audio_context_t;
 
 typedef struct {
@@ -206,10 +220,11 @@ static int validate_format(int rate, int channels, int bits) {
 }
 
 static i2s_std_config_t make_i2s_config(int rate, gpio_num_t bclk, gpio_num_t ws, gpio_num_t dout,
-                                        gpio_num_t din) {
+                                        gpio_num_t din, bool both_slots, bool right_slot) {
     i2s_std_config_t config = {
         .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(rate),
-        .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_MONO),
+        .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(
+            I2S_DATA_BIT_WIDTH_32BIT, both_slots ? I2S_SLOT_MODE_STEREO : I2S_SLOT_MODE_MONO),
         .gpio_cfg =
             {
                 .mclk = I2S_GPIO_UNUSED,
@@ -225,7 +240,8 @@ static i2s_std_config_t make_i2s_config(int rate, gpio_num_t bclk, gpio_num_t ws
                     },
             },
     };
-    config.slot_cfg.slot_mask = I2S_STD_SLOT_LEFT;
+    config.slot_cfg.slot_mask =
+        both_slots ? I2S_STD_SLOT_BOTH : (right_slot ? I2S_STD_SLOT_RIGHT : I2S_STD_SLOT_LEFT);
     config.slot_cfg.ws_width = I2S_DATA_BIT_WIDTH_32BIT;
     config.slot_cfg.bit_shift = true;
     config.slot_cfg.left_align = true;
@@ -262,7 +278,7 @@ static int capture_init(void **out_ctx, int rate, int channels, int bits) {
 
     i2s_std_config_t std_config =
         make_i2s_config(rate, MYBOT_AUDIO_I2S_MIC_BCLK, MYBOT_AUDIO_I2S_MIC_WS, I2S_GPIO_UNUSED,
-                        MYBOT_AUDIO_I2S_MIC_DIN);
+                        MYBOT_AUDIO_I2S_MIC_DIN, false, MYBOT_AUDIO_I2S_CAPTURE_RIGHT_SLOT != 0);
     if (i2s_channel_init_std_mode(ctx->channel, &std_config) != ESP_OK) {
         i2s_del_channel(ctx->channel);
         free(ctx);
@@ -323,6 +339,8 @@ static int capture_read(void *opaque, void *buffer, int frames) {
 }
 
 static int clear_playback_dma_locked(audio_context_t *ctx) {
+    const size_t bytes_per_frame =
+        sizeof(ctx->scratch[0]) * (MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS ? 2 : 1);
     memset(ctx->scratch, 0, sizeof(ctx->scratch));
     while (ctx->dma_clear_frames < AUDIO_DMA_FRAMES) {
         size_t frames = AUDIO_DMA_FRAMES - ctx->dma_clear_frames;
@@ -330,13 +348,13 @@ static int clear_playback_dma_locked(audio_context_t *ctx) {
             frames = AUDIO_MAX_FRAMES;
         }
         size_t loaded = 0;
-        esp_err_t err = i2s_channel_preload_data(ctx->channel, ctx->scratch,
-                                                 frames * sizeof(ctx->scratch[0]), &loaded);
-        if (loaded > frames * sizeof(ctx->scratch[0]) || loaded % sizeof(ctx->scratch[0])) {
+        esp_err_t err =
+            i2s_channel_preload_data(ctx->channel, ctx->scratch, frames * bytes_per_frame, &loaded);
+        if (loaded > frames * bytes_per_frame || loaded % bytes_per_frame) {
             return -1;
         }
-        ctx->dma_clear_frames += loaded / sizeof(ctx->scratch[0]);
-        if (err != ESP_OK || loaded != frames * sizeof(ctx->scratch[0])) {
+        ctx->dma_clear_frames += loaded / bytes_per_frame;
+        if (err != ESP_OK || loaded != frames * bytes_per_frame) {
             ESP_LOGE(TAG,
                      "event=audio_device direction=playback action=clear_dma result=error "
                      "error=%s loaded=%u",
@@ -419,16 +437,25 @@ static esp_err_t playback_sink_write(void *opaque, const int16_t *pcm, size_t fr
     }
     int32_t gain_q16 = (int32_t)aosl_atomic_read(&s_output_gain_q16);
     for (size_t i = 0; i < frames; ++i) {
-        ctx->scratch[i] = (int32_t)((int64_t)pcm[i] * gain_q16);
+        const int32_t sample = (int32_t)((int64_t)pcm[i] * gain_q16);
+        if (MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS) {
+            ctx->scratch[i * 2] = sample;
+            ctx->scratch[i * 2 + 1] = sample;
+        } else {
+            ctx->scratch[i] = sample;
+        }
     }
+    const size_t sample_count = frames * (MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS ? 2U : 1U);
+    const size_t bytes_per_frame =
+        sizeof(ctx->scratch[0]) * (MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS ? 2U : 1U);
     size_t bytes_written = 0;
-    esp_err_t err = i2s_channel_write(ctx->channel, ctx->scratch, frames * sizeof(ctx->scratch[0]),
-                                      &bytes_written, timeout_ms);
-    if (bytes_written > frames * sizeof(ctx->scratch[0]) ||
-        bytes_written % sizeof(ctx->scratch[0])) {
+    esp_err_t err =
+        i2s_channel_write(ctx->channel, ctx->scratch, sample_count * sizeof(ctx->scratch[0]),
+                          &bytes_written, timeout_ms);
+    if (bytes_written > sample_count * sizeof(ctx->scratch[0]) || bytes_written % bytes_per_frame) {
         return ESP_FAIL;
     }
-    *written_frames = bytes_written / sizeof(ctx->scratch[0]);
+    *written_frames = bytes_written / bytes_per_frame;
     return err;
 }
 
@@ -454,9 +481,9 @@ static int playback_init(void **out_ctx, int rate, int channels, int bits) {
         return -1;
     }
 
-    i2s_std_config_t std_config =
-        make_i2s_config(rate, MYBOT_AUDIO_I2S_SPK_BCLK, MYBOT_AUDIO_I2S_SPK_WS,
-                        MYBOT_AUDIO_I2S_SPK_DOUT, I2S_GPIO_UNUSED);
+    i2s_std_config_t std_config = make_i2s_config(
+        rate, MYBOT_AUDIO_I2S_SPK_BCLK, MYBOT_AUDIO_I2S_SPK_WS, MYBOT_AUDIO_I2S_SPK_DOUT,
+        I2S_GPIO_UNUSED, MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS != 0, false);
     if (i2s_channel_init_std_mode(ctx->channel, &std_config) != ESP_OK) {
         i2s_del_channel(ctx->channel);
         free(ctx);

@@ -5,7 +5,7 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 `sdkconfig.defaults` files. Current validation status is centralized in
 [`docs/VALIDATION.md`](../../../docs/VALIDATION.md).
 
-以下说明对应本工程已实现的 13 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
+以下说明对应本工程已实现的 16 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
 验证状态统一见[验证矩阵](../../../docs/VALIDATION.md)。不同尺寸、芯片或硬件版本的板卡
 不能仅凭外观共用固件。
 
@@ -17,6 +17,9 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 | `esp32-s3-touch-amoled-1.75` | [README](esp32-s3-touch-amoled-1.75/README.md) | CO5300 AMOLED 触摸屏 | 无 |
 | `esp32-s3-touch-amoled-1.75c` | [README](esp32-s3-touch-amoled-1.75c/README.md) | CO5300 AMOLED 触摸屏 | 无 |
 | `esp32-s3-touch-amoled-2.16` | [README](esp32-s3-touch-amoled-2.16/README.md) | 480×480 CO5300 AMOLED 触摸屏 | 无 |
+| `esp32-s3-touch-amoled-1.8-v2` | [README](esp32-s3-touch-amoled-1.8-v2/README.md) | 368×448 CO5300 AMOLED 触摸屏 | 无 |
+| `esp32-s3-touch-lcd-1.85` | [README](esp32-s3-touch-lcd-1.85/README.md) | 360×360 ST77916 触摸屏 | 无 |
+| `genjutech-s3-1.54tft` | [README](genjutech-s3-1.54tft/README.md) | 240×240 ST7789 | 无 |
 | `m5stack-core-s3` | [README](m5stack-core-s3/README.md) | ILI9342 触摸屏 | GC0308，上传 1 fps |
 | `m5stack-stick-s3` | [README](m5stack-stick-s3/README.md) | 135×240 ST7789P3 | 无 |
 | `respeaker-flex-xvf3800-circular4-xiao` | [README](respeaker-flex-xvf3800-circular4-xiao/README.md) | 无屏幕 | 无 |

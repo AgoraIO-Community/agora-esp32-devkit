@@ -74,9 +74,17 @@ git diff --check
       USB/电池上电时序、可选 TCA9554 搭载情况、MCLK42/LCD-reset39/touch-reset40、480x480
       CO5300 零偏移和偶数像素边界、颜色/方向/亮度、CST9217 按下/释放/长按。结合参考
       24 kHz 配置验证 16 kHz 主麦和全双工音频、PA 噪声、音量持久化及反复配网/启停。
-- [ ] 确认已有构建目录拒绝切换 `MYBOT_BOARD`，并为三个 Waveshare AMOLED profile 保留独立
+- [ ] 对 Waveshare AMOLED 1.8 V2，验证实际 Flash/PSRAM、TCA9554/AXP2101 初始化、
+      368x448 CO5300 偏移/颜色/方向/亮度、CST816S 按下/释放/长按、ES8311 双向音频、PA
+      噪声、音量持久化，以及 mybot 停止期间配网。
+- [ ] 对 Waveshare LCD 1.85，验证实际 Flash/PSRAM、GPIO7 电源保持、TCA9554 LCD/触摸复位、
+      面板版本选择、360x360 颜色/方向、GPIO5 背光、CST816S、右 slot 麦克风采集、双 slot
+      播放、全双工音频、音量持久化及反复配网/启停。
+- [ ] 对 GenjuTech 1.54，验证实际 Flash/PSRAM、ST7789 颜色/方向/反转与 GPIO2 背光、
+      ES8311 音频与 GPIO21 PA/显示耦合、Boot/音量按键、音量持久化、提示音排空及反复配网/启停。
+- [ ] 确认已有构建目录拒绝切换 `MYBOT_BOARD`，并为每个 Waveshare 触屏 profile 保留独立
       制品。全新构建目录可以使用任一 profile，无法识别连接设备的硬件版本；烧录前须核对
-      实际硬件版本与固件是否匹配。
+      实际硬件与固件是否匹配。
 - [ ] 对 SenseCAP Watcher，首次烧录前备份并校验 200 KiB `nvsfactory` 区域；确认正常烧录不
       改变该区域，且发布流程不得包含 `erase-flash`。
 - [ ] 对 M5Stack StickS3，验证 USB 与电池启动、M5PM1 G2/G3 时序、扬声器爆音/噪声、

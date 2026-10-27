@@ -9,7 +9,7 @@
 工程负责板级初始化、Wi-Fi 配网、持久化存储、HTTPS、音频、输入、显示，以及 SDK 外围的
 固件生命周期。
 
-当前开发基线为 **ESP-IDF v5.5.2**，支持 13 个编译期 Board profile。通过 `MYBOT_BOARD`
+当前开发基线为 **ESP-IDF v5.5.2**，支持 16 个编译期 Board profile。通过 `MYBOT_BOARD`
 选择板型、Flash、PSRAM、分区表和硬件驱动。具体硬件配置、输入操作、构建命令和限制见
 [板卡说明索引](components/mybot_platform/boards/README.md)。
 
@@ -35,8 +35,9 @@
 `zhengchen-1.54tft-ml307`、`zhengchen-1.54tft-wifi`、
 `xingzhi-cube-1.54tft-wifi`、`bread-compact-wifi-lcd`、`esp-vocat`、
 `esp32-s3-touch-amoled-1.75`、`esp32-s3-touch-amoled-1.75c`、
-`esp32-s3-touch-amoled-2.16`、`m5stack-core-s3`、`m5stack-stick-s3` 和
-`sensecap-watcher`。
+`esp32-s3-touch-amoled-2.16`、`esp32-s3-touch-amoled-1.8-v2`、
+`esp32-s3-touch-lcd-1.85`、`genjutech-s3-1.54tft`、`m5stack-core-s3`、
+`m5stack-stick-s3` 和 `sensecap-watcher`。
 
 无屏 profile：
 
