@@ -53,6 +53,8 @@ set(MYBOT_SUPPORTED_BOARDS
     "xingzhi-metal-1.54-wifi"
     "zhengchen-1.54tft-ml307"
     "zhengchen-1.54tft-wifi"
+    "kevin-sp-v4-dev"
+    "du-chatx"
 )
 set(_MYBOT_BOARDS_ROOT "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -166,6 +168,10 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/zhengchen-1.54tft-wifi/board.cmake")
     elseif(board STREQUAL "freenove-esp32s3-display-2.8-lcd")
         set(profile "${_MYBOT_BOARDS_ROOT}/freenove-esp32s3-display-2.8-lcd/board.cmake")
+    elseif(board STREQUAL "kevin-sp-v4-dev")
+        set(profile "${_MYBOT_BOARDS_ROOT}/kevin-sp-v4-dev/board.cmake")
+    elseif(board STREQUAL "du-chatx")
+        set(profile "${_MYBOT_BOARDS_ROOT}/du-chatx/board.cmake")
     else()
         message(FATAL_ERROR "Unsupported MYBOT_BOARD: ${board}")
     endif()

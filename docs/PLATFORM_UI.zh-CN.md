@@ -46,6 +46,8 @@
 | `atk-dnesp32s3-box0`、`nulllab-ai-vox-v3` | ST7789，240 × 240 | 通用 ST7789 | 按键 |
 | `magiclick-2p4` | NV3023，128 × 128 | 通用面板适配器 | 三个按键 |
 | `movecall-cuican-esp32s3`、`movecall-moji-esp32s3` | GC9A01，240 × 240 | 通用面板适配器 | Boot |
+| `kevin-sp-v4-dev` | ST7789，240 × 280 | 通用 ST7789 | Boot |
+| `du-chatx` | ST7789，128 × 160 | 通用 ST7789 紧凑布局 | Boot |
 
 AtomEchoS3R、DOIT S3 AI Box、Bread Compact Wi-Fi、HU-087 与 ReSpeaker Flex 没有 LCD，
 不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
@@ -60,6 +62,9 @@ AMOLED 2.16 使用零 panel gap 与 40 MHz QSPI；CO5300 传输区域两个方�
 AMOLED 1.8 V2 使用 16 像素 X 偏移与 40 MHz QSPI，并保持相同的 CO5300 偶数像素约束。
 LCD 1.85 使用 GPIO5 LEDC 背光（60%）与 360 × 360 ST77916 面板。GenjuTech 1.54 使用
 ST7789 SPI3 mode 3 / 80 MHz、颜色反转与 GPIO2 LEDC 背光（60%）。
+KEVIN SP V4 Dev 使用 ST7789 SPI3 mode 3 / 80 MHz、Y 偏移 20、颜色反转与 GPIO48 LEDC
+背光。DuChat X 使用 ST7789 SPI3 mode 0 / 40 MHz、2×1 像素偏移、X/Y 镜像与 GPIO9 LEDC
+背光。
 
 ## CoreS3像素眼镜视图
 
@@ -87,7 +92,7 @@ Flash，不加入运行时 PNG/GIF 解码器或全屏缓存。
 配对码页面提示用户在网页控制台输入配对码；提示超出底部标签宽度时才循环滚动，离开
 配对码页面后停止滚动。
 
-宽度小于 240 像素的屏幕（当前为 StickS3）保留 20 px 中文字库；英文状态、通知及普通
+宽度小于 240 像素的屏幕保留 20 px 中文字库；英文状态、通知及普通
 标签使用 10 px 字体。配网 SSID 在两种语言下均使用 20 px，超宽时滚动。配对码根据宽度
 选择 32、20 或 10 px 字体，窄屏长配对码同时收紧字距。内置中文字库覆盖 UI 文案，
 不覆盖任意中文聊天正文。
