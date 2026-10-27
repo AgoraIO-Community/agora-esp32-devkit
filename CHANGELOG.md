@@ -7,6 +7,9 @@ Versioning and Conventional Commits.
 
 ### Added
 
+- Six additional ESP32-S3 profiles: DOIT S3 AI Box with PDM capture, Magiclick 2.4 with
+  NV3023, Movecall CuiCan/Moji with GC9A01, and Bread Compact Wi-Fi/HU-087 as headless raw-I2S
+  subsets. Chinese and English local merged builds passed; real-device validation remains pending.
 - Ten additional ESP32-S3 profiles: eight ST7789/ILI9341 boards using ES8311 or
   ES8311+ES7210 audio, followed by ST77916 LCD 1.85B/1.85C and SP 1.54 Muma. The batch adds
   compact 128×128 layout coverage, AXP2101/TCA9554 reset paths, a secondary board power rail,

@@ -69,6 +69,12 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `atk-dnesp32s3-box0` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789, ES8311, GPIO2/GPIO14 power sequencing, three keys and battery require device validation; sleep, shutdown and charging are not implemented. |
 | `nulllab-ai-vox-v3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Wi-Fi subset; ST7789, ES8311, battery and keys require device validation. ML307 networking is not implemented. |
 | `aipi-lite` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST7789 128×128, ES8311, power hold and battery require device validation; power key, sleep and shutdown are not implemented. |
+| `magiclick-2p4` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | NV3023, ES8311, PA, keys and power require device validation; battery, LED, sleep and shutdown are not implemented. |
+| `movecall-cuican-esp32s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9A01, ES8311, PA and 8 MB layout require device validation; LED, battery, sleep and shutdown are not implemented. |
+| `movecall-moji-esp32s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9A01, ES8311, PA, keys and power require device validation; LED, battery, sleep and shutdown are not implemented. |
+| `doit-s3-aibox` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless PDM capture, I2S playback, GPIO48 power and keys require device validation; LED, sleep and shutdown are not implemented. |
+| `bread-compact-wifi` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless raw I2S, Boot/volume keys and storage require validation; OLED UI, GPIO47 key, lamp and LED are not implemented. |
+| `hu-087` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless raw I2S, GPIO17 amplifier enable and GPIO18 input require validation; SSD1306 UI is not implemented and long press is used for provisioning. |
 
 ## Global boundaries / 全局边界
 
