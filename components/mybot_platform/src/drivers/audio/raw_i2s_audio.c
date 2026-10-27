@@ -5,6 +5,7 @@
 #include <mybot/platform/mybot_audio.h>
 #include <api/aosl_atomic.h>
 
+#include "driver/i2s_pdm.h"
 #include "driver/i2s_std.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -32,6 +33,18 @@
 
 #ifndef MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS
 #define MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS 0
+#endif
+
+#ifndef MYBOT_AUDIO_I2S_CAPTURE_PDM
+#define MYBOT_AUDIO_I2S_CAPTURE_PDM 0
+#endif
+
+#ifndef MYBOT_AUDIO_I2S_CONTROL_SPEAKER_POWER
+#define MYBOT_AUDIO_I2S_CONTROL_SPEAKER_POWER 0
+#endif
+
+#if MYBOT_AUDIO_I2S_CONTROL_SPEAKER_POWER
+int mybot_generic_set_speaker_power(bool enabled);
 #endif
 
 #if MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS
@@ -268,7 +281,8 @@ static int capture_init(void **out_ctx, int rate, int channels, int bits) {
         return -1;
     }
 
-    i2s_chan_config_t channel_config = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_1, I2S_ROLE_MASTER);
+    i2s_chan_config_t channel_config = I2S_CHANNEL_DEFAULT_CONFIG(
+        MYBOT_AUDIO_I2S_CAPTURE_PDM ? I2S_NUM_0 : I2S_NUM_1, I2S_ROLE_MASTER);
     channel_config.dma_desc_num = 6;
     channel_config.dma_frame_num = 240;
     if (i2s_new_channel(&channel_config, NULL, &ctx->channel) != ESP_OK) {
@@ -276,10 +290,33 @@ static int capture_init(void **out_ctx, int rate, int channels, int bits) {
         return -1;
     }
 
-    i2s_std_config_t std_config =
+#if MYBOT_AUDIO_I2S_CAPTURE_PDM
+    if (!SOC_I2S_SUPPORTS_PDM_RX) {
+        i2s_del_channel(ctx->channel);
+        free(ctx);
+        return -1;
+    }
+    const i2s_pdm_rx_config_t pdm_config = {
+        .clk_cfg = I2S_PDM_RX_CLK_DEFAULT_CONFIG((uint32_t)rate),
+        .slot_cfg = I2S_PDM_RX_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO),
+        .gpio_cfg =
+            {
+                .clk = MYBOT_AUDIO_I2S_MIC_BCLK,
+                .din = MYBOT_AUDIO_I2S_MIC_DIN,
+                .invert_flags =
+                    {
+                        .clk_inv = false,
+                    },
+            },
+    };
+    const esp_err_t result = i2s_channel_init_pdm_rx_mode(ctx->channel, &pdm_config);
+#else
+    const i2s_std_config_t std_config =
         make_i2s_config(rate, MYBOT_AUDIO_I2S_MIC_BCLK, MYBOT_AUDIO_I2S_MIC_WS, I2S_GPIO_UNUSED,
                         MYBOT_AUDIO_I2S_MIC_DIN, false, MYBOT_AUDIO_I2S_CAPTURE_RIGHT_SLOT != 0);
-    if (i2s_channel_init_std_mode(ctx->channel, &std_config) != ESP_OK) {
+    const esp_err_t result = i2s_channel_init_std_mode(ctx->channel, &std_config);
+#endif
+    if (result != ESP_OK) {
         i2s_del_channel(ctx->channel);
         free(ctx);
         return -1;
@@ -314,6 +351,14 @@ static int capture_read(void *opaque, void *buffer, int frames) {
     }
 
     size_t bytes_read = 0;
+#if MYBOT_AUDIO_I2S_CAPTURE_PDM
+    esp_err_t err = i2s_channel_read(ctx->channel, buffer, (size_t)frames * sizeof(int16_t),
+                                     &bytes_read, AUDIO_IO_TIMEOUT_MS);
+    if (err == ESP_ERR_TIMEOUT) {
+        return 0;
+    }
+    return err == ESP_OK ? (int)(bytes_read / sizeof(int16_t)) : -1;
+#else
     esp_err_t err =
         i2s_channel_read(ctx->channel, ctx->scratch, (size_t)frames * sizeof(ctx->scratch[0]),
                          &bytes_read, AUDIO_IO_TIMEOUT_MS);
@@ -336,6 +381,7 @@ static int capture_read(void *opaque, void *buffer, int frames) {
         output[i] = (int16_t)value;
     }
     return samples;
+#endif
 }
 
 static int clear_playback_dma_locked(audio_context_t *ctx) {
@@ -382,6 +428,11 @@ static int audio_stop_locked(audio_context_t *ctx) {
         ctx->enabled = false;
         ctx->dma_clear_frames = 0;
     }
+#if MYBOT_AUDIO_I2S_CONTROL_SPEAKER_POWER
+    if (ctx->playback && mybot_generic_set_speaker_power(false) < 0) {
+        return -1;
+    }
+#endif
     if (ctx->playback && clear_playback_dma_locked(ctx) < 0) {
         return -1;
     }
@@ -472,7 +523,8 @@ static int playback_init(void **out_ctx, int rate, int channels, int bits) {
     }
     ctx->playback = true;
 
-    i2s_chan_config_t channel_config = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
+    i2s_chan_config_t channel_config = I2S_CHANNEL_DEFAULT_CONFIG(
+        MYBOT_AUDIO_I2S_CAPTURE_PDM ? I2S_NUM_1 : I2S_NUM_0, I2S_ROLE_MASTER);
     channel_config.dma_desc_num = 6;
     channel_config.dma_frame_num = 240;
     channel_config.auto_clear_after_cb = true;
@@ -512,6 +564,14 @@ static int playback_start(void *opaque) {
         return -1;
     }
     ctx->enabled = true;
+#if MYBOT_AUDIO_I2S_CONTROL_SPEAKER_POWER
+    if (mybot_generic_set_speaker_power(true) < 0) {
+        (void)i2s_channel_disable(ctx->channel);
+        ctx->enabled = false;
+        audio_unlock();
+        return -1;
+    }
+#endif
     if (mybot_pcm_playback_buffer_start(ctx->playback_buffer) < 0) {
         ctx->stop_pending = true;
         (void)audio_stop_locked(ctx);

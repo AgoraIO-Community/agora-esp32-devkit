@@ -57,7 +57,10 @@ def supported_boards() -> list[BoardProfile]:
         profiles.append(
             BoardProfile(
                 name=name,
-                has_display="mybot_display_add_" in profile,
+                has_display=(
+                    "mybot_display_add_" in profile
+                    or "set(MYBOT_GENERIC_DISPLAY " in profile
+                ),
                 video_capable="cores3_camera_video.c" in profile,
             )
         )

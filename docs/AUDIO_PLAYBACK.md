@@ -2,7 +2,7 @@
 
 [English](AUDIO_PLAYBACK.md) | [简体中文](AUDIO_PLAYBACK.zh-CN.md)
 
-All sixteen board profiles use one PCM playback buffer through seven board audio drivers. This
+All supported board profiles use one PCM playback buffer through the board audio adapters. This
 keeps the SDK boundary at 16 kHz, mono signed-16 PCM and moves continuous I2S feeding into an
 independent task. The shared implementation is
 [`pcm_playback_buffer.c`](../components/mybot_platform/src/services/audio/pcm_playback_buffer.c);

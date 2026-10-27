@@ -37,6 +37,28 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `xingzhi-cube-1.54tft-wifi` | CI: zh-CN, en-US; recorded merged build / 已记录合并构建 | Not completed / 未完成 | Physical Flash/PSRAM, GPIO21 power hold, backlight, display, buttons and 16 kHz audio; no touch, video, battery/charging, shutdown, sleep or low power. |
 | `zhengchen-1.54tft-ml307` | CI: zh-CN, en-US | Not completed / 未完成 | ML307/4G is not implemented; Wi-Fi remains the network path. Audio, panel and buttons still need device validation; no battery status, temperature monitoring, sleep or low power. |
 | `zhengchen-1.54tft-wifi` | CI: zh-CN, en-US | Not completed / 未完成 | Physical PSRAM capacity, audio, panel and buttons still need device validation; no modem/4G, battery/charging, temperature monitoring, sleep or low power. |
+| `xingzhi-metal-1.54-wifi` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | PCA9557, ES8311, ST7789, touch and PA mapping require device validation; no battery, sleep or shutdown. |
+| `xingzhi-cube-0.85tft-wifi` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | NV3023 panel, backlight, raw I2S and power require device validation; no touch or codec control. |
+| `xingzhi-cube-0.96oled-wifi` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless subset; SSD1306 monochrome UI is not implemented. Raw I2S and volume keys require device validation. |
+| `xingzhi-abs-2.0` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Wi-Fi subset only; SD, vibration, cellular, battery, PCA9557 power paths, sleep and shutdown are not implemented. |
+| `m5stack-stopwatch` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | M5PM1/M5IOE1 sequencing, CO5300 466×466 panel, CST820B touch, buttons, audio and round safe area require device validation; battery reporting and motor are not implemented. |
+| `esp32-s3-touch-amoled-1.8` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | TCA9554/AXP2101 sequencing, SH8601 368×448 timing and FT5x06 mapping require device validation. |
+| `esp32-s3-touch-amoled-1.32` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | SH8601 466×466 timing, power rail, audio and panel offset require device validation; touch is not implemented. |
+| `esp32-s3-touch-amoled-1.43c` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | SH8601 466×466 timing, ES8311/ES7210 routing and power require device validation; touch is not implemented. |
+| `esp32-s3-touch-amoled-2.06` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | SH8601 410×502 timing, 22-pixel X gap, AXP2101, FT5x06 and dual-codec routing require device validation. |
+| `atoms3r-echo-base` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Display/audio mapping requires validation; companion IO/power and LP5562 backlight integration are not implemented. |
+| `atoms3r-echo-pyramid` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Display/dual-codec mapping requires validation; companion IO/power and LP5562 backlight integration are not implemented. |
+| `sp-esp32-s3-1.28-box` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9A01 color/orientation, touch, backlight and power require device validation; battery/charging reporting is not implemented. |
+| `esp-box` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ILI9341 initialization, audio routing, touch and board PMIC/power sequencing require device validation. |
+| `esp-box-3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ILI9341 initialization, audio routing, touch and board PMIC/power sequencing require device validation. |
+| `esp-box-lite` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Codec assignment, ILI9341, power sequencing and ADC buttons require validation; ADC-button support is not implemented. |
+| `esp32s3-korvo2-v3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | TCA9554 reset/CS, ILI9341, dual-codec routing and board power require device validation; ADC keys, camera and battery are not implemented. |
+| `lichuang-dev` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | PCA9557 display/PA control, FT5x06, ST7789 and dual-codec routing require device validation; camera and battery are not implemented. |
+| `quandong-s3-dev` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | PCA9557 output mapping, active-low PA, ILI9341 and audio routing require device validation. |
+| `rymcu-bigsmart` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | PCA9557 display/PA control, GT911, ST7789 and dual-codec routing require device validation; camera and battery are not implemented. |
+| `df-k10` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ILI9341 and dual-codec mapping require validation; TCA9555 keys, camera, LED ring and board power paths are not implemented. |
+| `mixgo-nova` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ES8374/ST7789 mapping, power, audio and 128×160 UI require device validation; RGB LED is not implemented. |
+| `taiji-pi-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ST77916, CST816S, PDM capture, I2S playback, mute/PA and round UI require device validation; board power sequencing is not complete. |
 
 ## Global boundaries / 全局边界
 

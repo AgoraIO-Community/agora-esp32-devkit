@@ -24,6 +24,20 @@
 | `esp32-s3-touch-lcd-1.85` | ST77916，360 × 360 | 通用面板适配器 | CST816S 与 Boot |
 | `genjutech-s3-1.54tft` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量按键 |
 | `sensecap-watcher` | SPD2010，412 × 412 | 通用面板适配器 | 原有旋钮路径 |
+| `xingzhi-metal-1.54-wifi`、`xingzhi-abs-2.0` | ST7789，240 × 240 | 通用面板适配器 | Boot/触摸或 Boot/音量键 |
+| `xingzhi-cube-0.85tft-wifi` | NV3023，128 × 128 | 通用面板适配器 | Boot |
+| `xingzhi-cube-0.96oled-wifi` | 无屏 | 无 | Boot 与音量键 |
+| `m5stack-stopwatch` | CO5300，466 × 466 圆屏 | 通用面板适配器 | CST820B 兼容触摸与按键 |
+| `esp32-s3-touch-amoled-1.8` | SH8601，368 × 448 | 通用面板适配器 | FT5x06 与 Boot |
+| AMOLED 1.32/1.43c/2.06 | SH8601，466 × 466 或 410 × 502 | 通用面板适配器 | Boot；2.06 使用 FT5x06 |
+| `atoms3r-echo-base`、`atoms3r-echo-pyramid` | GC9A01 类，128 × 128 | 通用面板适配器 | Boot |
+| `sp-esp32-s3-1.28-box` | GC9A01，240 × 240 圆屏 | 通用面板适配器 | CST816S 兼容触摸与 Boot |
+| `esp-box`、`esp-box-3`、`esp-box-lite` | ILI9341，320 × 240 | 通用面板适配器 | Boot；未实现触摸 |
+| `esp32s3-korvo2-v3`、`df-k10` | ILI9341，320 × 240 | 通用面板适配器 | Boot |
+| `lichuang-dev`、`rymcu-bigsmart` | ST7789，320 × 240 | 通用面板适配器 | FT5x06 或 GT911，以及 Boot |
+| `quandong-s3-dev` | ILI9341，320 × 240 | 通用面板适配器 | Boot |
+| `mixgo-nova` | ST7789，128 × 160 | 通用面板适配器 | Boot |
+| `taiji-pi-s3` | ST77916，360 × 360 圆屏 | 通用面板适配器 | CST816S 与 Boot |
 
 AtomEchoS3R 与 ReSpeaker Flex 没有 LCD，不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
 相互独立。
@@ -48,7 +62,7 @@ THINKING显示对应表情，连续思考三秒后转PROCESSING，SPEAKING/无�
 [CoreS3 UI](CORES3_UI.zh-CN.md)。
 
 CoreS3保留浅色主题字段兼容但不改变像素皮肤；动画开关控制表情运动/切换，关闭后仍推进
-开场保持并保留必要的引导文字滚动。其他十五个profile保留原UI/硬件；摄像头/视频策略、
+开场保持并保留必要的引导文字滚动。其他profile保留原UI/硬件；摄像头/视频策略、
 输入、电源及内存配置不变。
 
 ## 其他带屏板型的共享流程视图
@@ -75,6 +89,10 @@ Flash，不加入运行时 PNG/GIF 解码器或全屏缓存。
 字节，StickS3 为 4,320 字节，AMOLED 2.16 为 15,360 字节，任务栈和驱动分配另计。
 硬件集成负责复位、偏移、颜色顺序、
 背光和销毁。
+
+圆屏 profile 设置 `MYBOT_DISPLAY_ROUND=1`，共享视图会把标题栏、状态卡和页脚收窄到中央
+安全矩形，避免控件落入圆角区域。当前只完成构建验证；颜色、方向、裁切和触摸坐标仍需逐板
+真机确认。
 
 ## 编译示例
 

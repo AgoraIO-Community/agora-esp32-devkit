@@ -106,13 +106,29 @@ RTSA 包前，SDK 构建封装会拒绝这些配置。当前构建与真机状�
 6. 保持 SDK 音频边界：16 kHz、单声道、signed 16-bit PCM，接口传帧数而不是字节数。
 7. 在 `components/mybot_platform/CMakeLists.txt` 选择显示能力：带屏板型使用
    `Kconfig.display` 启用 LVGL，无屏板型使用 `Kconfig.headless`。当前无屏选择覆盖
-   AtomEchoS3R 与 ReSpeaker Flex，新增无屏板型时需同步此选择。
+   AtomEchoS3R、行者 Cube 0.96 OLED 与 ReSpeaker Flex，新增无屏板型时需同步此选择。
 8. 增加两种语言的隔离 CI 构建与尺寸报告，并记录真实设备的配网、HTTPS、RTC、双向音频、
    输入、显示、挂断与重复启停验证。
 
 所有带屏板型使用共享 LVGL 界面，不保留旧渲染器或后端选择开关。控制器初始化和销毁放在
 `src/drivers/display/panels/`，通过 `display.cmake` 和可复用的 LVGL 适配器接入。
 `CONFIG_MYBOT_LVGL_UI` 是根据板型确定的隐藏配置，无屏板型不启用；主题与动画仍可配置。
+
+## 共享板型骨架
+
+`boards/common/generic_profile.cmake` 组合共享板级生命周期、音频适配器、面板、触摸/按键、
+可选的 PCA9557/TCA9554/AXP2101 初始化、显示背光和 SDK 注册。每个板型仍独立维护
+`board.cmake`、`board_config.h`、`sdkconfig.defaults` 与 `board.c`。通用路径支持 ES8311、
+ES8311+ES7210、ES8374 和原始 I2S；原始采集可使用标准 I2S 或 PDM。会改变启动顺序的板级
+电源或扩展器逻辑不应塞入公共路径。
+
+`M5Stack StopWatch` 在显示和 codec 启动前初始化 M5PM1 与 M5IOE1：打开 LCD/codec 电源，
+复位 LCD/触摸，控制扬声器 PA，并默认关闭振动电机。共享圆屏布局把控件收窄到中央安全
+矩形；这不替代面板和触摸真机验证。
+
+`Taiji Pi S3` 在 I2S0 上使用 PDM 采集、I2S1 上使用标准 I2S 播放。PDM 解调后直接提供
+16 kHz 单声道 signed-16 数据，SDK 边界不再做 slot 转换。低有效 GPIO48 静音脚随播放
+启停。
 共享面板契约位于 `src/internal/display/display_panel.h`，内部头文件不属于 SDK API；
 板级电源和背光控制仍归 Board 层所有。
 

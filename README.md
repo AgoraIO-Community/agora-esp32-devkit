@@ -9,7 +9,7 @@
 ESP32-S3 boards. The project owns board initialization, Wi-Fi provisioning, persistent storage,
 HTTPS transport, audio, input, display, and the firmware lifecycle around the SDK.
 
-The development baseline is **ESP-IDF v5.5.2**. Sixteen compile-time board profiles are
+The development baseline is **ESP-IDF v5.5.2**. Thirty-eight compile-time board profiles are
 supported; the board, Flash, PSRAM, partition table, and hardware drivers are selected with
 `MYBOT_BOARD`. See the [board documentation index](components/mybot_platform/boards/README.md)
 for hardware details, controls, build commands, and per-board limitations.
@@ -40,12 +40,20 @@ Display profiles:
 `xingzhi-cube-1.54tft-wifi`, `bread-compact-wifi-lcd`, `esp-vocat`,
 `esp32-s3-touch-amoled-1.75`, `esp32-s3-touch-amoled-1.75c`,
 `esp32-s3-touch-amoled-2.16`, `esp32-s3-touch-amoled-1.8-v2`,
-`esp32-s3-touch-lcd-1.85`, `genjutech-s3-1.54tft`, `m5stack-core-s3`,
-`m5stack-stick-s3`, and `sensecap-watcher`.
+`esp32-s3-touch-lcd-1.85`, `esp32-s3-touch-amoled-1.8`,
+`esp32-s3-touch-amoled-1.32`, `esp32-s3-touch-amoled-1.43c`,
+`esp32-s3-touch-amoled-2.06`, `atoms3r-echo-base`, `atoms3r-echo-pyramid`,
+`sp-esp32-s3-1.28-box`, `esp-box`, `esp-box-3`, `esp-box-lite`,
+`esp32s3-korvo2-v3`, `lichuang-dev`, `quandong-s3-dev`, `rymcu-bigsmart`,
+`df-k10`, `mixgo-nova`, `taiji-pi-s3`, `m5stack-stopwatch`,
+`xingzhi-metal-1.54-wifi`, `xingzhi-cube-0.85tft-wifi`, `xingzhi-abs-2.0`,
+`genjutech-s3-1.54tft`, `m5stack-core-s3`, `m5stack-stick-s3`, and
+`sensecap-watcher`.
 
 Headless profiles:
 
-`atom-echos3r` and `respeaker-flex-xvf3800-circular4-xiao`.
+`atom-echos3r`, `xingzhi-cube-0.96oled-wifi`, and
+`respeaker-flex-xvf3800-circular4-xiao`.
 
 All profiles currently use Wi-Fi. The ML307 profile reserves modem UART pins but does not
 implement modem or 4G networking. Only `m5stack-core-s3` currently exposes camera video.

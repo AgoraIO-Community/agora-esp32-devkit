@@ -7,12 +7,20 @@ Versioning and Conventional Commits.
 
 ### Added
 
-- Per-board hardware, input and operation documentation for all sixteen profiles, with shared
+- Twenty-two additional ESP32-S3 board profiles covering NV3023, GC9A01, ILI9341, SH8601 and
+  ST77916 panels; PCA9557/TCA9554, M5PM1/M5IOE1 and AXP2101 reset/power paths; FT5x06, GT911,
+  CST816S-compatible touch and GPIO input; ES8311, ES7210, ES8374 and raw/PDM audio paths.
+  `xingzhi-cube-0.96oled-wifi` is intentionally headless. All new profiles passed local
+  ESP-IDF v5.5.2 Chinese and English reconfigure/build/size/merge-bin validation; real-device
+  validation remains pending. Each new profile has its own concise board README linked from the
+  board index.
+- Shared compile-time board/hardware skeleton for board families whose lifecycle contracts match.
+- Per-board hardware, input and operation documentation for the original profiles, with shared
   build/flash instructions and one validation matrix.
 - CoreS3-only process-gray pixel-glasses UI, with 23 expressions, four 9 px terminal rows,
   a 10 px signature and fixed 32 px six-digit pairing codes on its 320x240 display.
   Automatic faces follow READY/conversation phases. Expressions affect only the LCD.
-  `MYBOT_BOARD` selects the view automatically; other fifteen profiles retain their UI/hardware.
+  `MYBOT_BOARD` selects the view automatically; other profiles retain their UI/hardware.
 - Shared LVGL status UI for the other display-board profiles, with Chinese/English text,
   pairing codes, voiceprint status, and listening/thinking/speaking indicators.
 - LVGL light/dark themes, local state emoji, rounded status cards, persistent voiceprint
@@ -83,6 +91,9 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Centralize generic hardware sequencing, round-screen safe-area layout, dual-I2C selection,
+  speaker PA control and display/audio capability derivation so additional profiles do not copy
+  board lifecycle code.
 - Centralize build and flash commands in the board index and current validation status in
   `docs/VALIDATION.md`; remove repeated status paragraphs, volatile build timings and per-board
   command copies from board and topic documentation.

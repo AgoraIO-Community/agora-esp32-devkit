@@ -269,3 +269,68 @@ jobs:
             build-${{ matrix.board }}-ptime-${{ matrix.ptime }}-ui-${{ matrix.ui || 'default' }}-lang-${{ matrix.language }}-video-${{ matrix.video || 'off' }}/bootloader/bootloader.bin
             build-${{ matrix.board }}-ptime-${{ matrix.ptime }}-ui-${{ matrix.ui || 'default' }}-lang-${{ matrix.language }}-video-${{ matrix.video || 'off' }}/partition_table/partition-table.bin
             build-${{ matrix.board }}-ptime-${{ matrix.ptime }}-ui-${{ matrix.ui || 'default' }}-lang-${{ matrix.language }}-video-${{ matrix.video || 'off' }}/ota_data_initial.bin
+
+  extended-idf-build:
+    name: extended-${{ matrix.board }}-${{ matrix.language }}
+    runs-on: ubuntu-24.04
+    container:
+      image: espressif/idf:v5.5.2
+    defaults:
+      run:
+        shell: bash
+    env:
+      BUILD_DIR: build-extended-${{ matrix.board }}-${{ matrix.language }}
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - xingzhi-metal-1.54-wifi
+          - xingzhi-cube-0.85tft-wifi
+          - xingzhi-cube-0.96oled-wifi
+          - xingzhi-abs-2.0
+          - m5stack-stopwatch
+          - esp32-s3-touch-amoled-1.8
+          - esp32-s3-touch-amoled-1.32
+          - esp32-s3-touch-amoled-1.43c
+          - esp32-s3-touch-amoled-2.06
+          - atoms3r-echo-base
+          - atoms3r-echo-pyramid
+          - sp-esp32-s3-1.28-box
+          - esp-box
+          - esp-box-3
+          - esp-box-lite
+          - esp32s3-korvo2-v3
+          - lichuang-dev
+          - quandong-s3-dev
+          - rymcu-bigsmart
+          - df-k10
+          - mixgo-nova
+          - taiji-pi-s3
+        language: [zh-CN, en-US]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ESP32-S3 firmware
+        run: |
+          source /opt/esp/idf/export.sh >/dev/null
+          defaults="ci/ptime60.defaults"
+          if [ "${{ matrix.language }}" = "en-US" ]; then
+            defaults="$defaults;ci/en-us.defaults"
+          fi
+          idf.py -B "$BUILD_DIR" \
+            -DMYBOT_BOARD=${{ matrix.board }} \
+            -DSDKCONFIG="$BUILD_DIR/sdkconfig" \
+            -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;$defaults" \
+            build
+      - name: Report size
+        run: |
+          source /opt/esp/idf/export.sh >/dev/null
+          idf.py -B "$BUILD_DIR" size
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: mybot-esp32-${{ matrix.board }}-${{ matrix.language }}-${{ github.sha }}
+          path: |
+            ${{ env.BUILD_DIR }}/mybot_esp32.bin
+            ${{ env.BUILD_DIR }}/bootloader/bootloader.bin
+            ${{ env.BUILD_DIR }}/partition_table/partition-table.bin
+            ${{ env.BUILD_DIR }}/ota_data_initial.bin

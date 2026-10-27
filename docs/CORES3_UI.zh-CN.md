@@ -4,7 +4,7 @@
 
 `MYBOT_BOARD=m5stack-core-s3` 自动为320 × 240 ILI9342屏选择工艺灰像素眼镜界面，复用原
 CoreS3 LVGL适配器及公共LCD视图接口。不增加手工渲染器开关，无需覆盖隐藏的
-`CONFIG_MYBOT_LVGL_UI`。其他十五个Board profile保留原UI与硬件行为，见
+`CONFIG_MYBOT_LVGL_UI`。其他Board profile保留原UI与硬件行为，见
 [平台UI](PLATFORM_UI.zh-CN.md)。
 
 本视图替换CoreS3旧状态卡片。音频、摄像头/视频策略、FT6336触摸手势、电源、引脚、PSRAM

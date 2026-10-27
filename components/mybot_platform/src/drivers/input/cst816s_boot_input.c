@@ -6,7 +6,21 @@
 
 #include "button_gpio.h"
 #include "esp_lcd_touch.h"
+
+#ifndef MYBOT_TOUCH_DRIVER_KIND
+#define MYBOT_TOUCH_DRIVER_KIND 1
+#endif
+
+#if MYBOT_TOUCH_DRIVER_KIND == 1
 #include "esp_lcd_touch_cst816s.h"
+#elif MYBOT_TOUCH_DRIVER_KIND == 2
+#include "esp_lcd_touch_ft5x06.h"
+#elif MYBOT_TOUCH_DRIVER_KIND == 3
+#include "esp_lcd_touch_gt911.h"
+#else
+#error "Unsupported MYBOT_TOUCH_DRIVER_KIND"
+#endif
+
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -17,6 +31,18 @@
 #include <stdbool.h>
 
 #define TAG "cst816s_input"
+
+#ifndef MYBOT_BOOT_BUTTON_LONG_PRESS_MS
+#define MYBOT_BOOT_BUTTON_LONG_PRESS_MS 3000
+#endif
+
+#ifndef MYBOT_TOUCH_X_MAX
+#define MYBOT_TOUCH_X_MAX (MYBOT_DISPLAY_WIDTH - 1)
+#endif
+
+#ifndef MYBOT_TOUCH_Y_MAX
+#define MYBOT_TOUCH_Y_MAX (MYBOT_DISPLAY_HEIGHT - 1)
+#endif
 
 typedef struct {
     portMUX_TYPE lock;
@@ -157,6 +183,7 @@ static int create_touch(void) {
         return -1;
     }
 
+#if MYBOT_TOUCH_DRIVER_KIND == 1
     esp_lcd_panel_io_i2c_config_t io_config = {
         .dev_addr = ESP_LCD_TOUCH_IO_I2C_CST816S_ADDRESS,
         .scl_speed_hz = MYBOT_TOUCH_I2C_SPEED_HZ,
@@ -166,14 +193,21 @@ static int create_touch(void) {
         .lcd_param_bits = 0,
         .flags.disable_control_phase = 1,
     };
+#elif MYBOT_TOUCH_DRIVER_KIND == 2
+    esp_lcd_panel_io_i2c_config_t io_config = ESP_LCD_TOUCH_IO_I2C_FT5x06_CONFIG();
+    io_config.scl_speed_hz = MYBOT_TOUCH_I2C_SPEED_HZ;
+#elif MYBOT_TOUCH_DRIVER_KIND == 3
+    esp_lcd_panel_io_i2c_config_t io_config = ESP_LCD_TOUCH_IO_I2C_GT911_CONFIG();
+    io_config.scl_speed_hz = MYBOT_TOUCH_I2C_SPEED_HZ;
+#endif
     esp_err_t result = esp_lcd_new_panel_io_i2c(bus, &io_config, &s_context.touch_io);
     if (result != ESP_OK) {
         return -1;
     }
 
     const esp_lcd_touch_config_t touch_config = {
-        .x_max = MYBOT_DISPLAY_WIDTH - 1,
-        .y_max = MYBOT_DISPLAY_HEIGHT - 1,
+        .x_max = MYBOT_TOUCH_X_MAX,
+        .y_max = MYBOT_TOUCH_Y_MAX,
         .rst_gpio_num = MYBOT_TOUCH_RESET,
         .int_gpio_num = MYBOT_TOUCH_INTERRUPT,
         .levels =
@@ -188,7 +222,13 @@ static int create_touch(void) {
                 .mirror_y = MYBOT_TOUCH_MIRROR_Y,
             },
     };
+#if MYBOT_TOUCH_DRIVER_KIND == 1
     result = esp_lcd_touch_new_i2c_cst816s(s_context.touch_io, &touch_config, &s_context.touch);
+#elif MYBOT_TOUCH_DRIVER_KIND == 2
+    result = esp_lcd_touch_new_i2c_ft5x06(s_context.touch_io, &touch_config, &s_context.touch);
+#elif MYBOT_TOUCH_DRIVER_KIND == 3
+    result = esp_lcd_touch_new_i2c_gt911(s_context.touch_io, &touch_config, &s_context.touch);
+#endif
     if (result != ESP_OK) {
         (void)esp_lcd_panel_io_del(s_context.touch_io);
         s_context.touch_io = NULL;
