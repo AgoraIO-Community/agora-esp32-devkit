@@ -5,6 +5,9 @@ set(MYBOT_SUPPORTED_BOARDS
     "esp32-s3-touch-amoled-1.75"
     "esp32-s3-touch-amoled-1.75c"
     "esp32-s3-touch-amoled-2.16"
+    "esp32-s3-touch-amoled-1.8-v2"
+    "esp32-s3-touch-lcd-1.85"
+    "genjutech-s3-1.54tft"
     "m5stack-core-s3"
     "m5stack-stick-s3"
     "respeaker-flex-xvf3800-circular4-xiao"
@@ -28,6 +31,12 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-amoled-1.75c/board.cmake")
     elseif(board STREQUAL "esp32-s3-touch-amoled-2.16")
         set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-amoled-2.16/board.cmake")
+    elseif(board STREQUAL "esp32-s3-touch-amoled-1.8-v2")
+        set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-amoled-1.8-v2/board.cmake")
+    elseif(board STREQUAL "esp32-s3-touch-lcd-1.85")
+        set(profile "${_MYBOT_BOARDS_ROOT}/esp32-s3-touch-lcd-1.85/board.cmake")
+    elseif(board STREQUAL "genjutech-s3-1.54tft")
+        set(profile "${_MYBOT_BOARDS_ROOT}/genjutech-s3-1.54tft/board.cmake")
     elseif(board STREQUAL "m5stack-core-s3")
         set(profile "${_MYBOT_BOARDS_ROOT}/m5stack-core-s3/board.cmake")
     elseif(board STREQUAL "m5stack-stick-s3")

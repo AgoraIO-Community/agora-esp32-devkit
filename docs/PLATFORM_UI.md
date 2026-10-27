@@ -22,6 +22,9 @@ retain their existing board behavior.
 | `esp32-s3-touch-amoled-1.75` | CO5300, 466 × 466 | shared panel adapter | existing touch/key path |
 | `esp32-s3-touch-amoled-1.75c` | CO5300, 466 × 466 | shared panel adapter | existing touch/key path |
 | `esp32-s3-touch-amoled-2.16` | CO5300 480 variant, 480 × 480 | shared panel adapter | CST9217 and Boot |
+| `esp32-s3-touch-amoled-1.8-v2` | CO5300 368×448 variant, 368 × 448 | shared panel adapter | CST816S and Boot |
+| `esp32-s3-touch-lcd-1.85` | ST77916, 360 × 360 | shared panel adapter | CST816S and Boot |
+| `genjutech-s3-1.54tft` | ST7789, 240 × 240 | shared ST7789 adapter | Boot and volume buttons |
 | `sensecap-watcher` | SPD2010, 412 × 412 | shared panel adapter | existing encoder path |
 
 The AtomEchoS3R and ReSpeaker Flex profiles have no LCD and do not include LVGL. The ML307 and
@@ -33,6 +36,9 @@ and GPIO42 LEDC backlight at 5 kHz, 13-bit resolution, and 60% duty. It has one 
 uses the shared view at its portrait geometry.
 AMOLED 2.16 uses a zero panel gap and 40 MHz QSPI. Its CO5300 transfer regions retain even pixel
 boundaries on both axes.
+AMOLED 1.8 V2 uses a 16-pixel X gap and 40 MHz QSPI with the same even-pixel CO5300 transfer
+constraint. LCD 1.85 uses GPIO5 LEDC backlight at 60% and a 360 × 360 ST77916 panel. GenjuTech
+1.54 uses ST7789 SPI3 mode 3 at 80 MHz, color inversion, and GPIO2 LEDC backlight at 60%.
 
 ## CoreS3 pixel-glasses view
 
@@ -46,7 +52,7 @@ LCD-only changes. See [CoreS3 UI](CORES3_UI.md) for timing, resources and valida
 
 CoreS3's legacy light-theme setting is retained but does not change the pixel skin. Its animation
 option controls expression motion and transitions; disabling it retains the opener hold and
-necessary guidance scrolling. The other twelve profiles retain their existing UI/hardware;
+necessary guidance scrolling. The other fifteen profiles retain their existing UI/hardware;
 SDK, AOSL, RTSA, camera/video policy, input, power and memory configuration are unchanged.
 
 ## Shared workflow view on other display boards

@@ -74,6 +74,8 @@ Octal PSRAM。
 实际 Flash/PSRAM 容量必须在发布设备上核对。
 `esp32-s3-touch-amoled-2.16` 同样采用保守的 16 MB QIO Flash profile 与 80 MHz Octal PSRAM；
 发布前确认实际容量。
+GenjuTech 1.54、AMOLED 1.8 V2 与 LCD 1.85 profile 同样使用 16 MB QIO Flash 与 80 MHz
+Octal PSRAM；发布前应逐台确认实际容量。
 `bread-compact-wifi-lcd` 固定为 ESP32-S3 N16R8 profile，16 MB QIO Flash、80 MHz 8 MB
 Octal PSRAM；需在实际接线设备验证模组和检测到的容量。
 
@@ -222,6 +224,20 @@ mybot 停止期间任一输入仍能请求配网。真机状态见[验证矩阵]
 2.16 参考音频为 24 kHz，继承的 16 kHz 主麦和双声道物理 I2S 需要真机验证；如需重采样，
 应留在平台驱动内，并保持 Cloud AEC。摄像头、RTC、IMU、TF 卡、电量、关机与低功耗尚未支持。
 2.16 的构建与真机状态见[验证矩阵](VALIDATION.md)。
+
+`genjutech-s3-1.54tft` 复用 ES8311、raw 按键、ST7789 与共享 LVGL 路径。该板功放引脚与显示
+I/O 存在设计耦合，因此首次播放开启 PA 后保持有效，仅在板级拆除时关闭；停止播放只让 I2S
+流空闲。触摸、LED、电量/充电、休眠、关机与视频尚未实现。
+
+`esp32-s3-touch-amoled-1.8-v2` 使用独立的 368 x 448 CO5300 变体和 16 像素 X 偏移。
+TCA9554 先复位面板，AXP2101 再配置电源轨；CST816S 与 Boot 共用进程级输入路径。SDK 与
+ES8311 I2S 均保持 16 kHz 单声道 signed-16 PCM。AXP2101 电源键行为、电量、休眠、关机与
+视频尚未实现。
+
+`esp32-s3-touch-lcd-1.85` 使用独立的控制 I2C、触摸 I2C、麦克风 I2S 与扬声器 I2S。麦克风读取
+右 slot，播放将单声道复制到两个 TX slot，SDK 边界仍为单声道 16 kHz signed-16 PCM。
+TCA9554 释放 LCD/触摸复位，GPIO7 保持电源，GPIO5 控制背光。GPIO6 电源键、电量、休眠、
+关机与视频尚未实现。
 
 ReSpeaker Flex profile 是硬件音频前端而非原始麦克风 codec 的示例。XVF3800 必须预先单独
 烧录 Circular-4 16 kHz 双通道 I2S 固件，并负责 AEC、波束成形、AGC 与降噪。ESP32-S3

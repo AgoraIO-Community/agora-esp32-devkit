@@ -4,7 +4,7 @@
 
 `MYBOT_BOARD=m5stack-core-s3` automatically selects the process-gray pixel-glasses view on the
 320 × 240 ILI9342 display. It uses the existing CoreS3 LVGL adapter and common LCD-view API.
-There is no manual renderer switch or `CONFIG_MYBOT_LVGL_UI` override. The other twelve board
+There is no manual renderer switch or `CONFIG_MYBOT_LVGL_UI` override. The other fifteen board
 profiles retain their existing UI and hardware behavior; see [Platform UI](PLATFORM_UI.md).
 
 This replaces CoreS3's earlier status-card view. Audio, camera/video policy, FT6336 touch gestures,

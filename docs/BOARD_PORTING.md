@@ -75,6 +75,8 @@ and Octal PSRAM.
 its physical Flash/PSRAM capacities require confirmation on the release device.
 `esp32-s3-touch-amoled-2.16` also uses a conservative 16 MB QIO Flash profile and 80 MHz Octal
 PSRAM; confirm its physical capacities before release.
+The GenjuTech 1.54, AMOLED 1.8 V2 and LCD 1.85 profiles use the same 16 MB QIO Flash and 80 MHz
+Octal PSRAM profile; confirm each device before release.
 `bread-compact-wifi-lcd` is a fixed ESP32-S3 N16R8 profile with 16 MB QIO Flash and 8 MB Octal
 PSRAM at 80 MHz; validate the module and detected capacities on the wired device.
 
@@ -250,6 +252,22 @@ The 2.16 reference uses 24 kHz audio; validate the inherited 16 kHz primary-mic 
 I2S link on real hardware. Keep any required resampling in the platform driver and keep Cloud AEC.
 Camera, RTC, IMU, TF card, battery reporting, shutdown, and low-power behavior remain unsupported.
 Build and device status for 2.16 is tracked in the [validation matrix](VALIDATION.md).
+
+The `genjutech-s3-1.54tft` profile reuses the ES8311, raw button, ST7789, and shared LVGL paths.
+Its PA pin is coupled to display I/O by the board design, so the platform keeps the PA enabled
+after its first playback start and only disables it during board teardown. Touch, LED, battery,
+charging, sleep, shutdown, and video are not implemented.
+
+The `esp32-s3-touch-amoled-1.8-v2` profile owns a 368 x 448 CO5300 variant with a 16-pixel X gap.
+TCA9554 resets the panel before AXP2101 rail configuration; CST816S and Boot share the process-lifetime
+input path. The SDK and ES8311 I2S path remain at 16 kHz mono signed-16 PCM. AXP2101 power-key
+actions, battery reporting, sleep, shutdown, and video are not implemented.
+
+The `esp32-s3-touch-lcd-1.85` profile uses separate control and touch I2C buses plus separate
+microphone and speaker I2S peripherals. The microphone is read from the right slot and mono playback
+is copied into both TX slots while the SDK boundary remains mono 16 kHz signed-16 PCM. TCA9554
+releases LCD/touch reset, GPIO7 holds power, and GPIO5 controls backlight. The GPIO6 power button,
+battery reporting, sleep, shutdown, and video are not implemented.
 
 The ReSpeaker Flex profile is an example of a hardware audio front end rather than a raw microphone
 codec. Its XVF3800 must run separately flashed Circular-4 16 kHz, two-channel I2S firmware and owns

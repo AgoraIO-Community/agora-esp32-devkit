@@ -5,10 +5,10 @@ sh tests/co5300_lifecycle/run.sh
 ```
 
 This compiles the original production panel against the AMOLED 1.75 and 1.75C
-profiles and the separate 480-pixel panel against the 2.16 profile. Constructor
-mocks inspect the initialization commands,
+profiles, the separate 480-pixel panel against the 2.16 profile, and the
+368x448 panel against the 1.8 V2 profile. Constructor mocks inspect the initialization commands,
 address windows, QSPI configuration, panel dimensions, reset pin, and brightness.
-The original 1.75/1.75C command bytes and delays are checked for compatibility.
+Each panel variant's command bytes and delays are checked for compatibility.
 
 Fault injection covers initialization errors, partially returned handles,
 cleanup timeouts, retries, and repeated open/close. The existing

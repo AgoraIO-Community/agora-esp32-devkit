@@ -9,7 +9,7 @@
 ESP32-S3 boards. The project owns board initialization, Wi-Fi provisioning, persistent storage,
 HTTPS transport, audio, input, display, and the firmware lifecycle around the SDK.
 
-The development baseline is **ESP-IDF v5.5.2**. Thirteen compile-time board profiles are
+The development baseline is **ESP-IDF v5.5.2**. Sixteen compile-time board profiles are
 supported; the board, Flash, PSRAM, partition table, and hardware drivers are selected with
 `MYBOT_BOARD`. See the [board documentation index](components/mybot_platform/boards/README.md)
 for hardware details, controls, build commands, and per-board limitations.
@@ -39,8 +39,9 @@ Display profiles:
 `zhengchen-1.54tft-ml307`, `zhengchen-1.54tft-wifi`,
 `xingzhi-cube-1.54tft-wifi`, `bread-compact-wifi-lcd`, `esp-vocat`,
 `esp32-s3-touch-amoled-1.75`, `esp32-s3-touch-amoled-1.75c`,
-`esp32-s3-touch-amoled-2.16`, `m5stack-core-s3`, `m5stack-stick-s3`, and
-`sensecap-watcher`.
+`esp32-s3-touch-amoled-2.16`, `esp32-s3-touch-amoled-1.8-v2`,
+`esp32-s3-touch-lcd-1.85`, `genjutech-s3-1.54tft`, `m5stack-core-s3`,
+`m5stack-stick-s3`, and `sensecap-watcher`.
 
 Headless profiles:
 
