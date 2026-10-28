@@ -188,9 +188,12 @@ fixed N16R8 profile is tracked in the [validation matrix](VALIDATION.md).
 `boards/common/generic_profile.cmake` composes the shared board lifecycle, audio adapter, panel,
 touch/key input, optional PCA9557/TCA9554/AXP2101 setup, display backlight and SDK registration.
 Each board still owns its `board.cmake`, `board_config.h`, `sdkconfig.defaults` and `board.c`.
-The generic path supports ES8311, ES8311+ES7210, ES8374 and raw I2S; raw capture can use standard
-I2S or PDM. Keep board-specific power or expander code outside the common path when it changes
-the lifecycle order.
+The generic path supports ES8311, ES8311+ES7210, ES8388, ES8374 and raw I2S; raw capture can use
+standard I2S or PDM. Keep board-specific power or expander code outside the common path when it
+changes the lifecycle order. `MYBOT_GENERIC_EXTRA_INIT` optionally runs a board callback on the
+shared audio I2C bus before display registration; that callback owns bounded timeouts and device
+cleanup. Ledong V2 uses it to send the STM8 panel-reset command, while Mpython V3 uses the same
+display/audio family without that external reset.
 
 `M5Stack StopWatch` uses M5PM1 and M5IOE1 before display and codec startup. The bridge raises LCD
 and codec power, resets LCD/touch, controls the speaker PA and leaves the motor off. The shared

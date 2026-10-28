@@ -81,6 +81,9 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `kevin-box-2` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless subset; AXP2101, ES8311/ES7210 routing and keys require validation. SSD1306 UI, ML307, LED, battery, sleep and shutdown are not implemented. |
 | `magiclick-2p5` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9107/ST7735 ADC selection, ES8311, PA, keys and power require validation; Wi-Fi-only subset has no battery, LED, sleep or shutdown. |
 | `atk-dnesp32s3-box3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | AW9523B power/backlight/PA sequencing, ST7789 endian/orientation and dual codec require validation; K1/K2, camera, battery, sleep and shutdown are not implemented. |
+| `zhengchen-cam` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | PCA9557 PA routing, 320×240 ST7789 orientation, ES8311/ES7210 slots and buttons require device validation; camera, portrait mode, battery, temperature, sleep and shutdown are not implemented. |
+| `labplus-ledong-v2` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | STM8 display reset, 320×172 panel endian/orientation, ES8388, backlight and Boot input require device validation; touch and board peripherals are not implemented. |
+| `labplus-mpython-v3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | 320×172 panel endian/orientation, GPIO34 CS, GPIO33 backlight, ES8388 and Boot input require device validation; touch and board peripherals are not implemented. |
 
 ## Global boundaries / 全局边界
 

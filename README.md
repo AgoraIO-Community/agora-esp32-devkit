@@ -9,10 +9,11 @@
 ESP32-S3 boards. The project owns board initialization, Wi-Fi provisioning, persistent storage,
 HTTPS transport, audio, input, display, and the firmware lifecycle around the SDK.
 
-The development baseline is **ESP-IDF v5.5.2**. Sixty compile-time board profiles are
-supported; the board, Flash, PSRAM, partition table, and hardware drivers are selected with
-`MYBOT_BOARD`. See the [board documentation index](components/mybot_platform/boards/README.md)
-for hardware details, controls, build commands, and per-board limitations.
+The development baseline is **ESP-IDF v5.5.2**. Sixty-three compile-time board profiles are
+supported (56 display and 7 headless); the board, Flash, PSRAM, partition table, and hardware
+drivers are selected with `MYBOT_BOARD`. See the
+[board documentation index](components/mybot_platform/boards/README.md) for hardware details,
+controls, build commands, and per-board limitations.
 
 > Project-maintained code is Apache-2.0 unless a file says otherwise. Bundled dependencies and
 > media assets have separate terms. Read [License and dependencies](#license-and-dependencies)
@@ -55,8 +56,8 @@ Display profiles:
 `movecall-moji-esp32s3`,
 `kevin-sp-v4-dev`, `du-chatx`,
 `minsi-k08-dual`, `magiclick-2p5`, `atk-dnesp32s3-box3`,
-`genjutech-s3-1.54tft`, `m5stack-core-s3`, `m5stack-stick-s3`, and
-`sensecap-watcher`.
+`genjutech-s3-1.54tft`, `zhengchen-cam`, `labplus-ledong-v2`,
+`labplus-mpython-v3`, `m5stack-core-s3`, `m5stack-stick-s3`, and `sensecap-watcher`.
 
 Headless profiles:
 

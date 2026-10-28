@@ -33,6 +33,10 @@
 #define MYBOT_GENERIC_TOUCH_KIND 0
 #endif
 
+#ifndef MYBOT_GENERIC_EXTRA_INIT
+#define MYBOT_GENERIC_EXTRA_INIT 0
+#endif
+
 #ifndef MYBOT_GENERIC_PA_ACTIVE_LEVEL
 #define MYBOT_GENERIC_PA_ACTIVE_LEVEL 1
 #endif
@@ -73,6 +77,10 @@ typedef struct {
 
 static hardware_state_t s_hardware;
 
+#if MYBOT_GENERIC_EXTRA_INIT
+int mybot_generic_board_extra_init(i2c_master_bus_handle_t bus);
+#endif
+
 #ifdef MYBOT_GENERIC_AXP2101_ADDRESS
 static esp_err_t initialize_axp2101(void) {
     static const uint8_t registers[][2] = {
@@ -94,7 +102,7 @@ static esp_err_t initialize_axp2101(void) {
 
 static bool codec_needs_i2c(void) {
     return MYBOT_GENERIC_AUDIO_KIND == 1 || MYBOT_GENERIC_AUDIO_KIND == 3 ||
-           MYBOT_GENERIC_AUDIO_KIND == 4;
+           MYBOT_GENERIC_AUDIO_KIND == 4 || MYBOT_GENERIC_AUDIO_KIND == 5;
 }
 
 static esp_err_t create_i2c_bus(int port, gpio_num_t sda, gpio_num_t scl,
@@ -292,6 +300,11 @@ int mybot_generic_hardware_init(void) {
     if (MYBOT_GENERIC_TOUCH_KIND != 0 && touch_separate_bus && result == ESP_OK) {
         result = create_i2c_bus(MYBOT_GENERIC_TOUCH_I2C_PORT, MYBOT_GENERIC_TOUCH_I2C_SDA,
                                 MYBOT_GENERIC_TOUCH_I2C_SCL, &s_hardware.touch_bus);
+    }
+#endif
+#if MYBOT_GENERIC_EXTRA_INIT
+    if (result == ESP_OK && s_hardware.audio_bus) {
+        result = mybot_generic_board_extra_init(s_hardware.audio_bus) == 0 ? ESP_OK : ESP_FAIL;
     }
 #endif
 
