@@ -90,6 +90,9 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `lilygo-t-cameraplus-s3-v1.2` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | V1.2 pin map, CST816D, ST7789, PDM microphone, speaker enable and backlight require device validation; camera and PMIC features are not implemented. |
 | `lilygo-t-circle-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9D01N initialization, 160×160 round orientation, CST816D, dual I2S audio and speaker enable require device validation; rotary encoder and APA102 are not implemented. |
 | `jiuchuan-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9309NA initialization, 240×296 orientation, ES8311, PA, GPIO5 power hold and three keys require device validation; power-key actions and battery reporting are not implemented. |
+| `lilygo-t-display-s3-pro-mvsrlora` | CI: zh-CN, en-US; recorded merged build | Not completed / 未完成 | ST7796 timing and orientation, CST226SE mapping, SY6970 sequencing, PDM capture, speaker enable and backlight require device validation; SD, LoRa, vibration, RTC, IMU, battery and sleep are not implemented. |
+| `atk-dnesp32s3-box` | CI: zh-CN, en-US; recorded merged build | Not completed / 未完成 | i80 ST7789 timing and orientation, ES8311 routing and XL9555/TCA9555 power sequencing require device validation; expander keys, camera, battery, dimming, sleep and shutdown are not implemented. The NS4168-only hardware variant is not supported. |
+| `tudouzi` | CI: zh-CN, en-US; recorded merged build | Not completed / 未完成 | Headless Wi-Fi subset; AXP2101 sequencing, ES8311/ES7210 routing, PA and keys require device validation. SSD1306 UI, ML307/4G, LED, battery reporting, sleep and shutdown are not implemented. |
 
 ## Global boundaries / 全局边界
 

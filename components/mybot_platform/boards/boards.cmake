@@ -68,6 +68,9 @@ set(MYBOT_SUPPORTED_BOARDS
     "lilygo-t-cameraplus-s3-v1.2"
     "lilygo-t-circle-s3"
     "jiuchuan-s3"
+    "lilygo-t-display-s3-pro-mvsrlora"
+    "atk-dnesp32s3-box"
+    "tudouzi"
 )
 set(_MYBOT_BOARDS_ROOT "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -211,6 +214,12 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/lilygo-t-circle-s3/board.cmake")
     elseif(board STREQUAL "jiuchuan-s3")
         set(profile "${_MYBOT_BOARDS_ROOT}/jiuchuan-s3/board.cmake")
+    elseif(board STREQUAL "lilygo-t-display-s3-pro-mvsrlora")
+        set(profile "${_MYBOT_BOARDS_ROOT}/lilygo-t-display-s3-pro-mvsrlora/board.cmake")
+    elseif(board STREQUAL "atk-dnesp32s3-box")
+        set(profile "${_MYBOT_BOARDS_ROOT}/atk-dnesp32s3-box/board.cmake")
+    elseif(board STREQUAL "tudouzi")
+        set(profile "${_MYBOT_BOARDS_ROOT}/tudouzi/board.cmake")
     else()
         message(FATAL_ERROR "Unsupported MYBOT_BOARD: ${board}")
     endif()

@@ -61,6 +61,8 @@ if(MYBOT_GENERIC_TOUCH)
         list(APPEND MYBOT_GENERIC_EXTRA_REQUIRES
             esp_lcd_touch
             esp_lcd_touch_gt911)
+    elseif(MYBOT_GENERIC_TOUCH_DRIVER STREQUAL "cst226")
+        # CST226 uses the project-owned direct I2C protocol in cst816s_boot_input.c.
     else()
         message(FATAL_ERROR "Unknown MYBOT_GENERIC_TOUCH_DRIVER")
     endif()

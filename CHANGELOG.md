@@ -7,6 +7,12 @@ Versioning and Conventional Commits.
 
 ### Added
 
+- Three additional ESP32-S3 profiles: LilyGO T-Display S3 Pro with a 222×480 ST7796 panel,
+  CST226SE touch and PDM capture; ATK DNESP32S3 Box with an 8-bit i80 ST7789 panel and ES8311
+  audio; and Tudouzi as a headless Wi-Fi subset with ES8311/ES7210 audio. Added host coverage for
+  the SY6970, XL9555/TCA9555 and AXP2101 startup sequences, CST226 direct-I2C input, i80 panel
+  lifecycle and ST7796 command profile. All three passed local ESP-IDF v5.5.2 Chinese and English
+  reconfigure/build/size/merge-bin validation; real-device validation remains pending.
 - Five additional ESP32-S3 hardware families across six compile-time profiles: ATK DNESP32S3 with
   TCA9555 display power, Yunliao S3 as a Wi-Fi subset, LilyGO T-CameraPlus S3 V1.0/V1.1 and V1.2
   with separate standard-I2S/PDM audio paths, LilyGO T-Circle S3 with a 160×160 GC9D01N round

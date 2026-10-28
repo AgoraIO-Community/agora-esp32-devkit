@@ -8,7 +8,8 @@
 #include "esp_lcd_io_spi.h"
 #include "esp_log.h"
 
-#if MYBOT_PANEL_CONTROLLER == 1 || MYBOT_PANEL_CONTROLLER == 4 || MYBOT_PANEL_CONTROLLER == 5
+#if MYBOT_PANEL_CONTROLLER == 1 || MYBOT_PANEL_CONTROLLER == 4 || MYBOT_PANEL_CONTROLLER == 5 ||   \
+    MYBOT_PANEL_CONTROLLER == 6
 #include "esp_lcd_gc9a01.h"
 #elif MYBOT_PANEL_CONTROLLER == 2
 #include "esp_lcd_nv3023.h"
@@ -192,6 +193,28 @@ static const gc9a01_lcd_init_cmd_t s_gc9309na_init[] = {
     {0x29, NULL, 0, 0},
     {0x2C, NULL, 0, 10},
 };
+#elif MYBOT_PANEL_CONTROLLER == 6
+static const gc9a01_lcd_init_cmd_t s_st7796_init[] = {
+    {0x3A, (uint8_t[]){0x05}, 1, 0},
+    {0xF0, (uint8_t[]){0xC3}, 1, 0},
+    {0xF0, (uint8_t[]){0x96}, 1, 0},
+    {0xB4, (uint8_t[]){0x01}, 1, 0},
+    {0xB7, (uint8_t[]){0xC6}, 1, 0},
+    {0xE8, (uint8_t[]){0x40, 0x8A, 0x00, 0x00, 0x29, 0x19, 0xA5, 0x33}, 8, 0},
+    {0xC1, (uint8_t[]){0x06}, 1, 0},
+    {0xC2, (uint8_t[]){0xA7}, 1, 0},
+    {0xC5, (uint8_t[]){0x18}, 1, 0},
+    {0xE0,
+     (uint8_t[]){0xF0, 0x09, 0x0B, 0x06, 0x04, 0x15, 0x2F, 0x54, 0x42, 0x3C, 0x17, 0x14, 0x18,
+                 0x1B},
+     14, 0},
+    {0xE1,
+     (uint8_t[]){0xF0, 0x09, 0x0B, 0x06, 0x04, 0x03, 0x2D, 0x43, 0x42, 0x3B, 0x16, 0x14, 0x17,
+                 0x1B},
+     14, 0},
+    {0xF0, (uint8_t[]){0x3C}, 1, 0},
+    {0xF0, (uint8_t[]){0x69}, 1, 0},
+};
 #endif
 
 int mybot_display_panel_close(mybot_display_panel_t *panel) {
@@ -300,6 +323,13 @@ int mybot_display_panel_open(mybot_display_panel_t *panel) {
     const gc9a01_vendor_config_t vendor_config = {
         .init_cmds = s_gc9309na_init,
         .init_cmds_size = sizeof(s_gc9309na_init) / sizeof(s_gc9309na_init[0]),
+    };
+    panel_config.vendor_config = (void *)&vendor_config;
+    result = esp_lcd_new_panel_gc9a01(panel->io, &panel_config, &panel->panel);
+#elif MYBOT_PANEL_CONTROLLER == 6
+    const gc9a01_vendor_config_t vendor_config = {
+        .init_cmds = s_st7796_init,
+        .init_cmds_size = sizeof(s_st7796_init) / sizeof(s_st7796_init[0]),
     };
     panel_config.vendor_config = (void *)&vendor_config;
     result = esp_lcd_new_panel_gc9a01(panel->io, &panel_config, &panel->panel);
