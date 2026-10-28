@@ -198,6 +198,10 @@ shared audio I2C bus before display registration; that callback owns bounded tim
 cleanup. Ledong V2 uses it to send the STM8 panel-reset command, while Mpython V3 uses the same
 display/audio family without that external reset.
 
+The shared SPI panel source can select a vendor-specific initialization table for controllers
+compatible with the pinned command interface. GC9D01N and GC9309NA profiles use custom command
+tables while retaining the common SPI bus, flush, teardown and LVGL paths.
+
 `M5Stack StopWatch` uses M5PM1 and M5IOE1 before display and codec startup. The bridge raises LCD
 and codec power, resets LCD/touch, controls the speaker PA and leaves the motor off. The shared
 round layout narrows widgets to a center safe rectangle; this is not a substitute for panel and

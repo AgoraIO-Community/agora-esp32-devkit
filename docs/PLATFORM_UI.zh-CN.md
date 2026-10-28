@@ -26,6 +26,11 @@
 | `genjutech-s3-1.54tft` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量按键 |
 | `zhengchen-cam` | ST7789，320 × 240 | 通用 ST7789 | Boot 与音量按键 |
 | `labplus-ledong-v2`、`labplus-mpython-v3` | ST7789 兼容，320 × 172 | 通用 ST7789 | Boot |
+| `atk-dnesp32s3` | ST7789，320 × 240 | 通用 ST7789 | Boot |
+| `yunliao-s3` | ST7789，320 × 240 | 通用 ST7789 | Boot |
+| `lilygo-t-cameraplus-s3`、`lilygo-t-cameraplus-s3-v1.2` | ST7789，240 × 240 | 通用 ST7789 | CST816D 与 Boot |
+| `lilygo-t-circle-s3` | GC9D01N，160 × 160 圆屏 | 通用面板适配器、圆屏布局 | CST816D 与 Boot |
+| `jiuchuan-s3` | GC9309NA，240 × 296 | 通用面板适配器 | Boot 与音量按键 |
 | `sensecap-watcher` | SPD2010，412 × 412 | 通用面板适配器 | 原有旋钮路径 |
 | `xingzhi-metal-1.54-wifi`、`xingzhi-abs-2.0` | ST7789，240 × 240 | 通用面板适配器 | Boot/触摸或 Boot/音量键 |
 | `xingzhi-cube-0.85tft-wifi` | NV3023，128 × 128 | 通用面板适配器 | Boot |
@@ -73,6 +78,11 @@ ST7789 SPI3 mode 3 / 80 MHz、颜色反转与 GPIO2 LEDC 背光（60%）。
 征辰 Camera 使用 ST7789 SPI3 mode 0 / 80 MHz、固定 320 × 240 横屏与低电平有效的 GPIO42
 背光。两款 LabPlus 使用 SPI2 / 20 MHz 的 320 × 172 大端面板；掌控板 V3 的 CS 为 GPIO34、
 背光为 GPIO33，乐动掌控 V2 不使用 CS 引脚、背光为 GPIO34，并通过 STM8 保持面板复位时序。
+ATK DNESP32S3 使用 ST7789 SPI2 mode 0 / 20 MHz、大端像素和 TCA9555 控制的 LCD 电源。
+Yunliao S3 使用 ST7789 SPI2 mode 0 / 40 MHz 与颜色反转。T-CameraPlus S3 使用 240 × 240
+ST7789 / 60 MHz，两个 profile 的触摸、麦克风和扬声器使能引脚不同。T-Circle S3 使用 SPI3
+40 MHz 的 160 × 160 GC9D01N 圆屏。Jiuchuan S3 使用 SPI3 mode 3 / 80 MHz 的 240 × 296
+GC9309NA 面板与 BGR 顺序。
 KEVIN SP V4 Dev 使用 ST7789 SPI3 mode 3 / 80 MHz、Y 偏移 20、颜色反转与 GPIO48 LEDC
 背光。DuChat X 使用 ST7789 SPI3 mode 0 / 40 MHz、2×1 像素偏移、X/Y 镜像与 GPIO9 LEDC
 背光。

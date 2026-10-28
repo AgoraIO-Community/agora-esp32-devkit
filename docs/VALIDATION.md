@@ -84,6 +84,12 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `zhengchen-cam` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | PCA9557 PA routing, 320×240 ST7789 orientation, ES8311/ES7210 slots and buttons require device validation; camera, portrait mode, battery, temperature, sleep and shutdown are not implemented. |
 | `labplus-ledong-v2` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | STM8 display reset, 320×172 panel endian/orientation, ES8388, backlight and Boot input require device validation; touch and board peripherals are not implemented. |
 | `labplus-mpython-v3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | 320×172 panel endian/orientation, GPIO34 CS, GPIO33 backlight, ES8388 and Boot input require device validation; touch and board peripherals are not implemented. |
+| `atk-dnesp32s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | TCA9555 LCD-power mapping, 320×240 ST7789, ES8388 and Boot input require device validation; camera, expander keys and backlight dimming are not implemented. |
+| `yunliao-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | ES8388, PA, 320×240 ST7789 and Boot input require device validation; Wi-Fi-only subset has no ML307/4G, battery, USB or Bluetooth status support. |
+| `lilygo-t-cameraplus-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | V1.0/V1.1 pin map, CST816D, ST7789, standard I2S microphone/speaker and backlight require device validation; camera and PMIC features are not implemented. |
+| `lilygo-t-cameraplus-s3-v1.2` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | V1.2 pin map, CST816D, ST7789, PDM microphone, speaker enable and backlight require device validation; camera and PMIC features are not implemented. |
+| `lilygo-t-circle-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9D01N initialization, 160×160 round orientation, CST816D, dual I2S audio and speaker enable require device validation; rotary encoder and APA102 are not implemented. |
+| `jiuchuan-s3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9309NA initialization, 240×296 orientation, ES8311, PA, GPIO5 power hold and three keys require device validation; power-key actions and battery reporting are not implemented. |
 
 ## Global boundaries / 全局边界
 
