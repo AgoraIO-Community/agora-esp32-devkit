@@ -7,6 +7,12 @@ Versioning and Conventional Commits.
 
 ### Added
 
+- Five additional ESP32-S3 hardware families across six compile-time profiles: ATK DNESP32S3 with
+  TCA9555 display power, Yunliao S3 as a Wi-Fi subset, LilyGO T-CameraPlus S3 V1.0/V1.1 and V1.2
+  with separate standard-I2S/PDM audio paths, LilyGO T-Circle S3 with a 160×160 GC9D01N round
+  panel, and Jiuchuan S3 with a 240×296 GC9309NA panel. Added host coverage for TCA9555 power
+  setup and both custom controller profiles. All six passed local ESP-IDF v5.5.2 Chinese and
+  English reconfigure/build/size/merge-bin validation; real-device validation remains pending.
 - Three additional ESP32-S3 profiles: Zhengchen Cam with ST7789, ES8311/ES7210 and PCA9557 PA
   control; LabPlus Ledong V2 with a 320×172 ST7789-compatible panel, ES8388 and STM8 display
   reset; and LabPlus Mpython V3 with the same display/audio family and separate CS/backlight
