@@ -22,7 +22,8 @@ jobs:
             tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
             tests/cst816s_input tests/tca9554 tests/aw9523b tests/compact_panel \
             tests/cores3_pixel_ui tests/labplus_stm8_reset tests/atk_tca9555_power \
-            tests/custom_panel_profiles -type f \
+            tests/custom_panel_profiles tests/board_power tests/cst226_input \
+            tests/i80_st7789_lifecycle -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -exec clang-format --dry-run --Werror {} +
       - name: Whitespace check
@@ -44,7 +45,8 @@ jobs:
             tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
             tests/cst816s_input tests/tca9554 tests/aw9523b tests/compact_panel \
             tests/cores3_pixel_ui tests/labplus_stm8_reset tests/atk_tca9555_power \
-            tests/custom_panel_profiles -type f \
+            tests/custom_panel_profiles tests/board_power tests/cst226_input \
+            tests/i80_st7789_lifecycle -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -print0 | while IFS= read -r -d '' file; do
               head -n 5 "$file" | grep -q 'SPDX-License-Identifier:' || {
@@ -60,6 +62,8 @@ jobs:
         run: sh tests/co5300_lifecycle/run.sh
       - name: CST816S and Boot input host lifecycle tests
         run: sh tests/cst816s_input/run.sh
+      - name: CST226 direct-I2C input host lifecycle tests
+        run: sh tests/cst226_input/run.sh
       - name: TCA9554 masked update host tests
         run: sh tests/tca9554/run.sh
       - name: AW9523B masked update host tests
@@ -68,6 +72,10 @@ jobs:
         run: sh tests/labplus_stm8_reset/run.sh
       - name: ATK TCA9555 display-power host tests
         run: sh tests/atk_tca9555_power/run.sh
+      - name: Board power and expander sequencing host tests
+        run: sh tests/board_power/run.sh
+      - name: ST7789 i80 panel lifecycle host tests
+        run: sh tests/i80_st7789_lifecycle/run.sh
       - name: GC9D01N and GC9309NA panel profiles host tests
         run: sh tests/custom_panel_profiles/run.sh
       - name: Compact GC9107/ST7735 panel lifecycle tests
@@ -351,6 +359,9 @@ jobs:
           - lilygo-t-cameraplus-s3-v1.2
           - lilygo-t-circle-s3
           - jiuchuan-s3
+          - lilygo-t-display-s3-pro-mvsrlora
+          - atk-dnesp32s3-box
+          - tudouzi
         language: [zh-CN, en-US]
     steps:
       - uses: actions/checkout@v4

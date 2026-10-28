@@ -84,13 +84,16 @@ esp_err_t esp_lcd_new_panel_gc9a01(esp_lcd_panel_io_handle_t handle,
     CHECK(config->rgb_ele_order == MYBOT_DISPLAY_RGB_ORDER);
     CHECK(config->vendor_config);
     const auto *vendor = static_cast<const gc9a01_vendor_config_t *>(config->vendor_config);
-    CHECK(vendor->init_cmds && vendor->init_cmds_size >= 25);
+    CHECK(vendor->init_cmds && vendor->init_cmds_size >= (EXPECTED_CONTROLLER == 6 ? 13 : 25));
     bool found_controller_command = false;
     for (size_t index = 0; index < vendor->init_cmds_size; ++index) {
         if (EXPECTED_CONTROLLER == 4 && vendor->init_cmds[index].cmd == 0x74) {
             found_controller_command = true;
         }
         if (EXPECTED_CONTROLLER == 5 && vendor->init_cmds[index].cmd == 0x7D) {
+            found_controller_command = true;
+        }
+        if (EXPECTED_CONTROLLER == 6 && vendor->init_cmds[index].cmd == 0xB4) {
             found_controller_command = true;
         }
     }
