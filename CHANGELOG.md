@@ -7,6 +7,19 @@ Versioning and Conventional Commits.
 
 ### Added
 
+- Three additional ESP32-S3 profiles: Zhengchen Cam with ST7789, ES8311/ES7210 and PCA9557 PA
+  control; LabPlus Ledong V2 with a 320×172 ST7789-compatible panel, ES8388 and STM8 display
+  reset; and LabPlus Mpython V3 with the same display/audio family and separate CS/backlight
+  wiring. Added ES8388 device support and a host test for the bounded STM8 reset sequence. All
+  three passed local ESP-IDF v5.5.2 Chinese and English
+  reconfigure/build/size/merge-bin validation; real-device validation remains pending.
+- Four additional ESP32-S3 profiles: Minsi K08 Dual with ST7789 and raw I2S, KEVIN Box 2 as a
+  headless ES8311/ES7210 subset, Magiclick 2.5 with runtime GC9107/ST7735 panel selection, and
+  ATK DNESP32S3 Box 3 with ST7789, dual codecs and AW9523B power/backlight/PA control. Added
+  shared compact-panel and AW9523B drivers with host lifecycle tests. All four passed local
+  ESP-IDF v5.5.2 Chinese and English reconfigure/build/size/merge-bin validation; real-device
+  validation remains pending. The upstream AtomS3 Echo Base profile was not added because
+  stock AtomS3 lacks the PSRAM required by the current MyBot/AOSL memory backend.
 - KEVIN SP V4 Dev with a 240×280 ST7789 panel and ES8311 audio, plus DuChat X with a 128×160
   ST7789 panel, separate raw I2S audio and GPIO1 power hold. Both passed local ESP-IDF v5.5.2
   Chinese and English reconfigure/build/size/merge-bin validation; real-device validation

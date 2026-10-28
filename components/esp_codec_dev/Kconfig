@@ -11,6 +11,10 @@ menu "Audio Codec Device Configuration"
         bool "Support ES8311 codec"
         default n
 
+    config CODEC_ES8388_SUPPORT
+        bool "Support ES8388 codec"
+        default n
+
     config CODEC_ES7243E_SUPPORT
         bool "Support ES7243E codec"
         default n

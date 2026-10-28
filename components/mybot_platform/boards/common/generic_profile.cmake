@@ -33,6 +33,8 @@ endif()
 
 if(MYBOT_GENERIC_AUDIO STREQUAL "es8311")
     list(APPEND MYBOT_BOARD_SOURCES "${MYBOT_PLATFORM_ROOT}/src/drivers/audio/es8311_codec_audio.c")
+elseif(MYBOT_GENERIC_AUDIO STREQUAL "es8388")
+    list(APPEND MYBOT_BOARD_SOURCES "${MYBOT_PLATFORM_ROOT}/src/drivers/audio/es8311_codec_audio.c")
 elseif(MYBOT_GENERIC_AUDIO STREQUAL "raw")
     list(APPEND MYBOT_BOARD_SOURCES "${MYBOT_PLATFORM_ROOT}/src/drivers/audio/raw_i2s_audio.c")
 elseif(MYBOT_GENERIC_AUDIO STREQUAL "dual")
@@ -75,6 +77,11 @@ endif()
 if(MYBOT_GENERIC_TCA9554)
     list(APPEND MYBOT_BOARD_SOURCES
         "${MYBOT_PLATFORM_ROOT}/src/drivers/io_expander/tca9554.c")
+endif()
+
+if(MYBOT_GENERIC_AW9523B)
+    list(APPEND MYBOT_BOARD_SOURCES
+        "${MYBOT_PLATFORM_ROOT}/src/drivers/io_expander/aw9523b.c")
 endif()
 
 set(MYBOT_BOARD_REQUIRES

@@ -2,6 +2,7 @@
 #include "generic_hardware.h"
 
 #include "board_config.h"
+#include "io_expander/aw9523b.h"
 #include "io_expander/pca9557.h"
 #include "io_expander/tca9554.h"
 
@@ -32,6 +33,10 @@
 #define MYBOT_GENERIC_TOUCH_KIND 0
 #endif
 
+#ifndef MYBOT_GENERIC_EXTRA_INIT
+#define MYBOT_GENERIC_EXTRA_INIT 0
+#endif
+
 #ifndef MYBOT_GENERIC_PA_ACTIVE_LEVEL
 #define MYBOT_GENERIC_PA_ACTIVE_LEVEL 1
 #endif
@@ -57,8 +62,10 @@ typedef struct {
     i2c_master_bus_handle_t touch_bus;
     mybot_pca9557_t expander;
     mybot_tca9554_t tca9554;
+    mybot_aw9523b_t aw9523b;
     i2c_master_dev_handle_t axp2101;
     bool expander_ready;
+    bool aw9523b_ready;
     bool pa_ready;
     bool pa_enabled;
     bool power_ready;
@@ -69,6 +76,10 @@ typedef struct {
 } hardware_state_t;
 
 static hardware_state_t s_hardware;
+
+#if MYBOT_GENERIC_EXTRA_INIT
+int mybot_generic_board_extra_init(i2c_master_bus_handle_t bus);
+#endif
 
 #ifdef MYBOT_GENERIC_AXP2101_ADDRESS
 static esp_err_t initialize_axp2101(void) {
@@ -91,7 +102,7 @@ static esp_err_t initialize_axp2101(void) {
 
 static bool codec_needs_i2c(void) {
     return MYBOT_GENERIC_AUDIO_KIND == 1 || MYBOT_GENERIC_AUDIO_KIND == 3 ||
-           MYBOT_GENERIC_AUDIO_KIND == 4;
+           MYBOT_GENERIC_AUDIO_KIND == 4 || MYBOT_GENERIC_AUDIO_KIND == 5;
 }
 
 static esp_err_t create_i2c_bus(int port, gpio_num_t sda, gpio_num_t scl,
@@ -123,7 +134,15 @@ static esp_err_t configure_output_gpio(gpio_num_t gpio, int initial_level) {
 }
 
 static esp_err_t initialize_backlight(void) {
-#ifdef MYBOT_DISPLAY_BACKLIGHT_GPIO
+#ifdef MYBOT_GENERIC_AW9523B_BACKLIGHT_MASK
+    if (!s_hardware.aw9523b_ready ||
+        mybot_aw9523b_set_levels(&s_hardware.aw9523b, MYBOT_GENERIC_AW9523B_BACKLIGHT_MASK, 0) <
+            0) {
+        return ESP_FAIL;
+    }
+    s_hardware.backlight_ready = true;
+    return ESP_OK;
+#elif defined(MYBOT_DISPLAY_BACKLIGHT_GPIO)
     if (MYBOT_DISPLAY_BACKLIGHT_GPIO == GPIO_NUM_NC) {
         return ESP_OK;
     }
@@ -201,12 +220,18 @@ static int release_hardware(void) {
         result = -1;
     }
 #endif
+#ifdef MYBOT_GENERIC_AW9523B_ADDRESS
+    if (s_hardware.aw9523b.device && mybot_aw9523b_deinit(&s_hardware.aw9523b) < 0) {
+        result = -1;
+    }
+#endif
 #ifdef MYBOT_GENERIC_PCA9557_ADDRESS
     if (s_hardware.expander_ready && mybot_pca9557_deinit(&s_hardware.expander) < 0) {
         result = -1;
     }
 #endif
     s_hardware.expander_ready = false;
+    s_hardware.aw9523b_ready = false;
     if (s_hardware.touch_bus && i2c_del_master_bus(s_hardware.touch_bus) != ESP_OK) {
         result = -1;
     } else {
@@ -228,8 +253,9 @@ int mybot_generic_hardware_init(void) {
         return 0;
     }
     if ((s_hardware.audio_bus || s_hardware.touch_bus || s_hardware.expander_ready ||
-         s_hardware.tca9554.device || s_hardware.axp2101 || s_hardware.pa_ready ||
-         s_hardware.power_ready || s_hardware.aux_power_ready || s_hardware.backlight_ready) &&
+         s_hardware.tca9554.device || s_hardware.aw9523b.device || s_hardware.axp2101 ||
+         s_hardware.pa_ready || s_hardware.power_ready || s_hardware.aux_power_ready ||
+         s_hardware.backlight_ready) &&
         release_hardware() < 0) {
         return -1;
     }
@@ -274,6 +300,11 @@ int mybot_generic_hardware_init(void) {
     if (MYBOT_GENERIC_TOUCH_KIND != 0 && touch_separate_bus && result == ESP_OK) {
         result = create_i2c_bus(MYBOT_GENERIC_TOUCH_I2C_PORT, MYBOT_GENERIC_TOUCH_I2C_SDA,
                                 MYBOT_GENERIC_TOUCH_I2C_SCL, &s_hardware.touch_bus);
+    }
+#endif
+#if MYBOT_GENERIC_EXTRA_INIT
+    if (result == ESP_OK && s_hardware.audio_bus) {
+        result = mybot_generic_board_extra_init(s_hardware.audio_bus) == 0 ? ESP_OK : ESP_FAIL;
     }
 #endif
 
@@ -345,6 +376,26 @@ int mybot_generic_hardware_init(void) {
 #endif
 #endif
 
+#ifdef MYBOT_GENERIC_AW9523B_ADDRESS
+    if (result == ESP_OK && s_hardware.audio_bus) {
+        result = mybot_aw9523b_init(&s_hardware.aw9523b, s_hardware.audio_bus,
+                                    MYBOT_GENERIC_AW9523B_ADDRESS, MYBOT_GENERIC_I2C_SPEED_HZ) == 0
+                     ? ESP_OK
+                     : ESP_FAIL;
+        s_hardware.aw9523b_ready = result == ESP_OK;
+    }
+    if (result == ESP_OK && s_hardware.aw9523b_ready) {
+        result =
+            mybot_aw9523b_configure_outputs(&s_hardware.aw9523b, MYBOT_GENERIC_AW9523B_OUTPUT_MASK,
+                                            MYBOT_GENERIC_AW9523B_HIGH_MASK) == 0
+                ? ESP_OK
+                : ESP_FAIL;
+    }
+    if (result == ESP_OK) {
+        vTaskDelay(pdMS_TO_TICKS(MYBOT_GENERIC_AW9523B_SETTLE_MS));
+    }
+#endif
+
 #ifdef MYBOT_GENERIC_AXP2101_ADDRESS
     if (result == ESP_OK && s_hardware.audio_bus) {
         const i2c_device_config_t axp_config = {
@@ -410,6 +461,16 @@ int mybot_generic_set_speaker_power(bool enabled) {
         return 0;
     }
 #endif
+#ifdef MYBOT_GENERIC_AW9523B_PA_MASK
+    if (s_hardware.aw9523b_ready) {
+        const uint16_t mask = MYBOT_GENERIC_AW9523B_PA_MASK;
+        if (mybot_aw9523b_set_levels(&s_hardware.aw9523b, mask, enabled ? mask : 0) < 0) {
+            return -1;
+        }
+        s_hardware.pa_enabled = enabled;
+        return 0;
+    }
+#endif
 #if MYBOT_GENERIC_M5STACK_STOPWATCH
     if (s_hardware.stopwatch_hardware_ready) {
         if (mybot_m5stack_stopwatch_set_speaker_pa(enabled) < 0) {
@@ -432,7 +493,13 @@ int mybot_generic_set_speaker_power(bool enabled) {
 }
 
 int mybot_board_set_display_backlight(unsigned int percent) {
-#ifdef MYBOT_DISPLAY_BACKLIGHT_GPIO
+#ifdef MYBOT_GENERIC_AW9523B_BACKLIGHT_MASK
+    if (!s_hardware.initialized || !s_hardware.backlight_ready || percent > 100) {
+        return -1;
+    }
+    const uint16_t mask = MYBOT_GENERIC_AW9523B_BACKLIGHT_MASK;
+    return mybot_aw9523b_set_levels(&s_hardware.aw9523b, mask, percent ? mask : 0);
+#elif defined(MYBOT_DISPLAY_BACKLIGHT_GPIO)
     if (MYBOT_DISPLAY_BACKLIGHT_GPIO == GPIO_NUM_NC) {
         return 0;
     }

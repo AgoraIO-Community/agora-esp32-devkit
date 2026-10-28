@@ -152,8 +152,9 @@ Firmware integration differences are limited to the active ESP32-S3 build:
   DSCP/TOS support required by the bundled RTSA package.
 - Component Registry manifests and download-cache checksum metadata are omitted because dependencies
   are local or supplied by ESP-IDF v5.5.2.
-- The codec-device source set contains only the common adapters and ES8311, ES7243E, ES7210, and
-  AW88298 devices used by supported boards; codec-setting errors are propagated to platform callers.
+- The codec-device source set contains only the common adapters and ES8311, ES8388, ES7243E,
+  ES7210, and AW88298 devices used by supported boards; codec-setting errors are propagated to
+  platform callers.
 - The TCA95xx constructor removes its I2C device if register reset fails.
 - The SenseCAP profile uses explicit IO-expander calls and disables the optional global GPIO API
   wrapper.

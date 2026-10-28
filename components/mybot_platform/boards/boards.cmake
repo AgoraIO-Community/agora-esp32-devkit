@@ -55,6 +55,13 @@ set(MYBOT_SUPPORTED_BOARDS
     "zhengchen-1.54tft-wifi"
     "kevin-sp-v4-dev"
     "du-chatx"
+    "minsi-k08-dual"
+    "kevin-box-2"
+    "magiclick-2p5"
+    "atk-dnesp32s3-box3"
+    "zhengchen-cam"
+    "labplus-ledong-v2"
+    "labplus-mpython-v3"
 )
 set(_MYBOT_BOARDS_ROOT "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -172,6 +179,20 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/kevin-sp-v4-dev/board.cmake")
     elseif(board STREQUAL "du-chatx")
         set(profile "${_MYBOT_BOARDS_ROOT}/du-chatx/board.cmake")
+    elseif(board STREQUAL "minsi-k08-dual")
+        set(profile "${_MYBOT_BOARDS_ROOT}/minsi-k08-dual/board.cmake")
+    elseif(board STREQUAL "kevin-box-2")
+        set(profile "${_MYBOT_BOARDS_ROOT}/kevin-box-2/board.cmake")
+    elseif(board STREQUAL "magiclick-2p5")
+        set(profile "${_MYBOT_BOARDS_ROOT}/magiclick-2p5/board.cmake")
+    elseif(board STREQUAL "atk-dnesp32s3-box3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/atk-dnesp32s3-box3/board.cmake")
+    elseif(board STREQUAL "zhengchen-cam")
+        set(profile "${_MYBOT_BOARDS_ROOT}/zhengchen-cam/board.cmake")
+    elseif(board STREQUAL "labplus-ledong-v2")
+        set(profile "${_MYBOT_BOARDS_ROOT}/labplus-ledong-v2/board.cmake")
+    elseif(board STREQUAL "labplus-mpython-v3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/labplus-mpython-v3/board.cmake")
     else()
         message(FATAL_ERROR "Unsupported MYBOT_BOARD: ${board}")
     endif()

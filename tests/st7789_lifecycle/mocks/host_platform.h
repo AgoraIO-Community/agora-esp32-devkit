@@ -15,6 +15,7 @@ typedef int esp_err_t;
 #define ESP_OK 0
 #define ESP_FAIL -1
 #define ESP_ERR_TIMEOUT 0x107
+#define ESP_ERR_INVALID_STATE 0x103
 const char *esp_err_to_name(esp_err_t error);
 #define ESP_LOGI(...) ((void)0)
 #define ESP_LOGW(...) ((void)0)
@@ -51,6 +52,7 @@ esp_err_t rtc_gpio_deinit(gpio_num_t gpio);
 #define GPIO_NUM_14 14
 #define GPIO_NUM_15 15
 #define GPIO_NUM_16 16
+#define GPIO_NUM_17 17
 #define GPIO_NUM_18 18
 #define GPIO_NUM_21 21
 #define GPIO_NUM_38 38
@@ -154,6 +156,19 @@ esp_err_t esp_lcd_new_panel_io_spi(esp_lcd_spi_bus_handle_t host,
                                    const esp_lcd_panel_io_spi_config_t *config,
                                    esp_lcd_panel_io_handle_t *out);
 esp_err_t esp_lcd_new_panel_st7789(esp_lcd_panel_io_handle_t io,
+                                   const esp_lcd_panel_dev_config_t *config,
+                                   esp_lcd_panel_handle_t *out);
+typedef struct {
+    uint8_t cmd;
+    const uint8_t *data;
+    uint8_t data_bytes;
+    uint16_t delay_ms;
+} gc9a01_lcd_init_cmd_t;
+typedef struct {
+    const gc9a01_lcd_init_cmd_t *init_cmds;
+    size_t init_cmds_size;
+} gc9a01_vendor_config_t;
+esp_err_t esp_lcd_new_panel_gc9a01(esp_lcd_panel_io_handle_t io,
                                    const esp_lcd_panel_dev_config_t *config,
                                    esp_lcd_panel_handle_t *out);
 esp_err_t esp_lcd_panel_io_del(esp_lcd_panel_io_handle_t io);
