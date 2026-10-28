@@ -27,6 +27,11 @@ paths and touch/key ownership retain their existing board behavior.
 | `genjutech-s3-1.54tft` | ST7789, 240 × 240 | shared ST7789 adapter | Boot and volume buttons |
 | `zhengchen-cam` | ST7789, 320 × 240 | shared ST7789 adapter | Boot and volume buttons |
 | `labplus-ledong-v2`, `labplus-mpython-v3` | ST7789-compatible, 320 × 172 | shared ST7789 adapter | Boot |
+| `atk-dnesp32s3` | ST7789, 320 × 240 | shared ST7789 adapter | Boot |
+| `yunliao-s3` | ST7789, 320 × 240 | shared ST7789 adapter | Boot |
+| `lilygo-t-cameraplus-s3`, `lilygo-t-cameraplus-s3-v1.2` | ST7789, 240 × 240 | shared ST7789 adapter | CST816D and Boot |
+| `lilygo-t-circle-s3` | GC9D01N, 160 × 160 round | shared panel adapter, round layout | CST816D and Boot |
+| `jiuchuan-s3` | GC9309NA, 240 × 296 | shared panel adapter | Boot and volume buttons |
 | `sensecap-watcher` | SPD2010, 412 × 412 | shared panel adapter | existing encoder path |
 | `xingzhi-metal-1.54-wifi`, `xingzhi-abs-2.0` | ST7789, 240 × 240 | shared panel adapter | Boot/touch or Boot/volume |
 | `xingzhi-cube-0.85tft-wifi` | NV3023, 128 × 128 | shared panel adapter | Boot |
@@ -76,6 +81,11 @@ Zhengchen Cam uses ST7789 SPI3 mode 0 at 80 MHz with a fixed 320 × 240 landscap
 active-low GPIO42 backlight. Both LabPlus profiles use a 320 × 172 big-endian panel on SPI2 at
 20 MHz; Mpython V3 drives CS on GPIO34 and the backlight on GPIO33, while Ledong V2 uses no CS
 GPIO, backlight GPIO34, and an STM8-held panel reset.
+ATK DNESP32S3 uses ST7789 SPI2 mode 0 at 20 MHz with big-endian pixels and TCA9555-controlled LCD
+power. Yunliao S3 uses ST7789 SPI2 mode 0 at 40 MHz with color inversion. T-CameraPlus S3 uses
+240 × 240 ST7789 at 60 MHz; its two profiles differ in touch, microphone and speaker-enable pins.
+T-Circle S3 uses a 160 × 160 round GC9D01N panel at 40 MHz. Jiuchuan S3 uses SPI3 mode 3 at
+80 MHz for its 240 × 296 GC9309NA panel with BGR order.
 KEVIN SP V4 Dev uses ST7789 SPI3 mode 3 at 80 MHz, a 20-pixel Y offset, color inversion, and a
 GPIO48 LEDC backlight. DuChat X uses ST7789 SPI3 mode 0 at 40 MHz, a 2×1-pixel offset, mirrored
 axes, and a GPIO9 LEDC backlight.

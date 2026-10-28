@@ -54,10 +54,36 @@ esp_err_t rtc_gpio_deinit(gpio_num_t gpio);
 #define GPIO_NUM_16 16
 #define GPIO_NUM_17 17
 #define GPIO_NUM_18 18
+#define GPIO_NUM_19 19
+#define GPIO_NUM_20 20
 #define GPIO_NUM_21 21
+#define GPIO_NUM_22 22
+#define GPIO_NUM_23 23
+#define GPIO_NUM_24 24
+#define GPIO_NUM_25 25
+#define GPIO_NUM_26 26
+#define GPIO_NUM_27 27
+#define GPIO_NUM_28 28
+#define GPIO_NUM_29 29
+#define GPIO_NUM_30 30
+#define GPIO_NUM_31 31
+#define GPIO_NUM_32 32
+#define GPIO_NUM_33 33
+#define GPIO_NUM_34 34
+#define GPIO_NUM_35 35
+#define GPIO_NUM_36 36
+#define GPIO_NUM_37 37
 #define GPIO_NUM_38 38
 #define GPIO_NUM_39 39
 #define GPIO_NUM_40 40
+#define GPIO_NUM_41 41
+#define GPIO_NUM_42 42
+#define GPIO_NUM_43 43
+#define GPIO_NUM_44 44
+#define GPIO_NUM_45 45
+#define GPIO_NUM_46 46
+#define GPIO_NUM_47 47
+#define GPIO_NUM_48 48
 #define SPI2_HOST 2
 #define SPI3_HOST 3
 #define SPI_DMA_CH_AUTO 0
@@ -65,6 +91,7 @@ esp_err_t rtc_gpio_deinit(gpio_num_t gpio);
 #define ESP_INTR_CPU_AFFINITY_AUTO -1
 #define LCD_RGB_ELEMENT_ORDER_RGB 0
 #define LCD_RGB_ELEMENT_ORDER_BGR 1
+#define LCD_RGB_DATA_ENDIAN_BIG 1
 #define LEDC_LOW_SPEED_MODE 0
 #define LEDC_TIMER_0 0
 #define LEDC_CHANNEL_0 0
@@ -151,6 +178,9 @@ typedef struct {
     int rgb_ele_order;
     int bits_per_pixel;
     void *vendor_config;
+    struct {
+        bool reset_active_high;
+    } flags;
 } esp_lcd_panel_dev_config_t;
 esp_err_t esp_lcd_new_panel_io_spi(esp_lcd_spi_bus_handle_t host,
                                    const esp_lcd_panel_io_spi_config_t *config,
