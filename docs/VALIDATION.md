@@ -77,6 +77,10 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `hu-087` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless raw I2S, GPIO17 amplifier enable and GPIO18 input require validation; SSD1306 UI is not implemented and long press is used for provisioning. |
 | `kevin-sp-v4-dev` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Physical Flash/PSRAM, ST7789 mode 3 timing, ES8311 on I2C1, PA and Boot input require device validation; camera, LED, battery, sleep and shutdown are not implemented. |
 | `du-chatx` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Physical Flash/PSRAM, GPIO1 power hold, ST7789 orientation, raw audio slots and Boot input require device validation; battery, charging, LED, sleep and shutdown are not implemented. |
+| `minsi-k08-dual` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Physical Flash/PSRAM, ST7789 orientation, raw audio slots and three keys require device validation; Wi-Fi-only subset has no ML307, battery, LED, lamp, sleep or shutdown. |
+| `kevin-box-2` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | Headless subset; AXP2101, ES8311/ES7210 routing and keys require validation. SSD1306 UI, ML307, LED, battery, sleep and shutdown are not implemented. |
+| `magiclick-2p5` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | GC9107/ST7735 ADC selection, ES8311, PA, keys and power require validation; Wi-Fi-only subset has no battery, LED, sleep or shutdown. |
+| `atk-dnesp32s3-box3` | CI: zh-CN, en-US; local merged build | Not completed / 未完成 | AW9523B power/backlight/PA sequencing, ST7789 endian/orientation and dual codec require validation; K1/K2, camera, battery, sleep and shutdown are not implemented. |
 
 ## Global boundaries / 全局边界
 

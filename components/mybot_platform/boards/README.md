@@ -5,7 +5,7 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 `sdkconfig.defaults` files. Current validation status is centralized in
 [`docs/VALIDATION.md`](../../../docs/VALIDATION.md).
 
-以下说明对应本工程已实现的 56 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
+以下说明对应本工程已实现的 60 个板型。硬件配置、输入行为和构建约束以当前板级代码为准；
 验证状态统一见[验证矩阵](../../../docs/VALIDATION.md)。不同尺寸、芯片或硬件版本的板卡
 不能仅凭外观共用固件。
 
@@ -79,6 +79,10 @@ real-device validation.
 | [hu-087](hu-087/README.md) | Headless | separate raw I2S | one button | OLED UI is not implemented; long press is provision instead of volume. |
 | [kevin-sp-v4-dev](kevin-sp-v4-dev/README.md) | 240×280 ST7789 | ES8311 | Boot | Camera, LED, battery, sleep and shutdown are not implemented. |
 | [du-chatx](du-chatx/README.md) | 128×160 ST7789 | separate raw I2S | Boot | GPIO1 power hold is implemented; battery, charging, LED, sleep and shutdown are not. |
+| [minsi-k08-dual](minsi-k08-dual/README.md) | 240×240 ST7789 | separate raw I2S | Boot + two volume keys | Wi-Fi only; lamp, LED, battery, sleep and shutdown are not implemented. |
+| [kevin-box-2](kevin-box-2/README.md) | Headless | ES8311 + ES7210 | Boot + two volume keys | SSD1306 UI, ML307, LED, battery, sleep and shutdown are not implemented. |
+| [magiclick-2p5](magiclick-2p5/README.md) | 128×128 GC9107 or ST7735 | ES8311 | three buttons | Wi-Fi only; battery, LED, sleep and shutdown are not implemented. |
+| [atk-dnesp32s3-box3](atk-dnesp32s3-box3/README.md) | 320×240 ST7789 | ES8311 + ES7210 | Boot | AW9523B power/PA/backlight implemented; K1/K2, camera, battery, sleep and shutdown are not. |
 
 ## Build, flash and validation / 构建、烧录与验证
 
