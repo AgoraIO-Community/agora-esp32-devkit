@@ -62,6 +62,12 @@ set(MYBOT_SUPPORTED_BOARDS
     "zhengchen-cam"
     "labplus-ledong-v2"
     "labplus-mpython-v3"
+    "atk-dnesp32s3"
+    "yunliao-s3"
+    "lilygo-t-cameraplus-s3"
+    "lilygo-t-cameraplus-s3-v1.2"
+    "lilygo-t-circle-s3"
+    "jiuchuan-s3"
 )
 set(_MYBOT_BOARDS_ROOT "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -193,6 +199,18 @@ function(mybot_resolve_board board)
         set(profile "${_MYBOT_BOARDS_ROOT}/labplus-ledong-v2/board.cmake")
     elseif(board STREQUAL "labplus-mpython-v3")
         set(profile "${_MYBOT_BOARDS_ROOT}/labplus-mpython-v3/board.cmake")
+    elseif(board STREQUAL "atk-dnesp32s3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/atk-dnesp32s3/board.cmake")
+    elseif(board STREQUAL "yunliao-s3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/yunliao-s3/board.cmake")
+    elseif(board STREQUAL "lilygo-t-cameraplus-s3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/lilygo-t-cameraplus-s3/board.cmake")
+    elseif(board STREQUAL "lilygo-t-cameraplus-s3-v1.2")
+        set(profile "${_MYBOT_BOARDS_ROOT}/lilygo-t-cameraplus-s3-v1.2/board.cmake")
+    elseif(board STREQUAL "lilygo-t-circle-s3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/lilygo-t-circle-s3/board.cmake")
+    elseif(board STREQUAL "jiuchuan-s3")
+        set(profile "${_MYBOT_BOARDS_ROOT}/jiuchuan-s3/board.cmake")
     else()
         message(FATAL_ERROR "Unsupported MYBOT_BOARD: ${board}")
     endif()

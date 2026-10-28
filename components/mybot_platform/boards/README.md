@@ -5,7 +5,7 @@ drivers and build constraints are defined by the checked-in `board.cmake`, `boar
 `sdkconfig.defaults` files. Current validation status is centralized in
 [`docs/VALIDATION.md`](../../../docs/VALIDATION.md).
 
-以下说明对应本工程已实现的 63 个板型，其中 56 个带屏、7 个无屏。硬件配置、输入行为和
+以下说明对应本工程已实现的 69 个板型，其中 62 个带屏、7 个无屏。硬件配置、输入行为和
 构建约束以当前板级代码为准；验证状态统一见
 [验证矩阵](../../../docs/VALIDATION.md)。不同尺寸、芯片或硬件版本的板卡不能仅凭外观
 共用固件。
@@ -87,6 +87,12 @@ real-device validation.
 | [zhengchen-cam](zhengchen-cam/README.md) | 320×240 ST7789 | ES8311 output + ES7210 capture | Boot + two volume buttons | Camera, portrait mode, battery, temperature, sleep and shutdown are not implemented; PCA9557 PA and audio require validation. |
 | [labplus-ledong-v2](labplus-ledong-v2/README.md) | 320×172 ST7789-compatible | ES8388 | Boot | STM8 display reset is implemented; touch, sensors, buzzer, RGB LED, motor, camera, sleep and shutdown are not. |
 | [labplus-mpython-v3](labplus-mpython-v3/README.md) | 320×172 ST7789-compatible | ES8388 | Boot | Touch, sensors, buzzer, RGB LED, motor, camera, sleep and shutdown are not implemented. |
+| [atk-dnesp32s3](atk-dnesp32s3/README.md) | 320×240 ST7789 | ES8388 | Boot | TCA9555 display power is implemented; camera, expander keys, dimming, battery, sleep and shutdown are not. |
+| [yunliao-s3](yunliao-s3/README.md) | 320×240 ST7789 | ES8388 | Boot | Wi-Fi subset; ML307/4G, battery, USB and Bluetooth status paths are not implemented. |
+| [lilygo-t-cameraplus-s3](lilygo-t-cameraplus-s3/README.md) | 240×240 ST7789 | MSM261 + MAX98357A | CST816D + Boot | V1.0/V1.1 only; camera, PMIC, KEY1, SD, IR, sleep and shutdown are not implemented. |
+| [lilygo-t-cameraplus-s3-v1.2](lilygo-t-cameraplus-s3-v1.2/README.md) | 240×240 ST7789 | PDM microphone + MAX98357A | CST816D + Boot | V1.2 only; camera, PMIC, KEY1, SD, IR, sleep and shutdown are not implemented. |
+| [lilygo-t-circle-s3](lilygo-t-circle-s3/README.md) | 160×160 round GC9D01N | MSM261 + MAX98357A | CST816D + Boot | Rotary encoder, APA102, battery, sleep and shutdown are not implemented. |
+| [jiuchuan-s3](jiuchuan-s3/README.md) | 240×296 GC9309NA | ES8311 | Boot + volume buttons | Power-key actions, battery, charging, sleep and shutdown are not implemented. |
 
 ## Build, flash and validation / 构建、烧录与验证
 
