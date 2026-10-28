@@ -60,10 +60,12 @@ paths and touch/key ownership retain their existing board behavior.
 | `minsi-k08-dual` | ST7789, 240 × 240 | shared ST7789 adapter | Boot and volume buttons |
 | `magiclick-2p5` | GC9107 or ST7735, 128 × 128 | shared compact panel adapter | three buttons |
 | `atk-dnesp32s3-box3` | ST7789, 320 × 240 | shared ST7789 adapter | Boot |
+| `lilygo-t-display-s3-pro-mvsrlora` | ST7796, 222 × 480 | shared panel adapter | CST226SE and Boot |
+| `atk-dnesp32s3-box` | i80 ST7789, 320 × 240 | shared ST7789 adapter | Boot |
+| `tudouzi` | Headless | none | Boot and two volume buttons |
 
-The AtomEchoS3R, DOIT S3 AI Box, Bread Compact Wi-Fi, HU-087 and ReSpeaker Flex profiles have no
-LCD and do not include LVGL. The ML307 and
-Wi-Fi variants, along with the audio/video protocols, are independent of the display backend.
+Headless profiles select `Kconfig.headless` and do not include LVGL. The ML307 and Wi-Fi variants,
+along with the audio/video protocols, are independent of the display backend.
 The Xingzhi Cube uses SPI3 mode 3 at 40 MHz, zero offsets, and GPIO13 LEDC backlight with
 5 kHz, 13-bit PWM at 60% duty.
 Its display and power behavior require real-device validation.
@@ -93,6 +95,10 @@ Minsi K08 uses ST7789 SPI3 mode 3 at 40 MHz, an 80-pixel X offset, swapped axes 
 backlight. Magiclick 2.5 selects GC9107 or ST7735 from GPIO3 ADC and uses a GPIO13 LEDC
 backlight. ATK Box 3 uses ST7789 on SPI2 at 60 MHz with big-endian pixel data and AW9523B
 bit 8 as a binary backlight enable.
+T-Display S3 Pro uses a 222 × 480 ST7796 panel on SPI3 at 40 MHz with a 49-pixel X gap and
+CST226SE direct-I2C input. ATK DNESP32S3 Box uses an 8-bit i80 ST7789 bus at 10 MHz and leaves
+the expander-owned power and backlight paths outside the panel driver. Both layouts are
+build-tested only until panel orientation, color and touch alignment are checked on hardware.
 
 ## CoreS3 pixel-glasses view
 

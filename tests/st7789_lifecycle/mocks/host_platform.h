@@ -23,6 +23,12 @@ const char *esp_err_to_name(esp_err_t error);
 
 typedef int gpio_num_t;
 #define GPIO_MODE_OUTPUT 1
+#define GPIO_MODE_INPUT_OUTPUT 3
+#define GPIO_PULLUP_ENABLE 1
+#define GPIO_PULLUP_DISABLE 0
+#define GPIO_PULLDOWN_ENABLE 1
+#define GPIO_PULLDOWN_DISABLE 0
+#define GPIO_INTR_DISABLE 0
 typedef struct {
     uint64_t pin_bit_mask;
     int mode;
@@ -151,6 +157,7 @@ esp_err_t spi_bus_free(int host);
 
 typedef struct host_panel_io *esp_lcd_panel_io_handle_t;
 typedef struct host_panel *esp_lcd_panel_handle_t;
+typedef struct host_i80_bus *esp_lcd_i80_bus_handle_t;
 typedef struct {
     int unused;
 } esp_lcd_panel_io_event_data_t;
@@ -173,6 +180,38 @@ typedef struct {
     esp_lcd_panel_io_color_trans_done_cb_t on_color_trans_done;
     void *user_ctx;
 } esp_lcd_panel_io_spi_config_t;
+#define LCD_CLK_SRC_DEFAULT 0
+typedef struct {
+    int dc_gpio_num;
+    int wr_gpio_num;
+    int clk_src;
+    int data_gpio_nums[16];
+    size_t bus_width;
+    size_t max_transfer_bytes;
+    size_t dma_burst_size;
+} esp_lcd_i80_bus_config_t;
+typedef struct {
+    int cs_gpio_num;
+    uint32_t pclk_hz;
+    size_t trans_queue_depth;
+    esp_lcd_panel_io_color_trans_done_cb_t on_color_trans_done;
+    void *user_ctx;
+    int lcd_cmd_bits;
+    int lcd_param_bits;
+    struct {
+        unsigned int dc_idle_level : 1;
+        unsigned int dc_cmd_level : 1;
+        unsigned int dc_dummy_level : 1;
+        unsigned int dc_data_level : 1;
+    } dc_levels;
+    struct {
+        unsigned int cs_active_high : 1;
+        unsigned int reverse_color_bits : 1;
+        unsigned int swap_color_bytes : 1;
+        unsigned int pclk_active_neg : 1;
+        unsigned int pclk_idle_low : 1;
+    } flags;
+} esp_lcd_panel_io_i80_config_t;
 typedef struct {
     int reset_gpio_num;
     int rgb_ele_order;
@@ -185,6 +224,14 @@ typedef struct {
 esp_err_t esp_lcd_new_panel_io_spi(esp_lcd_spi_bus_handle_t host,
                                    const esp_lcd_panel_io_spi_config_t *config,
                                    esp_lcd_panel_io_handle_t *out);
+esp_err_t esp_lcd_new_i80_bus(const esp_lcd_i80_bus_config_t *bus_config,
+                              esp_lcd_i80_bus_handle_t *ret_bus);
+esp_err_t esp_lcd_del_i80_bus(esp_lcd_i80_bus_handle_t bus);
+esp_err_t esp_lcd_new_panel_io_i80(esp_lcd_i80_bus_handle_t bus,
+                                   const esp_lcd_panel_io_i80_config_t *io_config,
+                                   esp_lcd_panel_io_handle_t *ret_io);
+esp_err_t esp_lcd_panel_io_tx_param(esp_lcd_panel_io_handle_t io, int lcd_cmd, const void *param,
+                                    size_t param_size);
 esp_err_t esp_lcd_new_panel_st7789(esp_lcd_panel_io_handle_t io,
                                    const esp_lcd_panel_dev_config_t *config,
                                    esp_lcd_panel_handle_t *out);

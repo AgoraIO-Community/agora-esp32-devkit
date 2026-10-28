@@ -5,10 +5,15 @@
 #include <mybot/platform/mybot_key.h>
 
 #include "button_gpio.h"
-#include "esp_lcd_touch.h"
 
 #ifndef MYBOT_TOUCH_DRIVER_KIND
 #define MYBOT_TOUCH_DRIVER_KIND 1
+#endif
+
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+#include "driver/gpio.h"
+#else
+#include "esp_lcd_touch.h"
 #endif
 
 #if MYBOT_TOUCH_DRIVER_KIND == 1
@@ -17,7 +22,7 @@
 #include "esp_lcd_touch_ft5x06.h"
 #elif MYBOT_TOUCH_DRIVER_KIND == 3
 #include "esp_lcd_touch_gt911.h"
-#else
+#elif MYBOT_TOUCH_DRIVER_KIND != 4
 #error "Unsupported MYBOT_TOUCH_DRIVER_KIND"
 #endif
 
@@ -53,8 +58,12 @@ typedef struct {
     mybot_key_event_handler_t emit;
     void *user_data;
     button_handle_t boot;
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+    i2c_master_dev_handle_t raw_touch;
+#else
     esp_lcd_touch_handle_t touch;
     esp_lcd_panel_io_handle_t touch_io;
+#endif
     TaskHandle_t touch_task;
 } input_context_t;
 
@@ -65,6 +74,29 @@ static StaticSemaphore_t s_task_stopped_storage;
 static SemaphoreHandle_t s_task_stopped;
 
 i2c_master_bus_handle_t mybot_board_touch_i2c_bus_handle(void);
+
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+#define CST226_ADDRESS 0x5A
+#define CST226_I2C_TIMEOUT_MS 100
+
+static int read_cst226_touch(bool *down) {
+    const uint8_t command = 0x00;
+    uint8_t data[6] = {0};
+    esp_err_t result =
+        i2c_master_transmit(s_context.raw_touch, &command, sizeof(command), CST226_I2C_TIMEOUT_MS);
+    if (result == ESP_OK) {
+        result = i2c_master_receive(s_context.raw_touch, data, sizeof(data), CST226_I2C_TIMEOUT_MS);
+    }
+    if (result != ESP_OK) {
+        return -1;
+    }
+    const int x = ((int)data[1] << 4) | (data[3] >> 4);
+    const int y = ((int)data[2] << 4) | (data[3] & 0x0F);
+    *down = (data[5] & 0x0F) != 0 && x >= 0 && x < MYBOT_DISPLAY_WIDTH && y >= 0 &&
+            y < MYBOT_DISPLAY_HEIGHT;
+    return 0;
+}
+#endif
 
 static bool adapter_is_active(void) {
     portENTER_CRITICAL(&s_context.lock);
@@ -141,12 +173,17 @@ static void touch_task(void *argument) {
     TickType_t pressed_at = 0;
 
     while (!task_should_stop()) {
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+        bool down = false;
+        (void)read_cst226_touch(&down);
+#else
         esp_lcd_touch_point_data_t point = {0};
         uint8_t count = 0;
         const bool valid = esp_lcd_touch_read_data(s_context.touch) == ESP_OK &&
                            esp_lcd_touch_get_data(s_context.touch, &point, &count, 1) == ESP_OK;
         const bool down =
             valid && count > 0 && point.x <= MYBOT_DISPLAY_WIDTH && point.y <= MYBOT_DISPLAY_HEIGHT;
+#endif
         const TickType_t now = xTaskGetTickCount();
 
         if (down && !pressed) {
@@ -183,6 +220,35 @@ static int create_touch(void) {
         return -1;
     }
 
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+    if (MYBOT_TOUCH_RESET != GPIO_NUM_NC) {
+        const gpio_config_t reset_config = {
+            .pin_bit_mask = 1ULL << MYBOT_TOUCH_RESET,
+            .mode = GPIO_MODE_OUTPUT,
+            .pull_up_en = GPIO_PULLUP_DISABLE,
+            .pull_down_en = GPIO_PULLDOWN_DISABLE,
+            .intr_type = GPIO_INTR_DISABLE,
+        };
+        esp_err_t result = gpio_config(&reset_config);
+        if (result == ESP_OK) {
+            result = gpio_set_level(MYBOT_TOUCH_RESET, MYBOT_TOUCH_RESET_LEVEL);
+        }
+        if (result != ESP_OK) {
+            return -1;
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (gpio_set_level(MYBOT_TOUCH_RESET, !MYBOT_TOUCH_RESET_LEVEL) != ESP_OK) {
+            return -1;
+        }
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+    const i2c_device_config_t device_config = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = CST226_ADDRESS,
+        .scl_speed_hz = MYBOT_TOUCH_I2C_SPEED_HZ,
+    };
+    return i2c_master_bus_add_device(bus, &device_config, &s_context.raw_touch) == ESP_OK ? 0 : -1;
+#else
 #if MYBOT_TOUCH_DRIVER_KIND == 1
     esp_lcd_panel_io_i2c_config_t io_config = {
         .dev_addr = ESP_LCD_TOUCH_IO_I2C_CST816S_ADDRESS,
@@ -235,6 +301,7 @@ static int create_touch(void) {
         return -1;
     }
     return 0;
+#endif
 }
 
 static int release_input_devices(void) {
@@ -244,6 +311,13 @@ static int release_input_devices(void) {
     } else if (s_context.boot) {
         result = -1;
     }
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+    if (s_context.raw_touch && i2c_master_bus_rm_device(s_context.raw_touch) == ESP_OK) {
+        s_context.raw_touch = NULL;
+    } else if (s_context.raw_touch) {
+        result = -1;
+    }
+#else
     if (s_context.touch && esp_lcd_touch_del(s_context.touch) == ESP_OK) {
         s_context.touch = NULL;
     } else if (s_context.touch) {
@@ -255,6 +329,7 @@ static int release_input_devices(void) {
     } else if (!s_context.touch && s_context.touch_io) {
         result = -1;
     }
+#endif
     return result;
 }
 
@@ -284,8 +359,13 @@ static int release_input(void) {
     portENTER_CRITICAL(&s_context.lock);
     s_context.emit = NULL;
     s_context.user_data = NULL;
-    s_context.started =
-        s_context.boot || s_context.touch || s_context.touch_io || s_context.touch_task;
+    s_context.started = s_context.boot ||
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+                        s_context.raw_touch ||
+#else
+                        s_context.touch || s_context.touch_io ||
+#endif
+                        s_context.touch_task;
     if (!s_context.started) {
         s_context.task_stop_requested = false;
     }
@@ -295,8 +375,13 @@ static int release_input(void) {
 
 int mybot_cst816s_input_start(void) {
     portENTER_CRITICAL(&s_context.lock);
-    const bool already_started = s_context.started || s_context.boot || s_context.touch ||
-                                 s_context.touch_io || s_context.touch_task;
+    const bool already_started = s_context.started || s_context.boot ||
+#if MYBOT_TOUCH_DRIVER_KIND == 4
+                                 s_context.raw_touch ||
+#else
+                                 s_context.touch || s_context.touch_io ||
+#endif
+                                 s_context.touch_task;
     portEXIT_CRITICAL(&s_context.lock);
     if (already_started) {
         return -1;

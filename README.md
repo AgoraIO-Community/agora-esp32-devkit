@@ -11,8 +11,8 @@ voice-chat runtime on
 ESP32-S3 boards. The project owns board initialization, Wi-Fi provisioning, persistent storage,
 HTTPS transport, audio, input, display, and the firmware lifecycle around the SDK.
 
-The development baseline is **ESP-IDF v5.5.2**. Sixty-nine compile-time board profiles are
-supported (62 display and 7 headless); the board, Flash, PSRAM, partition table, and hardware
+The development baseline is **ESP-IDF v5.5.2**. Seventy-two compile-time board profiles are
+supported (64 display and 8 headless); the board, Flash, PSRAM, partition table, and hardware
 drivers are selected with `MYBOT_BOARD`. See the
 [board documentation index](components/mybot_platform/boards/README.md) for hardware details,
 controls, build commands, and per-board limitations.
@@ -61,13 +61,14 @@ Display profiles:
 `genjutech-s3-1.54tft`, `zhengchen-cam`, `labplus-ledong-v2`,
 `labplus-mpython-v3`, `atk-dnesp32s3`, `yunliao-s3`,
 `lilygo-t-cameraplus-s3`, `lilygo-t-cameraplus-s3-v1.2`, `lilygo-t-circle-s3`,
-`jiuchuan-s3`, `m5stack-core-s3`, `m5stack-stick-s3`, and `sensecap-watcher`.
+`jiuchuan-s3`, `lilygo-t-display-s3-pro-mvsrlora`, `atk-dnesp32s3-box`,
+`m5stack-core-s3`, `m5stack-stick-s3`, and `sensecap-watcher`.
 
 Headless profiles:
 
 `atom-echos3r`, `xingzhi-cube-0.96oled-wifi`, `doit-s3-aibox`,
-`bread-compact-wifi`, `hu-087`, `kevin-box-2`, and
-`respeaker-flex-xvf3800-circular4-xiao`.
+`bread-compact-wifi`, `hu-087`, `kevin-box-2`,
+`respeaker-flex-xvf3800-circular4-xiao`, and `tudouzi`.
 
 All profiles currently use Wi-Fi. The ML307 profile reserves modem UART pins but does not
 implement modem or 4G networking. Only `m5stack-core-s3` currently exposes camera video.

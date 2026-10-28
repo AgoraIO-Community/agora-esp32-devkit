@@ -4,6 +4,7 @@
 
 #include <pthread.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 typedef int esp_err_t;
@@ -13,6 +14,10 @@ typedef int esp_err_t;
 const char *esp_err_to_name(esp_err_t error);
 
 typedef int gpio_num_t;
+#define GPIO_MODE_OUTPUT 1
+#define GPIO_PULLUP_DISABLE 0
+#define GPIO_PULLDOWN_DISABLE 0
+#define GPIO_INTR_DISABLE 0
 #define GPIO_NUM_NC -1
 #define GPIO_NUM_0 0
 #define GPIO_NUM_1 1
@@ -23,6 +28,7 @@ typedef int gpio_num_t;
 #define GPIO_NUM_7 7
 #define GPIO_NUM_10 10
 #define GPIO_NUM_11 11
+#define GPIO_NUM_13 13
 #define GPIO_NUM_15 15
 #define GPIO_NUM_21 21
 #define GPIO_NUM_38 38
@@ -38,6 +44,16 @@ typedef int gpio_num_t;
 #define I2C_NUM_0 0
 #define I2C_NUM_1 1
 #define SPI2_HOST 2
+
+typedef struct {
+    uint64_t pin_bit_mask;
+    int mode;
+    int pull_up_en;
+    int pull_down_en;
+    int intr_type;
+} gpio_config_t;
+esp_err_t gpio_config(const gpio_config_t *config);
+esp_err_t gpio_set_level(gpio_num_t gpio, uint32_t level);
 
 #define ESP_LOGI(...) ((void)0)
 #define ESP_LOGW(...) ((void)0)
@@ -74,8 +90,27 @@ int xSemaphoreTake(SemaphoreHandle_t semaphore, TickType_t ticks);
 int xSemaphoreGive(SemaphoreHandle_t semaphore);
 
 typedef struct mock_i2c_bus *i2c_master_bus_handle_t;
+typedef struct mock_i2c_device *i2c_master_dev_handle_t;
 typedef struct mock_panel_io *esp_lcd_panel_io_handle_t;
 typedef struct mock_touch *esp_lcd_touch_handle_t;
+
+typedef enum {
+    I2C_ADDR_BIT_LEN_7 = 0,
+} i2c_addr_bit_len_t;
+
+typedef struct {
+    i2c_addr_bit_len_t dev_addr_length;
+    uint16_t device_address;
+    uint32_t scl_speed_hz;
+} i2c_device_config_t;
+
+esp_err_t i2c_master_bus_add_device(i2c_master_bus_handle_t bus, const i2c_device_config_t *config,
+                                    i2c_master_dev_handle_t *out_device);
+esp_err_t i2c_master_bus_rm_device(i2c_master_dev_handle_t device);
+esp_err_t i2c_master_transmit(i2c_master_dev_handle_t device, const uint8_t *data, size_t size,
+                              int timeout_ms);
+esp_err_t i2c_master_receive(i2c_master_dev_handle_t device, uint8_t *data, size_t size,
+                             int timeout_ms);
 
 typedef struct {
     uint16_t dev_addr;

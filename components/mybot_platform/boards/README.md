@@ -4,7 +4,7 @@ These documents describe the board profiles implemented by `agora-esp32-devkit`.
 drivers and build constraints are defined by the checked-in `board.cmake`, `board_config.h` and
 `sdkconfig.defaults` files. Use ESP-IDF v5.5.2 and select a board with `MYBOT_BOARD`.
 
-以下说明对应本工程已实现的 69 个板型，其中 62 个带屏、7 个无屏。硬件配置、输入行为和
+以下说明对应本工程已实现的 72 个板型，其中 64 个带屏、8 个无屏。硬件配置、输入行为和
 构建约束以当前板级代码为准；验证状态统一见
 [验证矩阵](../../../docs/VALIDATION.md)。不同尺寸、芯片或硬件版本的板卡不能仅凭外观
 共用固件。
@@ -92,6 +92,9 @@ real-device validation.
 | [lilygo-t-cameraplus-s3-v1.2](lilygo-t-cameraplus-s3-v1.2/README.md) | 240×240 ST7789 | PDM microphone + MAX98357A | CST816D + Boot | V1.2 only; camera, PMIC, KEY1, SD, IR, sleep and shutdown are not implemented. |
 | [lilygo-t-circle-s3](lilygo-t-circle-s3/README.md) | 160×160 round GC9D01N | MSM261 + MAX98357A | CST816D + Boot | Rotary encoder, APA102, battery, sleep and shutdown are not implemented. |
 | [jiuchuan-s3](jiuchuan-s3/README.md) | 240×296 GC9309NA | ES8311 | Boot + volume buttons | Power-key actions, battery, charging, sleep and shutdown are not implemented. |
+| [lilygo-t-display-s3-pro-mvsrlora](lilygo-t-display-s3-pro-mvsrlora/README.md) | 222×480 ST7796 | PDM capture + MAX98357A playback | CST226SE + Boot | SY6970 setup is implemented; SD, LoRa, vibration, RTC, IMU, battery and sleep are not. |
+| [atk-dnesp32s3-box](atk-dnesp32s3-box/README.md) | 320×240 i80 ST7789 | ES8311 | Boot | XL9555/TCA9555 power setup is implemented; expander keys, camera, battery, dimming, sleep and shutdown are not. |
+| [tudouzi](tudouzi/README.md) | Headless | ES8311 + ES7210 | Boot + two volume keys | Wi-Fi-only subset; SSD1306 UI, ML307, LED, battery, sleep and shutdown are not implemented. |
 
 ## Build, flash and validation / 构建、烧录与验证
 
