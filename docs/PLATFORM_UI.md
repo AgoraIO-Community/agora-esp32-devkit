@@ -50,6 +50,9 @@ retain their existing board behavior.
 | `movecall-cuican-esp32s3`, `movecall-moji-esp32s3` | GC9A01, 240 × 240 | shared panel adapter | Boot |
 | `kevin-sp-v4-dev` | ST7789, 240 × 280 | shared ST7789 adapter | Boot |
 | `du-chatx` | ST7789, 128 × 160 | shared ST7789 compact layout | Boot |
+| `minsi-k08-dual` | ST7789, 240 × 240 | shared ST7789 adapter | Boot and volume buttons |
+| `magiclick-2p5` | GC9107 or ST7735, 128 × 128 | shared compact panel adapter | three buttons |
+| `atk-dnesp32s3-box3` | ST7789, 320 × 240 | shared ST7789 adapter | Boot |
 
 The AtomEchoS3R, DOIT S3 AI Box, Bread Compact Wi-Fi, HU-087 and ReSpeaker Flex profiles have no
 LCD and do not include LVGL. The ML307 and
@@ -67,6 +70,10 @@ constraint. LCD 1.85 uses GPIO5 LEDC backlight at 60% and a 360 × 360 ST77916 p
 KEVIN SP V4 Dev uses ST7789 SPI3 mode 3 at 80 MHz, a 20-pixel Y offset, color inversion, and a
 GPIO48 LEDC backlight. DuChat X uses ST7789 SPI3 mode 0 at 40 MHz, a 2×1-pixel offset, mirrored
 axes, and a GPIO9 LEDC backlight.
+Minsi K08 uses ST7789 SPI3 mode 3 at 40 MHz, an 80-pixel X offset, swapped axes and a GPIO7 LEDC
+backlight. Magiclick 2.5 selects GC9107 or ST7735 from GPIO3 ADC and uses a GPIO13 LEDC
+backlight. ATK Box 3 uses ST7789 on SPI2 at 60 MHz with big-endian pixel data and AW9523B
+bit 8 as a binary backlight enable.
 
 ## CoreS3 pixel-glasses view
 

@@ -48,6 +48,9 @@
 | `movecall-cuican-esp32s3`、`movecall-moji-esp32s3` | GC9A01，240 × 240 | 通用面板适配器 | Boot |
 | `kevin-sp-v4-dev` | ST7789，240 × 280 | 通用 ST7789 | Boot |
 | `du-chatx` | ST7789，128 × 160 | 通用 ST7789 紧凑布局 | Boot |
+| `minsi-k08-dual` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量键 |
+| `magiclick-2p5` | GC9107 或 ST7735，128 × 128 | 通用紧凑面板适配器 | 三个按键 |
+| `atk-dnesp32s3-box3` | ST7789，320 × 240 | 通用 ST7789 | Boot |
 
 AtomEchoS3R、DOIT S3 AI Box、Bread Compact Wi-Fi、HU-087 与 ReSpeaker Flex 没有 LCD，
 不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
@@ -65,6 +68,9 @@ ST7789 SPI3 mode 3 / 80 MHz、颜色反转与 GPIO2 LEDC 背光（60%）。
 KEVIN SP V4 Dev 使用 ST7789 SPI3 mode 3 / 80 MHz、Y 偏移 20、颜色反转与 GPIO48 LEDC
 背光。DuChat X 使用 ST7789 SPI3 mode 0 / 40 MHz、2×1 像素偏移、X/Y 镜像与 GPIO9 LEDC
 背光。
+Minsi K08 使用 ST7789 SPI3 mode 3 / 40 MHz、X 偏移 80、交换 X/Y 与 GPIO7 LEDC 背光。
+Magiclick 2.5 通过 GPIO3 ADC 选择 GC9107 或 ST7735，并使用 GPIO13 LEDC 背光。
+ATK Box 3 使用 SPI2 / 60 MHz 的 ST7789 与大端像素数据，并由 AW9523B bit 8 二值开关背光。
 
 ## CoreS3像素眼镜视图
 

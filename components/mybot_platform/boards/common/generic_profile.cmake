@@ -77,6 +77,11 @@ if(MYBOT_GENERIC_TCA9554)
         "${MYBOT_PLATFORM_ROOT}/src/drivers/io_expander/tca9554.c")
 endif()
 
+if(MYBOT_GENERIC_AW9523B)
+    list(APPEND MYBOT_BOARD_SOURCES
+        "${MYBOT_PLATFORM_ROOT}/src/drivers/io_expander/aw9523b.c")
+endif()
+
 set(MYBOT_BOARD_REQUIRES
     button
     esp_codec_dev
