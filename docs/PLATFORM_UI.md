@@ -25,13 +25,15 @@ paths and touch/key ownership retain their existing board behavior.
 | `esp32-s3-touch-amoled-1.8-v2` | CO5300 368×448 variant, 368 × 448 | shared panel adapter | CST816S and Boot |
 | `esp32-s3-touch-lcd-1.85` | ST77916, 360 × 360 | shared panel adapter | CST816S and Boot |
 | `genjutech-s3-1.54tft` | ST7789, 240 × 240 | shared ST7789 adapter | Boot and volume buttons |
+| `zhengchen-cam` | ST7789, 320 × 240 | shared ST7789 adapter | Boot and volume buttons |
+| `labplus-ledong-v2`, `labplus-mpython-v3` | ST7789-compatible, 320 × 172 | shared ST7789 adapter | Boot |
 | `sensecap-watcher` | SPD2010, 412 × 412 | shared panel adapter | existing encoder path |
 | `xingzhi-metal-1.54-wifi`, `xingzhi-abs-2.0` | ST7789, 240 × 240 | shared panel adapter | Boot/touch or Boot/volume |
 | `xingzhi-cube-0.85tft-wifi` | NV3023, 128 × 128 | shared panel adapter | Boot |
 | `xingzhi-cube-0.96oled-wifi` | Headless | none | Boot and volume buttons |
 | `m5stack-stopwatch` | CO5300, 466 × 466 round | shared panel adapter | CST820B-compatible touch and buttons |
 | `esp32-s3-touch-amoled-1.8` | SH8601, 368 × 448 | shared panel adapter | FT5x06 and Boot |
-| AMOLED 1.32/1.43c/2.06 | SH8601, 466 × 466 or 410 × 502 | shared panel adapter | Boot; FT5x06 on 2.06 |
+| `esp32-s3-touch-amoled-1.32`, `esp32-s3-touch-amoled-1.43c`, `esp32-s3-touch-amoled-2.06` | SH8601, 466 × 466 or 410 × 502 | shared panel adapter | Boot; FT5x06 on 2.06 |
 | `atoms3r-echo-base`, `atoms3r-echo-pyramid` | GC9A01-class, 128 × 128 | shared panel adapter | Boot |
 | `sp-esp32-s3-1.28-box` | GC9A01, 240 × 240 round | shared panel adapter | CST816S-compatible touch and Boot |
 | `esp-box`, `esp-box-3`, `esp-box-lite` | ILI9341, 320 × 240 | shared panel adapter | Boot; touch not implemented |
@@ -50,6 +52,9 @@ paths and touch/key ownership retain their existing board behavior.
 | `movecall-cuican-esp32s3`, `movecall-moji-esp32s3` | GC9A01, 240 × 240 | shared panel adapter | Boot |
 | `kevin-sp-v4-dev` | ST7789, 240 × 280 | shared ST7789 adapter | Boot |
 | `du-chatx` | ST7789, 128 × 160 | shared ST7789 compact layout | Boot |
+| `minsi-k08-dual` | ST7789, 240 × 240 | shared ST7789 adapter | Boot and volume buttons |
+| `magiclick-2p5` | GC9107 or ST7735, 128 × 128 | shared compact panel adapter | three buttons |
+| `atk-dnesp32s3-box3` | ST7789, 320 × 240 | shared ST7789 adapter | Boot |
 
 The AtomEchoS3R, DOIT S3 AI Box, Bread Compact Wi-Fi, HU-087 and ReSpeaker Flex profiles have no
 LCD and do not include LVGL. The ML307 and
@@ -67,9 +72,17 @@ Chinese and English 2.16 build support has been validated; real-device testing r
 AMOLED 1.8 V2 uses a 16-pixel X gap and 40 MHz QSPI with the same even-pixel CO5300 transfer
 constraint. LCD 1.85 uses GPIO5 LEDC backlight at 60% and a 360 × 360 ST77916 panel. GenjuTech
 1.54 uses ST7789 SPI3 mode 3 at 80 MHz, color inversion, and GPIO2 LEDC backlight at 60%.
+Zhengchen Cam uses ST7789 SPI3 mode 0 at 80 MHz with a fixed 320 × 240 landscape layout and an
+active-low GPIO42 backlight. Both LabPlus profiles use a 320 × 172 big-endian panel on SPI2 at
+20 MHz; Mpython V3 drives CS on GPIO34 and the backlight on GPIO33, while Ledong V2 uses no CS
+GPIO, backlight GPIO34, and an STM8-held panel reset.
 KEVIN SP V4 Dev uses ST7789 SPI3 mode 3 at 80 MHz, a 20-pixel Y offset, color inversion, and a
 GPIO48 LEDC backlight. DuChat X uses ST7789 SPI3 mode 0 at 40 MHz, a 2×1-pixel offset, mirrored
 axes, and a GPIO9 LEDC backlight.
+Minsi K08 uses ST7789 SPI3 mode 3 at 40 MHz, an 80-pixel X offset, swapped axes and a GPIO7 LEDC
+backlight. Magiclick 2.5 selects GC9107 or ST7735 from GPIO3 ADC and uses a GPIO13 LEDC
+backlight. ATK Box 3 uses ST7789 on SPI2 at 60 MHz with big-endian pixel data and AW9523B
+bit 8 as a binary backlight enable.
 
 ## CoreS3 pixel-glasses view
 

@@ -94,11 +94,14 @@ int mybot_display_panel_open(mybot_display_panel_t *panel) {
         goto fail;
     }
 
-    const esp_lcd_panel_dev_config_t panel_config = {
+    esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = MYBOT_DISPLAY_RESET,
         .rgb_ele_order = MYBOT_DISPLAY_RGB_ORDER,
         .bits_per_pixel = 16,
     };
+#ifdef MYBOT_DISPLAY_DATA_ENDIAN
+    panel_config.data_endian = MYBOT_DISPLAY_DATA_ENDIAN;
+#endif
     result = esp_lcd_new_panel_st7789(panel->io, &panel_config, &panel->panel);
     if (result == ESP_OK) {
         result = esp_lcd_panel_reset(panel->panel);

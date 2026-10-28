@@ -24,13 +24,15 @@
 | `esp32-s3-touch-amoled-1.8-v2` | CO5300 368×448 变体，368 × 448 | 通用面板适配器 | CST816S 与 Boot |
 | `esp32-s3-touch-lcd-1.85` | ST77916，360 × 360 | 通用面板适配器 | CST816S 与 Boot |
 | `genjutech-s3-1.54tft` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量按键 |
+| `zhengchen-cam` | ST7789，320 × 240 | 通用 ST7789 | Boot 与音量按键 |
+| `labplus-ledong-v2`、`labplus-mpython-v3` | ST7789 兼容，320 × 172 | 通用 ST7789 | Boot |
 | `sensecap-watcher` | SPD2010，412 × 412 | 通用面板适配器 | 原有旋钮路径 |
 | `xingzhi-metal-1.54-wifi`、`xingzhi-abs-2.0` | ST7789，240 × 240 | 通用面板适配器 | Boot/触摸或 Boot/音量键 |
 | `xingzhi-cube-0.85tft-wifi` | NV3023，128 × 128 | 通用面板适配器 | Boot |
 | `xingzhi-cube-0.96oled-wifi` | 无屏 | 无 | Boot 与音量键 |
 | `m5stack-stopwatch` | CO5300，466 × 466 圆屏 | 通用面板适配器 | CST820B 兼容触摸与按键 |
 | `esp32-s3-touch-amoled-1.8` | SH8601，368 × 448 | 通用面板适配器 | FT5x06 与 Boot |
-| AMOLED 1.32/1.43c/2.06 | SH8601，466 × 466 或 410 × 502 | 通用面板适配器 | Boot；2.06 使用 FT5x06 |
+| `esp32-s3-touch-amoled-1.32`、`esp32-s3-touch-amoled-1.43c`、`esp32-s3-touch-amoled-2.06` | SH8601，466 × 466 或 410 × 502 | 通用面板适配器 | Boot；2.06 使用 FT5x06 |
 | `atoms3r-echo-base`、`atoms3r-echo-pyramid` | GC9A01 类，128 × 128 | 通用面板适配器 | Boot |
 | `sp-esp32-s3-1.28-box` | GC9A01，240 × 240 圆屏 | 通用面板适配器 | CST816S 兼容触摸与 Boot |
 | `esp-box`、`esp-box-3`、`esp-box-lite` | ILI9341，320 × 240 | 通用面板适配器 | Boot；未实现触摸 |
@@ -49,6 +51,9 @@
 | `movecall-cuican-esp32s3`、`movecall-moji-esp32s3` | GC9A01，240 × 240 | 通用面板适配器 | Boot |
 | `kevin-sp-v4-dev` | ST7789，240 × 280 | 通用 ST7789 | Boot |
 | `du-chatx` | ST7789，128 × 160 | 通用 ST7789 紧凑布局 | Boot |
+| `minsi-k08-dual` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量键 |
+| `magiclick-2p5` | GC9107 或 ST7735，128 × 128 | 通用紧凑面板适配器 | 三个按键 |
+| `atk-dnesp32s3-box3` | ST7789，320 × 240 | 通用 ST7789 | Boot |
 
 AtomEchoS3R、DOIT S3 AI Box、Bread Compact Wi-Fi、HU-087 与 ReSpeaker Flex 没有 LCD，
 不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
@@ -65,9 +70,15 @@ AMOLED 2.16 使用零 panel gap 与 40 MHz QSPI；CO5300 传输区域两个方�
 AMOLED 1.8 V2 使用 16 像素 X 偏移与 40 MHz QSPI，并保持相同的 CO5300 偶数像素约束。
 LCD 1.85 使用 GPIO5 LEDC 背光（60%）与 360 × 360 ST77916 面板。GenjuTech 1.54 使用
 ST7789 SPI3 mode 3 / 80 MHz、颜色反转与 GPIO2 LEDC 背光（60%）。
+征辰 Camera 使用 ST7789 SPI3 mode 0 / 80 MHz、固定 320 × 240 横屏与低电平有效的 GPIO42
+背光。两款 LabPlus 使用 SPI2 / 20 MHz 的 320 × 172 大端面板；掌控板 V3 的 CS 为 GPIO34、
+背光为 GPIO33，乐动掌控 V2 不使用 CS 引脚、背光为 GPIO34，并通过 STM8 保持面板复位时序。
 KEVIN SP V4 Dev 使用 ST7789 SPI3 mode 3 / 80 MHz、Y 偏移 20、颜色反转与 GPIO48 LEDC
 背光。DuChat X 使用 ST7789 SPI3 mode 0 / 40 MHz、2×1 像素偏移、X/Y 镜像与 GPIO9 LEDC
 背光。
+Minsi K08 使用 ST7789 SPI3 mode 3 / 40 MHz、X 偏移 80、交换 X/Y 与 GPIO7 LEDC 背光。
+Magiclick 2.5 通过 GPIO3 ADC 选择 GC9107 或 ST7735，并使用 GPIO13 LEDC 背光。
+ATK Box 3 使用 SPI2 / 60 MHz 的 ST7789 与大端像素数据，并由 AW9523B bit 8 二值开关背光。
 
 ## CoreS3像素眼镜视图
 
