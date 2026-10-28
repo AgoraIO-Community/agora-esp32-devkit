@@ -106,8 +106,7 @@ RTSA 包前，SDK 构建封装会拒绝这些配置。[CI 工作流](../.github/
    `components/mybot_stack/mybot_sdk/mybot` 添加 ESP-IDF 细节。
 6. 保持 SDK 音频边界：16 kHz、单声道、signed 16-bit PCM，接口传帧数而不是字节数。
 7. 在 `components/mybot_platform/CMakeLists.txt` 选择显示能力：带屏板型使用
-   `Kconfig.display` 启用 LVGL，无屏板型使用 `Kconfig.headless`。当前无屏选择覆盖
-   AtomEchoS3R、行者 Cube 0.96 OLED 与 ReSpeaker Flex，新增无屏板型时需同步此选择。
+   `Kconfig.display` 启用 LVGL，无屏板型使用 `Kconfig.headless`。当前无屏板型统一列在板卡索引中。
 8. 增加两种语言的隔离 CI 构建与尺寸报告，并记录真实设备的配网、HTTPS、RTC、双向音频、
    输入、显示、挂断与重复启停验证。
 
@@ -125,7 +124,12 @@ ES8311+ES7210、ES8388、ES8374 和原始 I2S；原始采集可使用标准 I2S 
 音频 I2C 总线执行一次板级回调，回调必须使用有界超时并清理设备句柄。乐动掌控 V2 用它发送
 STM8 面板复位命令；掌控板 V3 使用同系列显示与音频，但没有该外部复位步骤。
 共享 SPI 面板源可为兼容的命令接口选择厂商初始化表。GC9D01N 与 GC9309NA profile 使用
-各自命令表，但仍复用公共 SPI、刷新、销毁和 LVGL 路径。
+各自命令表，但仍复用公共 SPI、刷新、销毁和 LVGL 路径。ST7796 profile 使用同一命令接口和
+独立初始化表；ATK Box 使用 `generic/i80_st7789_panel.c` 管理 8-bit Intel 8080 生命周期。
+
+CST226 profile 使用 `cst816s_boot_input.c` 内项目自有的直连 I2C 模式，不编译
+`esp_lcd_touch` 封装。SY6970、AXP2101 与 ATK Box XL9555/TCA9555 等板级电源回调均使用有界
+传输，并在成功和失败路径移除临时 I2C 设备。
 
 `M5Stack StopWatch` 在显示和 codec 启动前初始化 M5PM1 与 M5IOE1：打开 LCD/codec 电源，
 复位 LCD/触摸，控制扬声器 PA，并默认关闭振动电机。共享圆屏布局把控件收窄到中央安全

@@ -32,3 +32,4 @@ run_board() {
 
 run_board lilygo-t-circle-s3 4
 run_board jiuchuan-s3 5
+run_board lilygo-t-display-s3-pro-mvsrlora 6

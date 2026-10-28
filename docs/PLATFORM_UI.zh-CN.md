@@ -59,10 +59,11 @@
 | `minsi-k08-dual` | ST7789，240 × 240 | 通用 ST7789 | Boot 与音量键 |
 | `magiclick-2p5` | GC9107 或 ST7735，128 × 128 | 通用紧凑面板适配器 | 三个按键 |
 | `atk-dnesp32s3-box3` | ST7789，320 × 240 | 通用 ST7789 | Boot |
+| `lilygo-t-display-s3-pro-mvsrlora` | ST7796，222 × 480 | 通用面板适配器 | CST226SE 与 Boot |
+| `atk-dnesp32s3-box` | i80 ST7789，320 × 240 | 通用 ST7789 | Boot |
+| `tudouzi` | 无屏 | 无 | Boot 与两个音量键 |
 
-AtomEchoS3R、DOIT S3 AI Box、Bread Compact Wi-Fi、HU-087 与 ReSpeaker Flex 没有 LCD，
-不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端
-相互独立。
+无屏板型选择 `Kconfig.headless`，不编入 LVGL。ML307、Wi-Fi 及音视频协议与显示后端相互独立。
 行者 Cube 使用 SPI3 mode 3 / 40 MHz、零偏移与 GPIO13 LEDC 背光，PWM 为 5 kHz、13-bit、
 60% 占空比；显示和电源行为仍需
 真机验证。
@@ -89,6 +90,9 @@ KEVIN SP V4 Dev 使用 ST7789 SPI3 mode 3 / 80 MHz、Y 偏移 20、颜色反转�
 Minsi K08 使用 ST7789 SPI3 mode 3 / 40 MHz、X 偏移 80、交换 X/Y 与 GPIO7 LEDC 背光。
 Magiclick 2.5 通过 GPIO3 ADC 选择 GC9107 或 ST7735，并使用 GPIO13 LEDC 背光。
 ATK Box 3 使用 SPI2 / 60 MHz 的 ST7789 与大端像素数据，并由 AW9523B bit 8 二值开关背光。
+T-Display S3 Pro 使用 SPI3 / 40 MHz 的 222 × 480 ST7796、49 像素 X 偏移和 CST226SE 直连
+I2C 输入。ATK DNESP32S3 Box 使用 10 MHz 的 8-bit i80 ST7789 总线，扩展器负责的电源与背光
+路径不在面板驱动内。两款布局目前只完成构建验证；面板方向、颜色和触摸坐标仍需真机确认。
 
 ## CoreS3像素眼镜视图
 

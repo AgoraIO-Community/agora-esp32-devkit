@@ -110,9 +110,8 @@ build with conversation animations disabled. This is build coverage, not hardwar
 6. Preserve the SDK audio boundary: 16 kHz, mono, signed 16-bit PCM, with frame counts rather than
    byte counts.
 7. Select the appropriate display capability in `components/mybot_platform/CMakeLists.txt`:
-   `Kconfig.display` for LVGL or `Kconfig.headless` for a board without a panel. The current
-   headless selection covers AtomEchoS3R, Xingzhi Cube 0.96 OLED and ReSpeaker Flex; update it
-   when adding another headless board.
+   `Kconfig.display` for LVGL or `Kconfig.headless` for a board without a panel. The board index
+   lists the current headless profiles.
 8. Add isolated CI builds for both languages and size reports, then record real-device provisioning,
    HTTPS, RTC, bidirectional audio, input, display, hangup, and repeated start/stop validation.
 
@@ -200,7 +199,14 @@ display/audio family without that external reset.
 
 The shared SPI panel source can select a vendor-specific initialization table for controllers
 compatible with the pinned command interface. GC9D01N and GC9309NA profiles use custom command
-tables while retaining the common SPI bus, flush, teardown and LVGL paths.
+tables while retaining the common SPI bus, flush, teardown and LVGL paths. The ST7796 profile uses
+the same command interface with a separate initialization table. The ATK Box uses the dedicated
+`generic/i80_st7789_panel.c` lifecycle for an 8-bit Intel 8080 bus.
+
+CST226 profiles use the project-owned direct-I2C mode in `cst816s_boot_input.c`; they do not compile
+the `esp_lcd_touch` wrapper. Board power callbacks such as SY6970, AXP2101 and the ATK Box
+XL9555/TCA9555 sequence use bounded transfers and remove their temporary I2C device on every
+success or failure path.
 
 `M5Stack StopWatch` uses M5PM1 and M5IOE1 before display and codec startup. The bridge raises LCD
 and codec power, resets LCD/touch, controls the speaker PA and leaves the motor off. The shared
