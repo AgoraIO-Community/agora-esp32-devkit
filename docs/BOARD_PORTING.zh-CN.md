@@ -119,8 +119,10 @@ RTSA 包前，SDK 构建封装会拒绝这些配置。当前构建与真机状�
 `boards/common/generic_profile.cmake` 组合共享板级生命周期、音频适配器、面板、触摸/按键、
 可选的 PCA9557/TCA9554/AXP2101 初始化、显示背光和 SDK 注册。每个板型仍独立维护
 `board.cmake`、`board_config.h`、`sdkconfig.defaults` 与 `board.c`。通用路径支持 ES8311、
-ES8311+ES7210、ES8374 和原始 I2S；原始采集可使用标准 I2S 或 PDM。会改变启动顺序的板级
-电源或扩展器逻辑不应塞入公共路径。
+ES8311+ES7210、ES8388、ES8374 和原始 I2S；原始采集可使用标准 I2S 或 PDM。会改变启动顺序的
+板级电源或扩展器逻辑不应塞入公共路径。`MYBOT_GENERIC_EXTRA_INIT` 可在显示注册前对共享
+音频 I2C 总线执行一次板级回调，回调必须使用有界超时并清理设备句柄。乐动掌控 V2 用它发送
+STM8 面板复位命令；掌控板 V3 使用同系列显示与音频，但没有该外部复位步骤。
 
 `M5Stack StopWatch` 在显示和 codec 启动前初始化 M5PM1 与 M5IOE1：打开 LCD/codec 电源，
 复位 LCD/触摸，控制扬声器 PA，并默认关闭振动电机。共享圆屏布局把控件收窄到中央安全

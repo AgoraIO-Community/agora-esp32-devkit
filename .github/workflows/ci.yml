@@ -21,7 +21,7 @@ jobs:
           find main components/mybot_platform tests/atom_echos3r \
             tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
             tests/cst816s_input tests/tca9554 tests/aw9523b tests/compact_panel \
-            tests/cores3_pixel_ui -type f \
+            tests/cores3_pixel_ui tests/labplus_stm8_reset -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -exec clang-format --dry-run --Werror {} +
       - name: Whitespace check
@@ -42,7 +42,7 @@ jobs:
           find main components/mybot_platform tests/atom_echos3r \
             tests/st7789_lifecycle tests/co5300_lifecycle tests/bread_compact_wifi_lcd \
             tests/cst816s_input tests/tca9554 tests/aw9523b tests/compact_panel \
-            tests/cores3_pixel_ui -type f \
+            tests/cores3_pixel_ui tests/labplus_stm8_reset -type f \
             \( -name '*.c' -o -name '*.h' -o -name '*.cc' -o -name '*.cpp' \) \
             -print0 | while IFS= read -r -d '' file; do
               head -n 5 "$file" | grep -q 'SPDX-License-Identifier:' || {
@@ -62,6 +62,8 @@ jobs:
         run: sh tests/tca9554/run.sh
       - name: AW9523B masked update host tests
         run: sh tests/aw9523b/run.sh
+      - name: LabPlus STM8 display reset host tests
+        run: sh tests/labplus_stm8_reset/run.sh
       - name: Compact GC9107/ST7735 panel lifecycle tests
         run: sh tests/compact_panel/run.sh
       - name: Bread Compact Wi-Fi LCD host lifecycle tests
@@ -334,6 +336,9 @@ jobs:
           - kevin-box-2
           - magiclick-2p5
           - atk-dnesp32s3-box3
+          - zhengchen-cam
+          - labplus-ledong-v2
+          - labplus-mpython-v3
         language: [zh-CN, en-US]
     steps:
       - uses: actions/checkout@v4

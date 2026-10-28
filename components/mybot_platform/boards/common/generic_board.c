@@ -14,7 +14,7 @@
 
 #define TAG "generic_board"
 
-#if MYBOT_GENERIC_AUDIO_KIND == 1 || MYBOT_GENERIC_AUDIO_KIND == 4
+#if MYBOT_GENERIC_AUDIO_KIND == 1 || MYBOT_GENERIC_AUDIO_KIND == 4 || MYBOT_GENERIC_AUDIO_KIND == 5
 const mybot_audio_capture_ops_t *mybot_es8311_audio_capture_ops(void);
 const mybot_audio_playback_ops_t *mybot_es8311_audio_playback_ops(void);
 const mybot_audio_volume_ops_t *mybot_es8311_audio_volume_ops(void);

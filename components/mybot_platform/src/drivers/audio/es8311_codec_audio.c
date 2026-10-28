@@ -10,6 +10,8 @@
 #include "driver/i2s_std.h"
 #if MYBOT_GENERIC_AUDIO_KIND == 4
 #include "audio/es8374_codec.h"
+#elif MYBOT_GENERIC_AUDIO_KIND == 5
+#include "es8388_codec.h"
 #else
 #include "es8311_codec.h"
 #endif
@@ -34,7 +36,27 @@
 #define AUDIO_CAPTURE_CHANNEL 0
 #define AUDIO_VOLUME_NVS_KEY "output_volume"
 #define AUDIO_VOLUME_NVS_NAMESPACE "audio"
+
+#ifndef MYBOT_AUDIO_CODEC_I2C_PORT
+#define MYBOT_AUDIO_CODEC_I2C_PORT MYBOT_ES8311_I2C_PORT
+#endif
+#ifndef MYBOT_AUDIO_CODEC_I2C_ADDRESS
+#define MYBOT_AUDIO_CODEC_I2C_ADDRESS MYBOT_ES8311_I2C_ADDRESS
+#endif
+#ifndef MYBOT_AUDIO_CODEC_INPUT_GAIN_DB
+#define MYBOT_AUDIO_CODEC_INPUT_GAIN_DB MYBOT_ES8311_INPUT_GAIN_DB
+#endif
+#ifndef MYBOT_AUDIO_CODEC_HARDWARE_VOLUME_SCALE_PERCENT
+#define MYBOT_AUDIO_CODEC_HARDWARE_VOLUME_SCALE_PERCENT MYBOT_ES8311_HARDWARE_VOLUME_SCALE_PERCENT
+#endif
+
+#if MYBOT_GENERIC_AUDIO_KIND == 5
+#define TAG "es8388_audio"
+#define MYBOT_AUDIO_CODEC_NAME "es8388"
+#else
 #define TAG "es8311_audio"
+#define MYBOT_AUDIO_CODEC_NAME "es8311"
+#endif
 
 #if MYBOT_AUDIO_SAMPLE_RATE != 16000
 #error "Onboard codec audio must expose 16 kHz PCM to mybot"
@@ -45,9 +67,9 @@
 #error "MYBOT_AUDIO_DEFAULT_VOLUME must be between 0 and 100"
 #endif
 
-#if MYBOT_ES8311_HARDWARE_VOLUME_SCALE_PERCENT < 0 ||                                              \
-    MYBOT_ES8311_HARDWARE_VOLUME_SCALE_PERCENT > 100
-#error "MYBOT_ES8311_HARDWARE_VOLUME_SCALE_PERCENT must be between 0 and 100"
+#if MYBOT_AUDIO_CODEC_HARDWARE_VOLUME_SCALE_PERCENT < 0 ||                                         \
+    MYBOT_AUDIO_CODEC_HARDWARE_VOLUME_SCALE_PERCENT > 100
+#error "MYBOT_AUDIO_CODEC_HARDWARE_VOLUME_SCALE_PERCENT must be between 0 and 100"
 #endif
 
 typedef enum {
@@ -169,7 +191,7 @@ static int validate_format(int rate, int channels, int bits) {
 }
 
 static int hardware_volume_from_logical(int volume) {
-    return (volume * MYBOT_ES8311_HARDWARE_VOLUME_SCALE_PERCENT + MYBOT_AUDIO_VOLUME_MAX / 2) /
+    return (volume * MYBOT_AUDIO_CODEC_HARDWARE_VOLUME_SCALE_PERCENT + MYBOT_AUDIO_VOLUME_MAX / 2) /
            MYBOT_AUDIO_VOLUME_MAX;
 }
 
@@ -367,8 +389,8 @@ static int initialize_codec_locked(void) {
     }
 
     audio_codec_i2c_cfg_t i2c_config = {
-        .port = MYBOT_ES8311_I2C_PORT,
-        .addr = MYBOT_ES8311_I2C_ADDRESS,
+        .port = MYBOT_AUDIO_CODEC_I2C_PORT,
+        .addr = MYBOT_AUDIO_CODEC_I2C_ADDRESS,
         .bus_handle = i2c_bus,
     };
     s_audio.ctrl_if = audio_codec_new_i2c_ctrl(&i2c_config);
@@ -384,6 +406,20 @@ static int initialize_codec_locked(void) {
         .master_mode = false,
         .pa_pin = GPIO_NUM_NC,
         .pa_reverted = false,
+    };
+#elif MYBOT_GENERIC_AUDIO_KIND == 5
+    es8388_codec_cfg_t codec_config = {
+        .ctrl_if = s_audio.ctrl_if,
+        .gpio_if = s_audio.gpio_if,
+        .codec_mode = ESP_CODEC_DEV_WORK_MODE_BOTH,
+        .master_mode = true,
+        .pa_pin = GPIO_NUM_NC,
+        .pa_reverted = false,
+        .hw_gain =
+            {
+                .pa_voltage = 5.0f,
+                .codec_dac_voltage = 3.3f,
+            },
     };
 #else
     es8311_codec_cfg_t codec_config = {
@@ -405,6 +441,8 @@ static int initialize_codec_locked(void) {
 #endif
 #if MYBOT_GENERIC_AUDIO_KIND == 4
     s_audio.codec_if = es8374_codec_new(&codec_config);
+#elif MYBOT_GENERIC_AUDIO_KIND == 5
+    s_audio.codec_if = es8388_codec_new(&codec_config);
 #else
     s_audio.codec_if = es8311_codec_new(&codec_config);
 #endif
@@ -573,19 +611,33 @@ static int open_codec_locked(void) {
         .mclk_multiple = I2S_MCLK_MULTIPLE_256,
     };
     if (esp_codec_dev_open(s_audio.device, &format) != ESP_CODEC_DEV_OK) {
-        ESP_LOGE(TAG, "event=audio_device component=es8311 action=open result=error");
+        ESP_LOGE(TAG, "event=audio_device component=%s action=open result=error",
+                 MYBOT_AUDIO_CODEC_NAME);
         (void)esp_codec_dev_close(s_audio.device);
         return -1;
     }
     s_audio.codec_open = true;
 
     int hardware_volume = hardware_volume_from_logical(s_output_volume);
-    if (esp_codec_dev_set_in_gain(s_audio.device, MYBOT_ES8311_INPUT_GAIN_DB) != ESP_CODEC_DEV_OK ||
+    if (esp_codec_dev_set_in_gain(s_audio.device, MYBOT_AUDIO_CODEC_INPUT_GAIN_DB) !=
+            ESP_CODEC_DEV_OK ||
         esp_codec_dev_set_out_vol(s_audio.device, hardware_volume) != ESP_CODEC_DEV_OK) {
-        ESP_LOGE(TAG, "event=audio_device component=es8311 action=configure result=error");
+        ESP_LOGE(TAG, "event=audio_device component=%s action=configure result=error",
+                 MYBOT_AUDIO_CODEC_NAME);
         (void)close_codec_locked();
         return -1;
     }
+#if MYBOT_GENERIC_AUDIO_KIND == 5
+    uint8_t analog_volume = 30;
+    for (uint8_t reg = 0x2e; reg <= 0x31; ++reg) {
+        if (s_audio.ctrl_if->write_reg(s_audio.ctrl_if, reg, 1, &analog_volume, 1) !=
+            ESP_CODEC_DEV_OK) {
+            ESP_LOGE(TAG, "event=audio_device component=es8388 action=analog_volume result=error");
+            (void)close_codec_locked();
+            return -1;
+        }
+    }
+#endif
     return 0;
 }
 

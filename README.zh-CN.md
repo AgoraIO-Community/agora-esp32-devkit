@@ -9,9 +9,9 @@
 工程负责板级初始化、Wi-Fi 配网、持久化存储、HTTPS、音频、输入、显示，以及 SDK 外围的
 固件生命周期。
 
-当前开发基线为 **ESP-IDF v5.5.2**，支持 60 个编译期 Board profile。通过 `MYBOT_BOARD`
-选择板型、Flash、PSRAM、分区表和硬件驱动。具体硬件配置、输入操作、构建命令和限制见
-[板卡说明索引](components/mybot_platform/boards/README.md)。
+当前开发基线为 **ESP-IDF v5.5.2**，支持 63 个编译期 Board profile（56 个带屏、7 个无屏）。
+通过 `MYBOT_BOARD` 选择板型、Flash、PSRAM、分区表和硬件驱动。具体硬件配置、输入操作、
+构建命令和限制见[板卡说明索引](components/mybot_platform/boards/README.md)。
 
 > 除非文件另有声明，本工程自维护代码使用 Apache-2.0。仓库内依赖和媒体资源有各自的
 > 许可条款；重新分发源码或固件前请阅读[许可证与依赖](#许可证与依赖)。
@@ -51,8 +51,8 @@
 `movecall-moji-esp32s3`、
 `kevin-sp-v4-dev`、`du-chatx`、
 `minsi-k08-dual`、`magiclick-2p5`、`atk-dnesp32s3-box3`、
-`genjutech-s3-1.54tft`、`m5stack-core-s3`、`m5stack-stick-s3` 和
-`sensecap-watcher`。
+`genjutech-s3-1.54tft`、`zhengchen-cam`、`labplus-ledong-v2`、
+`labplus-mpython-v3`、`m5stack-core-s3`、`m5stack-stick-s3` 和 `sensecap-watcher`。
 
 无屏 profile：
 
