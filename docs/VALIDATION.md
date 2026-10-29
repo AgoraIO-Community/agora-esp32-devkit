@@ -30,7 +30,7 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `esp32-s3-touch-amoled-1.8-v2` | CI: zh-CN, en-US; recorded merged build / 已记录合并构建 | Not completed / 未完成 | Physical Flash/PSRAM, AXP2101/TCA9554 sequencing, 368x448 QSPI display, CST816S and 16 kHz ES8311 audio require device validation; no AXP2101 power-key action, battery reporting, sleep, shutdown or video. |
 | `esp32-s3-touch-lcd-1.85` | CI: zh-CN, en-US; recorded merged build / 已记录合并构建 | Not completed / 未完成 | Physical Flash/PSRAM, GPIO7 power hold, panel-version selection, backlight, CST816S and right-slot microphone/both-slot playback require device validation; GPIO6 power button, battery reporting, sleep, shutdown and video are not implemented. |
 | `genjutech-s3-1.54tft` | CI: zh-CN, en-US; recorded merged build / 已记录合并构建 | Not completed / 未完成 | Physical Flash/PSRAM, ST7789, ES8311, PA/display coupling, Boot and volume inputs require device validation; no touch, LED, battery/charging, sleep, shutdown or video. |
-| `m5stack-core-s3` | CI: zh-CN, en-US, video, light-theme and static-animation variants; recorded video build / 已记录视频构建 | Partial / 部分通过: earlier provisioning, bidirectional audio, camera uplink and status-card UI; current pixel UI and shared UI changes pending / 旧通路通过，当前像素 UI 与共享 UI 待回归 | Current pixel UI, capture scheduling and DMA regression; no video downlink, camera preview, battery reporting or automatic sleep. Video is opt-in for direct builds. |
+| `m5stack-core-s3` | CI: zh-CN, en-US, video, light-theme and static-animation variants; recorded video build / 已记录视频构建 | Partial / 部分通过: earlier provisioning, bidirectional audio, camera uplink and status-card UI; 2026-10-29 device log confirms camera stream startup with the PSRAM UI stack / UI 栈迁入 PSRAM 后摄像头启动通过 | Current pixel UI, capture cadence, frame upload and repeated start/stop regression; no video downlink, camera preview, battery reporting or automatic sleep. Video is opt-in for direct builds. |
 | `m5stack-stick-s3` | CI: zh-CN, en-US | Not completed / 未完成 | Power, audio, input and panel; no GPIO12 support, IMU, infrared, battery reporting, shutdown or low power. |
 | `respeaker-flex-xvf3800-circular4-xiao` | CI: zh-CN, en-US | Not completed / 未完成 | Requires separately flashed XVF3800 Circular-4 16 kHz two-channel I2S firmware; XVF version, clock direction, routing and audio pending. No Linear-4, XVF firmware update, LED ring, LCD or video. |
 | `sensecap-watcher` | CI: zh-CN, en-US | Not completed / 未完成 | Power sequencing, codec 16 kHz mode, audio, encoder and display; no camera, touch, LED, battery reporting, shutdown or low power. Preserve the factory-data partition. |
@@ -93,6 +93,28 @@ unsupported areas. Board READMEs describe hardware and operation only; the
 | `lilygo-t-display-s3-pro-mvsrlora` | CI: zh-CN, en-US; recorded merged build | Not completed / 未完成 | ST7796 timing and orientation, CST226SE mapping, SY6970 sequencing, PDM capture, speaker enable and backlight require device validation; SD, LoRa, vibration, RTC, IMU, battery and sleep are not implemented. |
 | `atk-dnesp32s3-box` | CI: zh-CN, en-US; recorded merged build | Not completed / 未完成 | i80 ST7789 timing and orientation, ES8311 routing and XL9555/TCA9555 power sequencing require device validation; expander keys, camera, battery, dimming, sleep and shutdown are not implemented. The NS4168-only hardware variant is not supported. |
 | `tudouzi` | CI: zh-CN, en-US; recorded merged build | Not completed / 未完成 | Headless Wi-Fi subset; AXP2101 sequencing, ES8311/ES7210 routing, PA and keys require device validation. SSD1306 UI, ML307/4G, LED, battery reporting, sleep and shutdown are not implemented. |
+
+## CoreS3 memory regression evidence / CoreS3 内存回归证据
+
+On 2026-10-29, local ESP-IDF v5.5.2 `reconfigure/build/size` passed for CoreS3 video in
+`zh-CN` and `en-US`. CoreS3 and ST7789 host fault-injection tests passed normally and with
+UBSan; ASan could not run because even a minimal program failed at runtime startup on this host.
+Formatting, SPDX and whitespace checks passed.
+
+A user-provided real-device log confirms RTC connected, `dma_buffer_max=8192`,
+`dma_free=15703`, `dma_largest=11776`, DVP initialization and `stream_on` after moving the
+7 KiB UI stack to PSRAM. Before this change, the largest DMA block was 5120 bytes and the
+7680-byte allocation failed. This confirms one successful stream startup; frame capture,
+SDK acceptance, server reception, audio/UI continuity, repeated start/stop and provisioning or
+volume-persistence NVS writes still require validation with the current changes.
+
+2026-10-29，本地 CoreS3 视频中英文版本通过 ESP-IDF v5.5.2 的 `reconfigure/build/size`。
+CoreS3 与 ST7789 Host 故障注入测试的普通和 UBSan 版本通过；本机连最小程序也在 ASan
+运行时启动阶段失败，因此未完成 ASan 验证。格式、SPDX 和空白检查通过。
+用户提供的真机日志确认，7 KiB UI 栈迁入 PSRAM 后，RTC 已连接，DMA 最大连续块从
+5120 字节增至 11776 字节，DVP 初始化和 `stream_on` 成功。该结果仅证明一次启动通过；
+当前改动下的帧采集、SDK 接受、服务端接收、音频/UI 连续性、重复启停，以及配网和音量
+持久化 NVS 写入仍待验证。
 
 ## Global boundaries / 全局边界
 

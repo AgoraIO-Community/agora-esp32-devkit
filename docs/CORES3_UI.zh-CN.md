@@ -100,9 +100,16 @@ idf.py -B build/cores3-pixel -p <PORT> flash monitor
 
 ## 渲染、资源与来源
 
-现有LVGL任务运行于Core 1、优先级1。对象与绘制临时空间使用PSRAM，SPI继续使用
-320 × 16 RGB565条带，即10,240字节内部DMA内存；UI线程栈、驱动和同步资源另计。
+现有LVGL任务运行于Core 1、优先级1。7,168字节任务栈现通过已有port的 `task_stack_caps`
+放入PSRAM，减少7 KiB内部栈存储。CoreS3 profile要求
+`CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`，板级defaults已开启。
+对象与绘制临时空间也使用PSRAM，SPI继续使用320 × 16 RGB565条带，即10,240字节
+内部DMA内存；驱动和同步资源另计。
 局部刷新不增加全屏页面缓存或整脸解码缓冲。
+
+显示初始化日志包含 `ui_stack_bytes=7168 ui_stack=psram`。搬栈减少内部内存占用，不能保证
+摄像头所需的最大DMA连续块；需结合[视频说明](CORES3_VIDEO.zh-CN.md)中的
+`event=video_memory`检查，不能只凭空闲内存总量判断采集能够启动。
 
 固定LVGL控件和曲线绘制表情，五个不可变A8蒙版保存心形、星形、椭圆、脸颊与眼泪，
 alpha数据合计13,631字节，不含描述符。终端字库由DejaVu Sans Mono Bold派生并重命名，
@@ -124,6 +131,7 @@ alpha数据合计13,631字节，不含描述符。终端字库由DejaVu Sans Mon
 - 开关动画，检查超宽SSID/提示滚动及网页控制台配对。
 - 回归短触、三秒配网、断网恢复和反复SDK启停。
 - 视频关闭及原1 fps摄像头上行开启时分别验证全双工音频。
+- PSRAM UI栈改动后的音频、视频与UI并行，以及配网、音量持久化NVS写入回归仍待真机验证。
 - 记录CPU、内部/PSRAM峰值、最小空闲堆及最大连续块，多轮会话观察资源释放和内存增长。
 
 结果需包含板型、固件语言、视频/动画配置、音量及串口日志。
