@@ -10,8 +10,10 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_touch.h"
 #include "esp_lcd_touch_cst816s.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/idf_additions.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "iot_button.h"
@@ -21,6 +23,7 @@
 #include <stdint.h>
 
 #define TAG "vocat_input"
+#define INPUT_STOP_TIMEOUT_MS 1000
 #define INPUT_TASK_STACK_SIZE 3072
 #define INPUT_TASK_PRIORITY 4
 
@@ -216,11 +219,34 @@ static void input_task(void *argument) {
         }
     }
 
+    /* The owner keeps the handle until this task is suspended and can release
+     * its PSRAM stack without allocating an internal cleanup task. */
+    xSemaphoreGive(s_task_stopped);
+    vTaskSuspend(NULL);
+}
+
+static int join_input_task(TaskHandle_t task) {
+    if (!task) {
+        return 0;
+    }
+    if (!s_task_stopped ||
+        xSemaphoreTake(s_task_stopped, pdMS_TO_TICKS(INPUT_STOP_TIMEOUT_MS)) != pdTRUE) {
+        return -1;
+    }
+    /* Keep completion latched if suspension has not happened before the timeout. */
+    xSemaphoreGive(s_task_stopped);
+    const TickType_t started = xTaskGetTickCount();
+    while (eTaskGetState(task) != eSuspended) {
+        if (xTaskGetTickCount() - started >= pdMS_TO_TICKS(INPUT_STOP_TIMEOUT_MS)) {
+            return -1;
+        }
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+    vTaskDeleteWithCaps(task);
     portENTER_CRITICAL(&s_context.lock);
     s_context.task = NULL;
     portEXIT_CRITICAL(&s_context.lock);
-    xSemaphoreGive(s_task_stopped);
-    vTaskDelete(NULL);
+    return 0;
 }
 
 static int release_input_devices(void) {
@@ -270,18 +296,22 @@ int mybot_vocat_input_stop(void) {
         if (s_touch_event) {
             xSemaphoreGive(s_touch_event);
         }
-        if (!s_task_stopped || xSemaphoreTake(s_task_stopped, portMAX_DELAY) != pdTRUE) {
+        if (join_input_task(task) < 0) {
             ESP_LOGE(TAG, "event=input action=deinitialize result=error reason=task_join");
             return -1;
         }
     }
 
+    const TickType_t callbacks_started = xTaskGetTickCount();
     for (;;) {
         portENTER_CRITICAL(&s_context.lock);
         unsigned int in_flight = s_context.callbacks_in_flight;
         portEXIT_CRITICAL(&s_context.lock);
         if (in_flight == 0) {
             break;
+        }
+        if (xTaskGetTickCount() - callbacks_started >= pdMS_TO_TICKS(INPUT_STOP_TIMEOUT_MS)) {
+            return -1;
         }
         vTaskDelay(pdMS_TO_TICKS(1));
     }
@@ -379,8 +409,9 @@ int mybot_vocat_input_start(void) {
         portENTER_CRITICAL(&s_context.lock);
         s_context.stop_requested = false;
         portEXIT_CRITICAL(&s_context.lock);
-        if (xTaskCreate(input_task, "vocat_input", INPUT_TASK_STACK_SIZE, NULL, INPUT_TASK_PRIORITY,
-                        &s_context.task) != pdPASS) {
+        if (xTaskCreateWithCaps(input_task, "vocat_input", INPUT_TASK_STACK_SIZE, NULL,
+                                INPUT_TASK_PRIORITY, &s_context.task,
+                                MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
             result = ESP_ERR_NO_MEM;
         }
     }

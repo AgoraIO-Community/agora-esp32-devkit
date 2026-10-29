@@ -8,9 +8,11 @@
 #include "platform/board_actions.h"
 #include "cores3_hardware.h"
 #include "driver/i2c_master.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/idf_additions.h"
 #include "freertos/task.h"
 
 #include <stdbool.h>
@@ -151,8 +153,9 @@ int mybot_cores3_touch_start(void) {
         ESP_LOGE(TAG, "event=touch action=initialize result=error reason=chip_id");
         return -1;
     }
-    if (xTaskCreate(touch_task, "cores3_touch", TOUCH_TASK_STACK_SIZE, NULL, TOUCH_TASK_PRIORITY,
-                    &s_context.task) != pdPASS) {
+    if (xTaskCreateWithCaps(touch_task, "cores3_touch", TOUCH_TASK_STACK_SIZE, NULL,
+                            TOUCH_TASK_PRIORITY, &s_context.task,
+                            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
         i2c_master_bus_rm_device(s_context.device);
         s_context.device = NULL;
         ESP_LOGE(TAG, "event=touch action=initialize result=error reason=task");

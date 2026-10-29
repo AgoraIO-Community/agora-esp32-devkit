@@ -2,6 +2,7 @@
 #include <mybot/platform/mybot_https.h>
 
 #include "esp_crt_bundle.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "esp_tls.h"
 
@@ -32,7 +33,8 @@ static int https_connect(void **out_connection, const char *host, uint16_t port,
     }
     *out_connection = NULL;
 
-    https_connection_t *connection = calloc(1, sizeof(*connection));
+    https_connection_t *connection =
+        heap_caps_calloc(1, sizeof(*connection), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!connection) {
         return -1;
     }

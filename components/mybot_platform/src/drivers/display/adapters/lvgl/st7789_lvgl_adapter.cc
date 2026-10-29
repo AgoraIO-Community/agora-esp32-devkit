@@ -12,6 +12,7 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lvgl_port.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
@@ -261,6 +262,7 @@ int initialize(void **out) {
     port.task_priority = 1;
     port.task_affinity = 1;
     port.task_stack = UI_STACK_BYTES;
+    port.task_stack_caps = MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT;
     port.timer_period_ms = 5;
     /* A failed port startup can retain a worker that must be joined on retry. */
     s_context.port_started = true;
@@ -306,9 +308,11 @@ int initialize(void **out) {
     lvgl_port_unlock();
     *out = &s_context;
     result = 0;
-    ESP_LOGI(
-        TAG, "event=lcd action=initialize backend=lvgl width=%d height=%d offset=%d,%d result=ok",
-        MYBOT_DISPLAY_WIDTH, MYBOT_DISPLAY_HEIGHT, MYBOT_DISPLAY_OFFSET_X, MYBOT_DISPLAY_OFFSET_Y);
+    ESP_LOGI(TAG,
+             "event=lcd action=initialize backend=lvgl width=%d height=%d offset=%d,%d result=ok "
+             "ui_stack_bytes=%u ui_stack=psram",
+             MYBOT_DISPLAY_WIDTH, MYBOT_DISPLAY_HEIGHT, MYBOT_DISPLAY_OFFSET_X,
+             MYBOT_DISPLAY_OFFSET_Y, (unsigned)UI_STACK_BYTES);
 done:
     if (result < 0) {
         ESP_LOGE(TAG, "event=lcd action=initialize backend=lvgl result=error");

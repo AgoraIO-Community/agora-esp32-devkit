@@ -68,12 +68,14 @@ int mybot_resource_monitor_start(void) {
     if (s_monitor_task) {
         return 0;
     }
-    if (xTaskCreate(monitor_task, "resource_monitor", 3072, NULL, tskIDLE_PRIORITY + 1,
-                    &s_monitor_task) != pdPASS) {
+    if (xTaskCreateWithCaps(monitor_task, "resource_monitor", 3072, NULL, tskIDLE_PRIORITY + 1,
+                            &s_monitor_task, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
         ESP_LOGE(TAG, "event=resource_monitor action=start result=error reason=no_memory");
         return -1;
     }
-    ESP_LOGI(TAG, "event=resource_monitor action=start interval_ms=%d cpu=idle_runtime_delta",
+    ESP_LOGI(TAG,
+             "event=resource_monitor action=start interval_ms=%d cpu=idle_runtime_delta "
+             "stack=psram stack_bytes=3072",
              CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR_INTERVAL_MS);
     return 0;
 }

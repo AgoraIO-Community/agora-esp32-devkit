@@ -6,8 +6,10 @@
 #include <mybot/platform/mybot_key.h>
 
 #include "platform/board_actions.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/idf_additions.h"
 #include "freertos/task.h"
 #include "iot_knob.h"
 #include "sensecap_hardware.h"
@@ -236,8 +238,9 @@ int mybot_sensecap_input_start(void) {
     if (!s_context.knob ||
         iot_knob_register_cb(s_context.knob, KNOB_LEFT, knob_left, NULL) != ESP_OK ||
         iot_knob_register_cb(s_context.knob, KNOB_RIGHT, knob_right, NULL) != ESP_OK ||
-        xTaskCreate(button_task, "sensecap_btn", BUTTON_TASK_STACK_SIZE, NULL, BUTTON_TASK_PRIORITY,
-                    &s_context.button_task) != pdPASS) {
+        xTaskCreateWithCaps(button_task, "sensecap_btn", BUTTON_TASK_STACK_SIZE, NULL,
+                            BUTTON_TASK_PRIORITY, &s_context.button_task,
+                            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
         if (s_context.knob) {
             delete_failed_knob(s_context.knob);
             s_context.knob = NULL;

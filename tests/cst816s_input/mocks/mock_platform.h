@@ -55,9 +55,13 @@ typedef struct {
 esp_err_t gpio_config(const gpio_config_t *config);
 esp_err_t gpio_set_level(gpio_num_t gpio, uint32_t level);
 
-#define ESP_LOGI(...) ((void)0)
-#define ESP_LOGW(...) ((void)0)
-#define ESP_LOGE(...) ((void)0)
+static inline void mock_log(const char *tag, const char *format, ...) {
+    (void)tag;
+    (void)format;
+}
+#define ESP_LOGI(...) mock_log(__VA_ARGS__)
+#define ESP_LOGW(...) mock_log(__VA_ARGS__)
+#define ESP_LOGE(...) mock_log(__VA_ARGS__)
 
 typedef pthread_mutex_t portMUX_TYPE;
 #define portMUX_INITIALIZER_UNLOCKED PTHREAD_MUTEX_INITIALIZER
@@ -67,6 +71,11 @@ typedef pthread_mutex_t portMUX_TYPE;
 #define pdMS_TO_TICKS(ms) (ms)
 #define pdPASS 1
 #define pdTRUE 1
+#define pdFALSE 0
+typedef int BaseType_t;
+#define MALLOC_CAP_SPIRAM 1
+#define MALLOC_CAP_8BIT 2
+#define portYIELD_FROM_ISR(woken) ((void)(woken))
 #define portMAX_DELAY UINT32_MAX
 typedef uint32_t TickType_t;
 
@@ -74,6 +83,13 @@ typedef struct mock_task *TaskHandle_t;
 typedef void (*task_function_t)(void *);
 int xTaskCreate(task_function_t task, const char *name, uint32_t stack_size, void *argument,
                 unsigned int priority, TaskHandle_t *out_task);
+int xTaskCreateWithCaps(task_function_t task, const char *name, uint32_t stack_size, void *argument,
+                        unsigned int priority, TaskHandle_t *out_task, unsigned int capabilities);
+typedef enum { eRunning, eSuspended } eTaskState;
+eTaskState eTaskGetState(TaskHandle_t task);
+void vTaskSuspend(TaskHandle_t task);
+void vTaskDeleteWithCaps(TaskHandle_t task);
+uint32_t ulTaskNotifyTake(BaseType_t clear, TickType_t ticks);
 TaskHandle_t xTaskGetCurrentTaskHandle(void);
 void vTaskDelete(TaskHandle_t task);
 void vTaskDelay(TickType_t ticks);
@@ -88,6 +104,7 @@ typedef StaticSemaphore_t *SemaphoreHandle_t;
 SemaphoreHandle_t xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage);
 int xSemaphoreTake(SemaphoreHandle_t semaphore, TickType_t ticks);
 int xSemaphoreGive(SemaphoreHandle_t semaphore);
+int xSemaphoreGiveFromISR(SemaphoreHandle_t semaphore, BaseType_t *woken);
 
 typedef struct mock_i2c_bus *i2c_master_bus_handle_t;
 typedef struct mock_i2c_device *i2c_master_dev_handle_t;
@@ -146,6 +163,7 @@ typedef struct {
         uint8_t mirror_x;
         uint8_t mirror_y;
     } flags;
+    void (*interrupt_callback)(esp_lcd_touch_handle_t touch);
 } esp_lcd_touch_config_t;
 esp_err_t esp_lcd_touch_new_i2c_cst816s(esp_lcd_panel_io_handle_t io,
                                         const esp_lcd_touch_config_t *config,
@@ -155,6 +173,22 @@ esp_err_t esp_lcd_touch_read_data(esp_lcd_touch_handle_t touch);
 esp_err_t esp_lcd_touch_get_data(esp_lcd_touch_handle_t touch, esp_lcd_touch_point_data_t *data,
                                  uint8_t *count, uint8_t max_count);
 #define ESP_LCD_TOUCH_IO_I2C_CST816S_ADDRESS 0x15
+#define ESP_LCD_TOUCH_IO_I2C_CST9217_ADDRESS 0x5a
+#define ESP_LCD_TOUCH_IO_I2C_CST816S_CONFIG()                                                      \
+    {                                                                                              \
+        .dev_addr = ESP_LCD_TOUCH_IO_I2C_CST816S_ADDRESS, .control_phase_bytes = 1,                \
+        .lcd_cmd_bits = 8, .flags.disable_control_phase = 1                                        \
+    }
+#define ESP_LCD_TOUCH_IO_I2C_CST9217_CONFIG()                                                      \
+    {                                                                                              \
+        .dev_addr = ESP_LCD_TOUCH_IO_I2C_CST9217_ADDRESS, .control_phase_bytes = 1,                \
+        .lcd_cmd_bits = 8, .flags.disable_control_phase = 1                                        \
+    }
+esp_err_t esp_lcd_touch_new_i2c_cst9217(esp_lcd_panel_io_handle_t io,
+                                        const esp_lcd_touch_config_t *config,
+                                        esp_lcd_touch_handle_t *out_touch);
+#define GPIO_INTR_ANYEDGE 3
+esp_err_t gpio_set_intr_type(gpio_num_t gpio, int interrupt_type);
 
 typedef struct mock_button *button_handle_t;
 typedef struct {

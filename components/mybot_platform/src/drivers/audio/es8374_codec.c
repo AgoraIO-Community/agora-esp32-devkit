@@ -6,6 +6,7 @@
 #include <string.h>
 #include "audio/es8374_codec.h"
 #include "esp_log.h"
+#include "esp_heap_caps.h"
 #include "esp_codec_dev_vol.h"
 #include "audio/es_common.h"
 
@@ -713,7 +714,8 @@ const audio_codec_if_t *es8374_codec_new(es8374_codec_cfg_t *codec_cfg) {
         ESP_LOGE(TAG, "Control interface not open yet");
         return NULL;
     }
-    audio_codec_es8374_t *codec = (audio_codec_es8374_t *)calloc(1, sizeof(audio_codec_es8374_t));
+    audio_codec_es8374_t *codec =
+        heap_caps_calloc(1, sizeof(*codec), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (codec == NULL) {
         CODEC_MEM_CHECK(codec);
         return NULL;

@@ -26,8 +26,10 @@
 #error "Unsupported MYBOT_TOUCH_DRIVER_KIND"
 #endif
 
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/idf_additions.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "iot_button.h"
@@ -36,6 +38,7 @@
 #include <stdbool.h>
 
 #define TAG "cst816s_input"
+#define INPUT_STOP_TIMEOUT_MS 1000
 
 #ifndef MYBOT_BOOT_BUTTON_LONG_PRESS_MS
 #define MYBOT_BOOT_BUTTON_LONG_PRESS_MS 3000
@@ -204,14 +207,10 @@ static void touch_task(void *argument) {
         vTaskDelay(pdMS_TO_TICKS(MYBOT_TOUCH_POLL_INTERVAL_MS));
     }
 
-    TaskHandle_t current = xTaskGetCurrentTaskHandle();
-    portENTER_CRITICAL(&s_context.lock);
-    if (s_context.touch_task == current) {
-        s_context.touch_task = NULL;
-    }
-    portEXIT_CRITICAL(&s_context.lock);
+    /* The owner keeps the handle until this task is suspended and can release
+     * its PSRAM stack without allocating an internal cleanup task. */
     xSemaphoreGive(s_task_stopped);
-    vTaskDelete(NULL);
+    vTaskSuspend(NULL);
 }
 
 static int create_touch(void) {
@@ -304,6 +303,30 @@ static int create_touch(void) {
 #endif
 }
 
+static int join_input_task(TaskHandle_t task) {
+    if (!task) {
+        return 0;
+    }
+    if (!s_task_stopped ||
+        xSemaphoreTake(s_task_stopped, pdMS_TO_TICKS(INPUT_STOP_TIMEOUT_MS)) != pdTRUE) {
+        return -1;
+    }
+    /* Keep completion latched if suspension has not happened before the timeout. */
+    xSemaphoreGive(s_task_stopped);
+    const TickType_t started = xTaskGetTickCount();
+    while (eTaskGetState(task) != eSuspended) {
+        if (xTaskGetTickCount() - started >= pdMS_TO_TICKS(INPUT_STOP_TIMEOUT_MS)) {
+            return -1;
+        }
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+    vTaskDeleteWithCaps(task);
+    portENTER_CRITICAL(&s_context.lock);
+    s_context.touch_task = NULL;
+    portEXIT_CRITICAL(&s_context.lock);
+    return 0;
+}
+
 static int release_input_devices(void) {
     int result = 0;
     if (s_context.boot && iot_button_delete(s_context.boot) == ESP_OK) {
@@ -340,17 +363,21 @@ static int release_input(void) {
     TaskHandle_t task = s_context.touch_task;
     portEXIT_CRITICAL(&s_context.lock);
 
-    if (task && (!s_task_stopped || xSemaphoreTake(s_task_stopped, portMAX_DELAY) != pdTRUE)) {
+    if (join_input_task(task) < 0) {
         ESP_LOGE(TAG, "event=input action=deinitialize result=error reason=task_join");
         return -1;
     }
 
+    const TickType_t callbacks_started = xTaskGetTickCount();
     unsigned in_flight = 0;
     do {
         portENTER_CRITICAL(&s_context.lock);
         in_flight = s_context.callbacks_in_flight;
         portEXIT_CRITICAL(&s_context.lock);
         if (in_flight) {
+            if (xTaskGetTickCount() - callbacks_started >= pdMS_TO_TICKS(INPUT_STOP_TIMEOUT_MS)) {
+                return -1;
+            }
             vTaskDelay(pdMS_TO_TICKS(1));
         }
     } while (in_flight);
@@ -421,8 +448,8 @@ int mybot_cst816s_input_start(void) {
         portENTER_CRITICAL(&s_context.lock);
         s_context.task_stop_requested = false;
         portEXIT_CRITICAL(&s_context.lock);
-        if (xTaskCreate(touch_task, "mybot_touch", 4096, NULL, 5, &s_context.touch_task) !=
-            pdPASS) {
+        if (xTaskCreateWithCaps(touch_task, "mybot_touch", 4096, NULL, 5, &s_context.touch_task,
+                                MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
             result = ESP_ERR_NO_MEM;
         }
     }

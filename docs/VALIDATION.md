@@ -101,7 +101,7 @@ On 2026-10-29, local ESP-IDF v5.5.2 `reconfigure/build/size` passed for CoreS3 v
 UBSan; ASan could not run because even a minimal program failed at runtime startup on this host.
 Formatting, SPDX and whitespace checks passed.
 
-A user-provided real-device log confirms RTC connected, `dma_buffer_max=8192`,
+A user-provided real-device log for the earlier UI-stack-only change confirms RTC connected, `dma_buffer_max=8192`,
 `dma_free=15703`, `dma_largest=11776`, DVP initialization and `stream_on` after moving the
 7 KiB UI stack to PSRAM. Before this change, the largest DMA block was 5120 bytes and the
 7680-byte allocation failed. This confirms one successful stream startup; frame capture,
@@ -111,10 +111,42 @@ volume-persistence NVS writes still require validation with the current changes.
 2026-10-29，本地 CoreS3 视频中英文版本通过 ESP-IDF v5.5.2 的 `reconfigure/build/size`。
 CoreS3 与 ST7789 Host 故障注入测试的普通和 UBSan 版本通过；本机连最小程序也在 ASan
 运行时启动阶段失败，因此未完成 ASan 验证。格式、SPDX 和空白检查通过。
-用户提供的真机日志确认，7 KiB UI 栈迁入 PSRAM 后，RTC 已连接，DMA 最大连续块从
+用户提供的早期 UI 栈单项迁移固件真机日志确认，7 KiB UI 栈迁入 PSRAM 后，RTC 已连接，DMA 最大连续块从
 5120 字节增至 11776 字节，DVP 初始化和 `stream_on` 成功。该结果仅证明一次启动通过；
 当前改动下的帧采集、SDK 接受、服务端接收、音频/UI 连续性、重复启停，以及配网和音量
 持久化 NVS 写入仍待验证。
+
+## Platform PSRAM migration / 平台 PSRAM 迁移
+
+The later platform-wide migration is described in [PSRAM_MEMORY.md](PSRAM_MEMORY.md). On
+2026-10-29, CoreS3 video `zh-CN`/`en-US` and the CoreS3 offline audio test with resource monitoring
+passed complete ESP-IDF v5.5.2 `reconfigure/build/size` checks. The linked CoreS3 `View` allocation
+moved from 2492 internal BSS bytes to a 4-byte pointer. This does not measure runtime heap savings.
+
+Eleven other profiles passed fresh configuration and compilation of 190 application/platform
+translation units using their generated compile commands: `m5stack-stick-s3`, `esp-vocat`,
+`esp32-s3-touch-amoled-1.75`, `esp32-s3-touch-amoled-1.75c`, `sensecap-watcher`,
+`respeaker-flex-xvf3800-circular4-xiao`, `esp32-s3-touch-lcd-1.85`,
+`lilygo-t-display-s3-pro-mvsrlora`, `mixgo-nova`, `atom-echos3r` and `zhengchen-1.54tft-wifi`.
+These eleven checks did not link or merge firmware. Their PSRAM policy, external-stack and NVS
+cache symbols were enabled; the headless profile omitted the LVGL runtime.
+
+Audio/video, input and display host fault-injection suites passed, including standalone UBSan.
+Coverage includes allocation/initialization failures, partial cleanup, completion before task
+suspension, timeout with retained resources, callback ordering and repeated start/stop.
+Formatting, SPDX and whitespace checks passed; ASan remains unavailable on this host.
+
+The platform-wide migration has no new real-device result. The earlier stream-start log above
+does not validate the new audio/video/input stacks, NVS cache or allocation lifetimes. Validate
+full-duplex audio/video/UI, HTTPS, provisioning, persistence, repeated lifecycle operations and
+internal/PSRAM heap and DMA largest blocks before treating the new policy as hardware-validated.
+
+后续全平台迁移见[PSRAM_MEMORY.zh-CN.md](PSRAM_MEMORY.zh-CN.md)。2026-10-29，CoreS3
+中英文视频固件及开启资源监控的离线音频测试固件通过完整 ESP-IDF v5.5.2 构建和 size 检查。
+另有上述 11 个 profile 的 190 个应用/平台源文件通过独立配置编译，未进行这些板型的完整
+链接或合并。音视频、输入和显示的 Host 故障注入及单独 UBSan 检查通过，格式、SPDX、
+空白检查通过；本机 ASan 不可用。全平台迁移尚无新的真机结果，之前 UI 栈单项迁移的
+摄像头启动日志不能代替当前策略的音视频并行、配网、NVS、反复启停和内存回归验证。
 
 ## Global boundaries / 全局边界
 

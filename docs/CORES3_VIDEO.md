@@ -35,8 +35,8 @@ use LVGL; no separate UI enable flag is needed.
 When reusing a build directory, run `idf.py -B build/cores3-video reconfigure build` so changes
 to the project's hidden DMA default are regenerated. Confirm
 `CONFIG_CAM_CTRL_DVP_DMA_BUFFER_SIZE=8192` in that build's generated `sdkconfig`.
-The CoreS3 profile also requires `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y` for the PSRAM UI
-stack; board defaults enable it. If an existing configuration saved `n`, enable it in menuconfig.
+The platform [PSRAM memory policy](PSRAM_MEMORY.md) automatically selects
+`CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y` for application worker and UI stacks.
 
 ## Hardware and memory
 
@@ -56,8 +56,9 @@ loaded. The vendored Kconfig and driver remain unchanged. For 320×240 YUYV, the
 two 3,840-byte halves that divide the 153,600-byte frame, allocating 7,680 bytes (7.5 KiB) of
 contiguous internal DMA memory, plus descriptors and a 3-KiB capture-task stack. The earlier
 16,384-byte setting allocated 15,360 bytes (15 KiB). Check the generated DMA configuration when
-comparing firmware. The encoding worker has a 6-KiB stack. Both PSRAM frame buffers remain
-allocated and rotate through the single queued slot.
+comparing firmware. The encoding worker has a 6-KiB PSRAM stack; the vendor capture worker
+retains its internal stack. Both PSRAM frame buffers remain allocated and rotate through the
+single queued slot.
 
 `no mem for CAM DVP DMA receive buffer` means the driver could not allocate its contiguous
 internal DMA buffer when streaming starts, after RTC has connected. Free PSRAM cannot satisfy
@@ -94,7 +95,10 @@ logs an error and stops the stream. This also bounds the driver's retries of mal
 the 5 fps limit describes normal sampling, not each failed hardware retry.
 Stop waits up to 3 seconds for the worker
 and in-flight callback; if still pending, it retains resources and reports failure for SDK retry.
-Only a fully stopped source is destroyed. Camera teardown never deletes the Board-owned I2C bus.
+After completion the worker suspends; its owner confirms suspension and deletes it with
+`vTaskDeleteWithCaps` before releasing resources. Completion remains retryable after a join
+timeout. Only a fully stopped source is destroyed. Camera teardown never deletes the Board-owned
+I2C bus.
 
 The advertised bitrate range is 64–512 kbit/s, starting at 288 kbit/s. JPEG quality starts at 60;
 bandwidth feedback changes quality within 30–60. Frames exceeding the current one-second byte

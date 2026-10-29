@@ -63,7 +63,7 @@ static int announce_init(void **out_ctx) {
     if (!out_ctx) {
         return -1;
     }
-    *out_ctx = heap_caps_calloc(1, sizeof(announce_context_t), MALLOC_CAP_8BIT);
+    *out_ctx = heap_caps_calloc(1, sizeof(announce_context_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!*out_ctx) {
         return -1;
     }

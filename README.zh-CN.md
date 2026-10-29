@@ -123,6 +123,8 @@ NVS 中没有 Wi-Fi 凭据时，设备创建名为 `mybot-xxxx` 的配置 AP，�
 
 可设置 `CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR=y` 启用 CPU、堆和播放诊断，默认关闭。
 播放计数器及解读见[音频播放缓冲](docs/AUDIO_PLAYBACK.zh-CN.md)。
+应用数据和工作任务栈遵循[PSRAM 内存策略](docs/PSRAM_MEMORY.zh-CN.md)；
+硬件 DMA、内核对象和会写 Flash 的主任务栈保留内部 RAM。
 
 ## 验证
 
@@ -135,6 +137,7 @@ Wi-Fi 恢复等真机结果。
 - [板卡说明](components/mybot_platform/boards/README.md)
 - [验证矩阵](docs/VALIDATION.md)
 - [板级移植](docs/BOARD_PORTING.zh-CN.md)
+- [PSRAM 内存策略](docs/PSRAM_MEMORY.zh-CN.md)
 - [音频播放缓冲](docs/AUDIO_PLAYBACK.zh-CN.md)
 - [平台 LVGL UI](docs/PLATFORM_UI.zh-CN.md)
 - [CoreS3 LVGL UI](docs/CORES3_UI.zh-CN.md)
