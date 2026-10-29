@@ -13,6 +13,7 @@
 
 #include <mybot/platform/mybot_lcd.h>
 
+#include "esp_heap_caps.h"
 #include "esp_lvgl_port.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -240,6 +241,7 @@ int initialize(void **out_ctx) {
     port_config.task_priority = 1;
     port_config.task_affinity = 1;
     port_config.task_stack = UI_STACK_BYTES;
+    port_config.task_stack_caps = MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT;
     port_config.task_max_sleep_ms = 500;
     port_config.timer_period_ms = 5;
     lvgl_port_display_cfg_t config{};
@@ -302,9 +304,11 @@ int initialize(void **out_ctx) {
     result = 0;
     ESP_LOGI(TAG,
              "event=lcd action=initialize backend=lvgl result=ok width=%d height=%d "
-             "dma_bytes=%u ui_core=1 ui_priority=1 objects=psram",
+             "dma_bytes=%u ui_core=1 ui_priority=1 ui_stack_bytes=%u ui_stack=psram "
+             "objects=psram",
              MYBOT_DISPLAY_WIDTH, MYBOT_DISPLAY_HEIGHT,
-             (unsigned)(MYBOT_DISPLAY_WIDTH * ILI9342_LCD_TRANSFER_ROWS * sizeof(uint16_t)));
+             (unsigned)(MYBOT_DISPLAY_WIDTH * ILI9342_LCD_TRANSFER_ROWS * sizeof(uint16_t)),
+             (unsigned)UI_STACK_BYTES);
 done:
     if (result < 0) {
         ESP_LOGE(TAG, "event=lcd action=initialize backend=lvgl result=error");

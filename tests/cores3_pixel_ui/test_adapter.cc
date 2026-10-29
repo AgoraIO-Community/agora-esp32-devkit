@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 #include "host_platform.h"
+#include "esp_heap_caps.h"
 #include "display/ili9342_panel.h"
 #include "display/lvgl_view.h"
 #include "display/pixel_glasses.h"
@@ -42,6 +43,8 @@ static host_display display{};
 static host_timer timer{};
 static bool port_open, port_locked, view_open, finish_on_delay;
 static unsigned pending_dma, updates, closes;
+static void *ui_stack;
+static unsigned stack_allocations, stack_releases;
 static int64_t now_us;
 static std::string fail_step, fail_cleanup;
 static mybot_lcd_content_t applied{};
@@ -70,7 +73,7 @@ static void send(mybot_lcd_screen_t screen, uint32_t indicators = 0) {
     CHECK(mybot_cores3_lcd_ops()->render(active_owner, &content) == 0);
 }
 static void complete_dma() {
-    CHECK(pending_dma && io.open && display.open && io.done);
+    CHECK(pending_dma && io.open && display.open && io.done && ui_stack);
     --pending_dma;
     io.done(&io, nullptr, io.user);
 }
@@ -183,14 +186,28 @@ void lv_timer_delete(lv_timer_t *) {
     timer = {};
 }
 esp_err_t lvgl_port_init(const lvgl_port_cfg_t *cfg) {
-    CHECK(!port_open && cfg->task_priority == 1 && cfg->task_affinity == 1);
+    CHECK(!port_open && !ui_stack && cfg->task_priority == 1 && cfg->task_affinity == 1);
+    CHECK(cfg->task_stack == 7168);
+    CHECK(cfg->task_stack_caps == (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+    if (fail("stack_alloc"))
+        return ESP_FAIL;
+    ui_stack = std::malloc(cfg->task_stack);
+    CHECK(ui_stack);
+    ++stack_allocations;
     port_open = true;
+    if (fail("port_init_timeout"))
+        return ESP_ERR_TIMEOUT;
     return fail("port_init") ? ESP_FAIL : ESP_OK;
 }
 esp_err_t lvgl_port_deinit(void) {
-    CHECK(!display.open && !panel.open && !io.open);
+    CHECK(!display.open && !panel.open && !io.open && !pending_dma);
     if (fail("port_deinit"))
         return ESP_FAIL;
+    if (ui_stack) {
+        std::free(ui_stack);
+        ui_stack = nullptr;
+        ++stack_releases;
+    }
     port_open = false;
     return ESP_OK;
 }
@@ -265,6 +282,7 @@ int mybot_pixel_glasses_replay_expression(mybot_expression_t expression) {
 static void released() {
     CHECK(!io.open && !panel.open && !display.open && !timer.open && !view_open && !port_open);
     CHECK(!port_locked && !pending_dma);
+    CHECK(!ui_stack && stack_allocations == stack_releases);
 }
 static void init() {
     CHECK(mybot_cores3_lcd_ops()->init(&active_owner) == 0 && active_owner);
@@ -279,8 +297,8 @@ static void stop() {
 static void lifecycle_tests() {
     const auto *ops = mybot_cores3_lcd_ops();
     CHECK(ops->init(nullptr) < 0);
-    for (const char *failure :
-         {"panel_open", "port_init", "port_lock", "display", "register", "view", "timer"}) {
+    for (const char *failure : {"panel_open", "stack_alloc", "port_init", "port_init_timeout",
+                                "port_lock", "display", "register", "view", "timer"}) {
         fail_step = failure;
         void *out = reinterpret_cast<void *>(1);
         CHECK(ops->init(&out) < 0 && !out && fail_step.empty());
@@ -291,7 +309,25 @@ static void lifecycle_tests() {
         fail_cleanup = failure;
         ops->destroy(active_owner);
         CHECK(fail_cleanup.empty());
+        CHECK(ui_stack && stack_allocations == stack_releases + 1);
         CHECK(ops->init(&active_owner) == 0); // finishes deferred cleanup first
+        stop();
+    }
+    fail_step = "port_init_timeout";
+    fail_cleanup = "port_deinit";
+    void *out = reinterpret_cast<void *>(1);
+    CHECK(ops->init(&out) < 0 && !out && fail_step.empty() && fail_cleanup.empty());
+    CHECK(ui_stack && stack_allocations == stack_releases + 1);
+    init(); // Joins the failed initialization before allocating another stack.
+    stop();
+    for (unsigned cycle = 0; cycle < 3; ++cycle) {
+        init();
+        const unsigned allocations = stack_allocations;
+        void *sdk = nullptr;
+        CHECK(ops->init(&sdk) == 0 && sdk == active_owner);
+        CHECK(stack_allocations == allocations);
+        ops->destroy(sdk);
+        CHECK(ui_stack && stack_allocations == stack_releases + 1);
         stop();
     }
     init();
@@ -302,6 +338,13 @@ static void lifecycle_tests() {
     finish_on_delay = true;
     stop();
     CHECK(!finish_on_delay);
+    init();
+    display.flush(&display, &area, pixels);
+    ops->destroy(active_owner); // The missing callback must time out without freeing the stack.
+    CHECK(pending_dma == 1 && ui_stack && !display.refresh && !timer.open);
+    CHECK(stack_allocations == stack_releases + 1);
+    complete_dma();
+    stop();
     init();
     fail_step = "draw";
     display.flush(&display, &area, pixels);
@@ -385,5 +428,6 @@ static void ui_tests() {
 int main() {
     lifecycle_tests();
     ui_tests();
-    std::puts("CoreS3 pixel adapter: lifecycle, DMA, indicator and phase checks passed");
+    std::puts(
+        "CoreS3 pixel adapter: PSRAM stack, lifecycle, DMA, indicator and phase checks passed");
 }

@@ -311,10 +311,11 @@ typedef struct {
     int task_affinity;
     int task_stack;
     int task_max_sleep_ms;
+    unsigned task_stack_caps;
     int timer_period_ms;
 } lvgl_port_cfg_t;
 #define ESP_LVGL_PORT_INIT_CONFIG()                                                                \
-    { 0, 0, 0, 0, 0 }
+    { 0, 0, 0, 0, 0, 0 }
 typedef struct {
     esp_lcd_panel_io_handle_t io_handle;
     esp_lcd_panel_handle_t panel_handle;

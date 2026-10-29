@@ -22,6 +22,9 @@
 DIN GPIO14、DOUT GPIO13；GPIO0 用于音频时钟，不作为配网按键。LCD SPI3 为 MOSI GPIO37、
 SCLK GPIO36、CS GPIO3、DC GPIO35。
 
+LVGL 对象与 7 KiB UI 任务栈使用 PSRAM，显示条带仍使用 10 KiB 内部 DMA 内存。
+板级配置要求开启 `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM`，为摄像头及音频保留内部内存。
+
 无已保存的 Wi-Fi 信息时自动进入配网并显示热点名称、播放提示音。已有网络时联网后启动
 SDK；长按触摸会先停止 SDK 再配网。设备音量保存在 NVS，重启后恢复。
 

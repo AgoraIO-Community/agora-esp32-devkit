@@ -34,8 +34,10 @@ Keep the audio packet duration at the supported 60 ms. A fresh build uses Chines
 `;ci/en-us.defaults` to the defaults list in a new build directory for English. All CoreS3 builds
 use LVGL; no separate UI enable flag is needed.
 When reusing a build directory, run `idf.py -B build/cores3-video reconfigure build` so changes
-to the component's hidden DMA default are regenerated. Confirm
-`CONFIG_CAM_CTRL_DVP_DMA_BUFFER_SIZE=16384` in that build's generated `sdkconfig`.
+to the project's hidden DMA default are regenerated. Confirm
+`CONFIG_CAM_CTRL_DVP_DMA_BUFFER_SIZE=8192` in that build's generated `sdkconfig`.
+The CoreS3 profile also requires `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y` for the PSRAM UI
+stack; board defaults enable it. If an existing configuration saved `n`, enable it in menuconfig.
 
 ## Hardware and memory
 
@@ -48,16 +50,35 @@ to the component's hidden DMA default are regenerated. Confirm
 | Reset | AW9523 P1_0; locked masked writes preserve LCD and audio reset lines |
 
 Two 153,600-byte capture buffers and one 131,072-byte JPEG buffer use about 428 KiB of PSRAM.
-The encoder also allocates workspace. With video enabled, the current
-[`CAM_CTRL_DVP_DMA_BUFFER_SIZE`](../components/esp_cam_sensor/Kconfig) default is 16,384 bytes.
-For 320×240 YUYV, the DVP driver rounds this to two 7,680-byte halves, allocating 15 KiB of
-internal DMA memory, plus descriptors and a 3-KiB capture-task stack. These figures use the current
-defaults; check the generated DMA configuration when comparing older firmware. The encoding worker
-has a 6-KiB stack. Check internal free memory
-and the largest free block during a call, not only total PSRAM. LVGL objects use PSRAM and the UI
-has a separate 10 KiB internal DMA buffer; it does not allocate a full-screen page cache.
-The DMA increase consumes 7.5 KiB more internal RAM than the previous configuration, excluding
-descriptors. Both PSRAM frame buffers remain allocated and rotate through the single queued slot.
+The encoder also allocates workspace. With video enabled,
+[`main/Kconfig.projbuild`](../main/Kconfig.projbuild) sets the hidden
+`CAM_CTRL_DVP_DMA_BUFFER_SIZE` default to 8,192 bytes before the vendored component's default is
+loaded. The vendored Kconfig and driver remain unchanged. For 320×240 YUYV, the driver chooses
+two 3,840-byte halves that divide the 153,600-byte frame, allocating 7,680 bytes (7.5 KiB) of
+contiguous internal DMA memory, plus descriptors and a 3-KiB capture-task stack. The earlier
+16,384-byte setting allocated 15,360 bytes (15 KiB). Check the generated DMA configuration when
+comparing firmware. The encoding worker has a 6-KiB stack. Both PSRAM frame buffers remain
+allocated and rotate through the single queued slot.
+
+`no mem for CAM DVP DMA receive buffer` means the driver could not allocate its contiguous
+internal DMA buffer when streaming starts, after RTC has connected. Free PSRAM cannot satisfy
+this allocation; total free internal memory can also exceed the request while its largest DMA
+block is too small. Descriptors, task stacks and other runtime allocations still need additional
+memory. LVGL objects use PSRAM and the UI has a separate 10 KiB internal DMA buffer; it does not
+allocate a full-screen page cache.
+
+Before moving the UI stack, a device log still reported allocation failure with
+`dma_free=13187` and `dma_largest=5120`: the largest block was below the 7,680-byte requirement.
+The CoreS3 adapter now places its 7,168-byte LVGL task stack in PSRAM through the existing port's
+`task_stack_caps`, moving 7 KiB of stack storage out of internal RAM. The display DMA stripe stays
+internal. This change does not statically guarantee a sufficient contiguous block or successful
+camera startup; check the new device logs.
+
+The smaller buffer produces about 40 DMA data events per active frame instead of 20 and leaves
+less time to service each half before reuse. The sensor's 20 fps timing during capture is unchanged
+by the 5 fps request or 1 fps upload limits. Validate capture errors, timeouts and audio continuity
+on a device with RTC audio and the UI active; this memory reduction alone does not establish that
+the reported hardware failure is resolved.
 
 The JPEG worker uses priority 3 without fixed core affinity and no additional encoder helper task.
 The DVP copy task retains the upstream driver's higher priority for timely DMA service.
@@ -87,6 +108,14 @@ Current build and hardware status is tracked only in the
 [validation matrix](VALIDATION.md). The following checks remain the device and server acceptance
 procedure.
 
+The display initialization log includes `ui_stack_bytes=7168 ui_stack=psram`.
+`event=video_memory` records `stage=before_stream_on` and, if streaming does not start,
+`stage=stream_on_not_started`. Its fields are `dma_buffer_max` (the configured upper bound,
+8,192 bytes by default), `dma_free`, `dma_largest`, `internal_free`, and `psram_free`, all in bytes.
+`dma_free` and `dma_largest` use the driver's internal DMA memory capabilities. Compare the
+pre-start `dma_largest` with the actual 7,680-byte buffer requirement; sufficient space for this
+buffer does not guarantee enough memory for the rest of stream startup.
+
 `cores3_video` emits lifecycle logs and `event=video_stats` every 10 seconds during streaming:
 `window_ms`, `captured`, `encoded`, `sent`, `rejected`, `dropped`, `capture_errors`, `last_bytes`, `quality`, `target_bps`,
 and `encode_max_us`. Counters and `encode_max_us` reset each interval; `last_bytes`, `quality`, and
@@ -100,6 +129,7 @@ Validate GC0308 detection, correct colors/orientation, server reception/inferenc
 JPEG quality, CPU/heap use, and audio continuity. Exercise repeated conversation start/stop,
 Wi-Fi loss, long-touch provisioning, bitrate reduction, and missing camera. Confirm no frames after
 stop and stable memory after repeated cycles. Hardware and server acceptance must be recorded
-separately. Compare `captured/window_ms`,
+separately. Validation of the PSRAM UI stack with concurrent video, full-duplex audio and UI,
+including provisioning and volume-persistence NVS writes, remains pending. Compare `captured/window_ms`,
 per-core CPU, internal free heap, and the largest free block while keeping the same scene and
 audio activity. The expected reduction in DMA traffic is not a measured CPU reduction.

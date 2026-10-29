@@ -80,6 +80,13 @@ menu "mybot"
             The platform requests DVP capture at most five times per second.
             Capture and software encoding consume additional RAM and CPU.
 
+    # Project defaults precede component defaults. Reduce the contiguous internal
+    # DMA allocation needed after RTC has allocated its own resources.
+    # For QVGA YUYV, the driver rounds this to two 3840-byte halves.
+    config CAM_CTRL_DVP_DMA_BUFFER_SIZE
+        int
+        default 8192 if MYBOT_ENABLE_VIDEO
+
     config MYBOT_AUDIO_PLAYBACK_TEST
         bool "Run CoreS3 offline audio playback A/B test at boot"
         default n
