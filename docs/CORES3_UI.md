@@ -115,10 +115,17 @@ saved configuration values. Build validation is recorded separately below.
 
 ## Rendering, resources and provenance
 
-The existing LVGL task runs on Core 1 at priority 1. Objects and drawing scratch space use PSRAM;
-SPI transfers retain a 320 × 16 RGB565 stripe, or 10,240 bytes of internal DMA memory. The UI task
-stack and driver/synchronization allocations are additional memory. Partial redraws avoid a
-full-screen page cache or decoded full-face buffer.
+The existing LVGL task runs on Core 1 at priority 1. Its 7,168-byte stack now uses PSRAM through
+the existing port's `task_stack_caps`, moving 7 KiB of stack storage out of internal RAM. The
+CoreS3 profile requires `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`; board defaults enable it.
+Objects and drawing scratch space also use PSRAM. SPI transfers retain a 320 × 16 RGB565 stripe,
+or 10,240 bytes of internal DMA memory; driver/synchronization allocations are additional memory.
+Partial redraws avoid a full-screen page cache or decoded full-face buffer.
+
+The display initialization log includes `ui_stack_bytes=7168 ui_stack=psram`. Moving the stack
+reduces internal memory use but does not guarantee the largest free DMA block required by the
+camera. Check `event=video_memory` as described in [CoreS3 video](CORES3_VIDEO.md); total free
+memory alone does not establish that streaming can start.
 
 Fixed LVGL widgets and curves draw the face. Five immutable A8 masks contribute 13,631 alpha
 bytes for hearts, stars, ellipses, cheeks and tears, excluding descriptor overhead. The terminal
@@ -152,6 +159,8 @@ input paths. They do not validate this new pixel renderer. Real-device testing r
 - Test animation enabled/disabled, overflowing SSID/instructions, and web-console pairing.
 - Regress short touch, three-second provisioning, Wi-Fi recovery and repeated SDK stop/start.
 - Run full-duplex audio with video off and with the existing 1 fps camera uplink enabled.
+- Validate the PSRAM UI stack with concurrent audio/video/UI and provisioning/volume-persistence
+  NVS writes; this real-device regression remains pending.
 - Record CPU load, internal/PSRAM peaks, minimum free heap and largest blocks; repeat sessions
   to check resource lifetime and sustained memory growth.
 
