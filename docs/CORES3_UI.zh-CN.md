@@ -101,11 +101,12 @@ idf.py -B build/cores3-pixel -p <PORT> flash monitor
 ## 渲染、资源与来源
 
 现有LVGL任务运行于Core 1、优先级1。7,168字节任务栈现通过已有port的 `task_stack_caps`
-放入PSRAM，减少7 KiB内部栈存储。CoreS3 profile要求
-`CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`，板级defaults已开启。
+放入PSRAM，减少7 KiB内部栈存储。平台内存策略自动选择
+`CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`。
 对象与绘制临时空间也使用PSRAM，SPI继续使用320 × 16 RGB565条带，即10,240字节
 内部DMA内存；驱动和同步资源另计。
-局部刷新不增加全屏页面缓存或整脸解码缓冲。
+视图状态、两组形状数据和被标签保留的字符串共同分配在 PSRAM，LVGL 控件删除后再释放。
+局部刷新不增加全屏页面缓存或整脸解码缓冲；完整清单见[PSRAM 内存策略](PSRAM_MEMORY.zh-CN.md)。
 
 显示初始化日志包含 `ui_stack_bytes=7168 ui_stack=psram`。搬栈减少内部内存占用，不能保证
 摄像头所需的最大DMA连续块；需结合[视频说明](CORES3_VIDEO.zh-CN.md)中的

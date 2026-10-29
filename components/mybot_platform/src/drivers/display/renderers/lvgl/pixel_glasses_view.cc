@@ -1,12 +1,14 @@
 /* SPDX-License-Identifier: MIT */
 /* Copyright (c) 2026 Project Contributors */
 /* Pixel-glasses geometry and process-skin colors follow the product simulator's
- * src/expressions.js and src/reference-style.js. The renderer owns only LVGL
- * objects; the ESP32 display adapter retains panel and DMA-buffer ownership. */
+ * src/expressions.js and src/reference-style.js. The renderer owns PSRAM view
+ * state and LVGL objects; the display adapter owns panel and DMA buffers. */
 #include "display/lvgl_view.h"
 #include "display/pixel_glasses.h"
 #include "pixel_expression_shapes.h"
 #include "sdkconfig.h"
+
+#include "esp_heap_caps.h"
 
 #include <cstdio>
 #include <cstring>
@@ -111,10 +113,11 @@ struct View {
     bool previous_face;
 };
 
-View s_view{};
+/* LVGL retains pointers into these banks and label buffers until widget deletion. */
+View *s_view;
 
 int scale(int value) {
-    return (value * s_view.artwork_width + kArtworkWidth / 2) / kArtworkWidth;
+    return (value * s_view->artwork_width + kArtworkWidth / 2) / kArtworkWidth;
 }
 
 int positive_scale(int value) {
@@ -195,34 +198,34 @@ uint32_t blend_color(uint32_t from, uint32_t to, unsigned progress) {
 
 void paint_frame(uint32_t ink, uint32_t terminal) {
     const lv_color_t color = lv_color_hex(ink);
-    if (ink != s_view.current_ink) {
-        for (auto *part : s_view.frame) {
+    if (ink != s_view->current_ink) {
+        for (auto *part : s_view->frame) {
             lv_obj_set_style_bg_color(part, color, 0);
         }
-        lv_obj_set_style_bg_color(s_view.cursor, color, 0);
-        lv_obj_set_style_text_color(s_view.signature, color, 0);
-        s_view.current_ink = ink;
+        lv_obj_set_style_bg_color(s_view->cursor, color, 0);
+        lv_obj_set_style_text_color(s_view->signature, color, 0);
+        s_view->current_ink = ink;
     }
-    if (terminal != s_view.current_terminal) {
-        for (auto *label : s_view.terminal) {
+    if (terminal != s_view->current_terminal) {
+        for (auto *label : s_view->terminal) {
             lv_obj_set_style_text_color(label, lv_color_hex(terminal), 0);
         }
-        s_view.current_terminal = terminal;
+        s_view->current_terminal = terminal;
     }
 }
 
 void update_terminal(mybot_expression_t expression) {
     const char *name = mybot_expression_name(expression);
     constexpr char prefix[] = "> mood: ";
-    std::memcpy(s_view.mood, prefix, sizeof(prefix) - 1);
+    std::memcpy(s_view->mood, prefix, sizeof(prefix) - 1);
     unsigned out = sizeof(prefix) - 1;
-    while (*name && out < sizeof(s_view.mood) - 1) {
+    while (*name && out < sizeof(s_view->mood) - 1) {
         const char letter = *name++;
-        s_view.mood[out++] = letter >= 'A' && letter <= 'Z' ? letter + 'a' - 'A' : letter;
+        s_view->mood[out++] = letter >= 'A' && letter <= 'Z' ? letter + 'a' - 'A' : letter;
     }
-    s_view.mood[out] = '\0';
+    s_view->mood[out] = '\0';
     /* The owned buffer address is stable; explicitly refresh its changed bytes. */
-    lv_label_set_text_static(s_view.terminal[1], s_view.mood);
+    lv_label_set_text_static(s_view->terminal[1], s_view->mood);
 }
 
 void update_runtime_terminal(const mybot_lcd_content_t &content,
@@ -247,25 +250,25 @@ void update_runtime_terminal(const mybot_lcd_content_t &content,
     }
     char text[kStateLineCapacity]{};
     std::snprintf(text, sizeof(text), "> state: %s%s", state, voiceprint);
-    if (std::strcmp(text, s_view.state_line) != 0) {
-        std::memcpy(s_view.state_line, text, sizeof(s_view.state_line));
+    if (std::strcmp(text, s_view->state_line) != 0) {
+        std::memcpy(s_view->state_line, text, sizeof(s_view->state_line));
         /* Static labels retain the address; explicitly invalidate changed bytes. */
-        lv_label_set_text_static(s_view.terminal[2], s_view.state_line);
+        lv_label_set_text_static(s_view->terminal[2], s_view->state_line);
     }
 }
 
 void render_expression(uint32_t now) {
     unsigned progress = 255;
 #if CONFIG_MYBOT_LVGL_UI_ANIMATIONS
-    if (s_view.transitioning) {
-        const uint32_t elapsed = now - s_view.transition_started;
+    if (s_view->transitioning) {
+        const uint32_t elapsed = now - s_view->transition_started;
         progress = elapsed >= kTransitionMs ? 255u : elapsed * 255u / kTransitionMs;
     }
 #endif
-    auto &current = s_view.banks[s_view.active_bank];
-    const auto &config = pixel_shapes::kConfigs[s_view.expression];
+    auto &current = s_view->banks[s_view->active_bank];
+    const auto &config = pixel_shapes::kConfigs[s_view->expression];
     const unsigned brightness =
-        pixel_shapes::brightness(s_view.expression, now, s_view.transition_started);
+        pixel_shapes::brightness(s_view->expression, now, s_view->transition_started);
     unsigned alpha = progress * brightness / 1000u;
     if (alpha > 255)
         alpha = 255;
@@ -275,8 +278,8 @@ void render_expression(uint32_t now) {
     const uint32_t target_ink = blend_color(kBackground, config.ink, shade);
     const uint32_t target_terminal = blend_color(kBackground, kTerminal, shade);
     uint32_t old_ink = kBackground, old_terminal = kBackground;
-    auto &previous = s_view.banks[1 - s_view.active_bank];
-    if (progress < 255 && s_view.previous_face) {
+    auto &previous = s_view->banks[1 - s_view->active_bank];
+    if (progress < 255 && s_view->previous_face) {
         const unsigned previous_brightness =
             pixel_shapes::brightness(previous.expression, now, previous.changed_at);
         unsigned previous_alpha = (255u - progress) * previous_brightness / 1000u;
@@ -293,122 +296,123 @@ void render_expression(uint32_t now) {
     paint_frame(blend_color(old_ink, target_ink, progress),
                 blend_color(old_terminal, target_terminal, progress));
     if (progress == 255) {
-        s_view.transitioning = false;
+        s_view->transitioning = false;
         set_hidden(previous.root, true);
     }
 }
 
 void update_timer() {
 #if CONFIG_MYBOT_LVGL_UI_ANIMATIONS
-    if (!s_view.face_visible) {
-        lv_timer_pause(s_view.timer);
+    if (!s_view->face_visible) {
+        lv_timer_pause(s_view->timer);
         return;
     }
     const uint32_t now = lv_tick_get();
-    const bool flash = (pixel_shapes::kConfigs[s_view.expression].motion & pixel_shapes::Flash) &&
-                       (uint32_t)(now - s_view.transition_started) < 90;
+    const bool flash = (pixel_shapes::kConfigs[s_view->expression].motion & pixel_shapes::Flash) &&
+                       (uint32_t)(now - s_view->transition_started) < 90;
     const uint32_t period =
-        s_view.transitioning || pixel_shapes::animated(s_view.expression) || flash
+        s_view->transitioning || pixel_shapes::animated(s_view->expression) || flash
             ? kTransitionTickMs
             : kCursorMs - now % kCursorMs;
-    lv_timer_set_period(s_view.timer, period);
-    if (lv_timer_get_paused(s_view.timer)) {
-        lv_timer_reset(s_view.timer);
-        lv_timer_resume(s_view.timer);
+    lv_timer_set_period(s_view->timer, period);
+    if (lv_timer_get_paused(s_view->timer)) {
+        lv_timer_reset(s_view->timer);
+        lv_timer_resume(s_view->timer);
     }
 #else
-    lv_timer_pause(s_view.timer);
+    lv_timer_pause(s_view->timer);
 #endif
 }
 
 void timer_callback(lv_timer_t *) {
 #if CONFIG_MYBOT_LVGL_UI_ANIMATIONS
     const uint32_t now = lv_tick_get();
-    if (s_view.transitioning || pixel_shapes::animated(s_view.expression))
+    if (s_view->transitioning || pixel_shapes::animated(s_view->expression))
         render_expression(now);
-    set_hidden(s_view.cursor, (now / kCursorMs) % 2 != 0);
+    set_hidden(s_view->cursor, (now / kCursorMs) % 2 != 0);
 #endif
     update_timer();
 }
 
 void show_face(mybot_expression_t expression) {
-    const bool was_visible = s_view.face_visible;
-    set_hidden(s_view.guide, true);
-    set_hidden(s_view.face, false);
-    set_hidden(s_view.cursor, false);
-    s_view.face_visible = true;
-    s_view.previous_face = was_visible;
-    s_view.active_bank = 1 - s_view.active_bank;
-    auto &bank = s_view.banks[s_view.active_bank];
+    const bool was_visible = s_view->face_visible;
+    set_hidden(s_view->guide, true);
+    set_hidden(s_view->face, false);
+    set_hidden(s_view->cursor, false);
+    s_view->face_visible = true;
+    s_view->previous_face = was_visible;
+    s_view->active_bank = 1 - s_view->active_bank;
+    auto &bank = s_view->banks[s_view->active_bank];
     pixel_shapes::configure(bank, expression);
     bank.changed_at = lv_tick_get();
-    s_view.expression = expression;
-    s_view.transition_started = bank.changed_at;
+    s_view->expression = expression;
+    s_view->transition_started = bank.changed_at;
     update_terminal(expression);
-    lv_obj_set_y(s_view.actor, scale(pixel_shapes::kConfigs[expression].offset_y));
+    lv_obj_set_y(s_view->actor, scale(pixel_shapes::kConfigs[expression].offset_y));
     set_hidden(bank.root, false);
     /* Keep current shapes above previous shapes without a transform/layer. */
     lv_obj_move_to_index(bank.root, -1);
-    set_hidden(s_view.banks[1 - s_view.active_bank].root, !was_visible);
+    set_hidden(s_view->banks[1 - s_view->active_bank].root, !was_visible);
 #if CONFIG_MYBOT_LVGL_UI_ANIMATIONS
-    s_view.transitioning = true;
+    s_view->transitioning = true;
 #else
-    s_view.transitioning = false;
+    s_view->transitioning = false;
 #endif
     render_expression(lv_tick_get());
     update_timer();
 }
 
 void show_guide(const Presentation &presentation) {
-    s_view.face_visible = false;
-    s_view.transitioning = false;
-    lv_obj_set_y(s_view.actor, 0);
+    s_view->face_visible = false;
+    s_view->transitioning = false;
+    lv_obj_set_y(s_view->actor, 0);
     update_terminal(MYBOT_EXPRESSION_NEUTRAL);
-    set_hidden(s_view.face, true);
-    set_hidden(s_view.cursor, true);
-    set_hidden(s_view.guide, false);
-    set_hidden(s_view.code, true);
-    set_hidden(s_view.detail, true);
-    set_text(s_view.title, presentation.title);
-    set_text(s_view.notice, presentation.notice);
-    lv_obj_set_style_text_color(s_view.title, lv_color_hex(presentation.ink), 0);
-    lv_obj_set_style_text_color(s_view.signature, lv_color_hex(presentation.ink), 0);
-    lv_obj_set_style_bg_color(s_view.divider, lv_color_hex(presentation.ink), 0);
+    set_hidden(s_view->face, true);
+    set_hidden(s_view->cursor, true);
+    set_hidden(s_view->guide, false);
+    set_hidden(s_view->code, true);
+    set_hidden(s_view->detail, true);
+    set_text(s_view->title, presentation.title);
+    set_text(s_view->notice, presentation.notice);
+    lv_obj_set_style_text_color(s_view->title, lv_color_hex(presentation.ink), 0);
+    lv_obj_set_style_text_color(s_view->signature, lv_color_hex(presentation.ink), 0);
+    lv_obj_set_style_bg_color(s_view->divider, lv_color_hex(presentation.ink), 0);
     /* Guide chrome can change independently while the hidden face retains its
      * old color. Force a complete primitive repaint when returning to a face. */
-    s_view.current_ink = 0xffffffffu;
-    for (auto *label : s_view.terminal) {
+    s_view->current_ink = 0xffffffffu;
+    for (auto *label : s_view->terminal) {
         lv_obj_set_style_text_color(label, lv_color_hex(kTerminal), 0);
     }
-    s_view.current_terminal = kTerminal;
+    s_view->current_terminal = kTerminal;
     update_timer();
 }
 
 bool create_face() {
-    s_view.face = make_panel(s_view.actor, 0, 0, s_view.artwork_width, s_view.artwork_height,
-                             kBackground, LV_OPA_TRANSP);
-    if (!s_view.face) {
+    s_view->face = make_panel(s_view->actor, 0, 0, s_view->artwork_width, s_view->artwork_height,
+                              kBackground, LV_OPA_TRANSP);
+    if (!s_view->face) {
         return false;
     }
     unsigned part = 0;
     for (unsigned eye = 0; eye < 2; ++eye) {
         const int x = eye == 0 ? 214 : 534;
-        s_view.frame[part++] = make_artwork_panel(s_view.face, x + 16, 354, 245, 11, kNeutral);
-        s_view.frame[part++] = make_artwork_panel(s_view.face, x + 5, 365, 11, 204, kNeutral);
-        s_view.frame[part++] = make_artwork_panel(s_view.face, x + 261, 365, 11, 204, kNeutral);
-        s_view.frame[part++] = make_artwork_panel(s_view.face, x + 16, 569, 245, 11, kNeutral);
-        s_view.frame[part++] = make_artwork_panel(s_view.face, x + 28, 581, 220, 5, kNeutral);
+        s_view->frame[part++] = make_artwork_panel(s_view->face, x + 16, 354, 245, 11, kNeutral);
+        s_view->frame[part++] = make_artwork_panel(s_view->face, x + 5, 365, 11, 204, kNeutral);
+        s_view->frame[part++] = make_artwork_panel(s_view->face, x + 261, 365, 11, 204, kNeutral);
+        s_view->frame[part++] = make_artwork_panel(s_view->face, x + 16, 569, 245, 11, kNeutral);
+        s_view->frame[part++] = make_artwork_panel(s_view->face, x + 28, 581, 220, 5, kNeutral);
     }
-    s_view.frame[part++] = make_artwork_panel(s_view.face, 486, 392, 48, 12, kNeutral);
-    s_view.frame[part++] = make_artwork_panel(s_view.face, 204, 377, 12, 13, kNeutral);
-    s_view.frame[part++] = make_artwork_panel(s_view.face, 806, 377, 12, 13, kNeutral);
-    for (auto *object : s_view.frame) {
+    s_view->frame[part++] = make_artwork_panel(s_view->face, 486, 392, 48, 12, kNeutral);
+    s_view->frame[part++] = make_artwork_panel(s_view->face, 204, 377, 12, 13, kNeutral);
+    s_view->frame[part++] = make_artwork_panel(s_view->face, 806, 377, 12, 13, kNeutral);
+    for (auto *object : s_view->frame) {
         if (!object) {
             return false;
         }
     }
-    for (auto &bank : s_view.banks) {
-        if (!pixel_shapes::create(bank, s_view.face, s_view.artwork_width, s_view.artwork_height))
+    for (auto &bank : s_view->banks) {
+        if (!pixel_shapes::create(bank, s_view->face, s_view->artwork_width,
+                                  s_view->artwork_height))
             return false;
     }
     return true;
@@ -418,16 +422,16 @@ bool create_chrome() {
     for (unsigned i = 0; i < 3; ++i) {
         const int radius = i == 1 ? 19 : 13;
         lv_obj_t *dot =
-            make_artwork_panel(s_view.artwork, 390 + static_cast<int>(i) * 122 - radius,
+            make_artwork_panel(s_view->artwork, 390 + static_cast<int>(i) * 122 - radius,
                                90 - radius, radius * 2, radius * 2, i == 1 ? 0x151923 : 0x595d5f);
         if (!dot) {
             return false;
         }
         lv_obj_set_style_radius(dot, LV_RADIUS_CIRCLE, 0);
     }
-    s_view.actor = make_panel(s_view.artwork, 0, 0, s_view.artwork_width, s_view.artwork_height,
-                              kBackground, LV_OPA_TRANSP);
-    if (!s_view.actor)
+    s_view->actor = make_panel(s_view->artwork, 0, 0, s_view->artwork_width, s_view->artwork_height,
+                               kBackground, LV_OPA_TRANSP);
+    if (!s_view->actor)
         return false;
     /* CoreS3's 320x240 layout uses native small fonts. Reserve a full line
      * before the next row; glyph height does not scale with the artwork. */
@@ -438,16 +442,16 @@ bool create_chrome() {
     const int row_step =
         scaled_step > terminal_font->line_height ? scaled_step : terminal_font->line_height + 1;
     for (unsigned line = 0; line < 4; ++line) {
-        s_view.terminal[line] =
-            make_label(s_view.actor, 104, 108, 688, 40, terminal_font, kTerminal);
-        if (!s_view.terminal[line])
+        s_view->terminal[line] =
+            make_label(s_view->actor, 104, 108, 688, 40, terminal_font, kTerminal);
+        if (!s_view->terminal[line])
             return false;
-        lv_obj_set_y(s_view.terminal[line], terminal_top + static_cast<int>(line) * row_step);
-        lv_obj_set_height(s_view.terminal[line], terminal_font->line_height);
-        lv_obj_set_style_text_align(s_view.terminal[line], LV_TEXT_ALIGN_LEFT, 0);
-        lv_label_set_long_mode(s_view.terminal[line], LV_LABEL_LONG_CLIP);
+        lv_obj_set_y(s_view->terminal[line], terminal_top + static_cast<int>(line) * row_step);
+        lv_obj_set_height(s_view->terminal[line], terminal_font->line_height);
+        lv_obj_set_style_text_align(s_view->terminal[line], LV_TEXT_ALIGN_LEFT, 0);
+        lv_label_set_long_mode(s_view->terminal[line], LV_LABEL_LONG_CLIP);
     }
-    s_view.signature = make_label(s_view.actor, 795, 112, 145, 40, signature_font, kNeutral);
+    s_view->signature = make_label(s_view->actor, 795, 112, 145, 40, signature_font, kNeutral);
     /* Place the terminal cursor from the actual fixed-width font advance. */
     lv_point_t extent{};
     lv_text_get_size(&extent, "> agora / realtime", terminal_font, 0, 0, LV_COORD_MAX,
@@ -455,44 +459,44 @@ bool create_chrome() {
     const int cursor_height = positive_scale(24);
     const int cursor_top =
         terminal_top + 3 * row_step + (terminal_font->line_height - cursor_height) / 2;
-    s_view.cursor = make_panel(s_view.actor, scale(104) + extent.x + scale(8), cursor_top,
-                               positive_scale(13), cursor_height, kNeutral);
-    if (!s_view.signature || !s_view.cursor) {
+    s_view->cursor = make_panel(s_view->actor, scale(104) + extent.x + scale(8), cursor_top,
+                                positive_scale(13), cursor_height, kNeutral);
+    if (!s_view->signature || !s_view->cursor) {
         return false;
     }
-    lv_obj_set_style_text_align(s_view.signature, LV_TEXT_ALIGN_LEFT, 0);
-    lv_label_set_text_static(s_view.terminal[0], "> MyBot / CoreS3");
-    lv_label_set_text_static(s_view.terminal[3], "> agora / realtime");
+    lv_obj_set_style_text_align(s_view->signature, LV_TEXT_ALIGN_LEFT, 0);
+    lv_label_set_text_static(s_view->terminal[0], "> MyBot / CoreS3");
+    lv_label_set_text_static(s_view->terminal[3], "> agora / realtime");
     update_terminal(MYBOT_EXPRESSION_NEUTRAL);
-    lv_label_set_text_static(s_view.signature, "</>");
+    lv_label_set_text_static(s_view->signature, "</>");
     return true;
 }
 
 bool create_guide() {
-    s_view.guide = make_panel(s_view.artwork, 0, 0, s_view.artwork_width, s_view.artwork_height,
-                              kBackground, LV_OPA_TRANSP);
-    if (!s_view.guide) {
+    s_view->guide = make_panel(s_view->artwork, 0, 0, s_view->artwork_width, s_view->artwork_height,
+                               kBackground, LV_OPA_TRANSP);
+    if (!s_view->guide) {
         return false;
     }
-    s_view.divider = make_artwork_panel(s_view.guide, 104, 292, 816, 2, kNeutral);
-    s_view.title = make_label(s_view.guide, 72, 350, 880, 116, &mybot_lvgl_font_20, kNeutral);
-    s_view.code = make_label(s_view.guide, 72, 478, 880, 92, &lv_font_montserrat_32, kGreeting);
-    s_view.detail = make_label(s_view.guide, 72, 478, 880, 130, &mybot_lvgl_font_20, kNeutral);
-    s_view.notice = make_label(s_view.guide, 72, 660, 880, 130, &mybot_lvgl_font_20, kMuted);
+    s_view->divider = make_artwork_panel(s_view->guide, 104, 292, 816, 2, kNeutral);
+    s_view->title = make_label(s_view->guide, 72, 350, 880, 116, &mybot_lvgl_font_20, kNeutral);
+    s_view->code = make_label(s_view->guide, 72, 478, 880, 92, &lv_font_montserrat_32, kGreeting);
+    s_view->detail = make_label(s_view->guide, 72, 478, 880, 130, &mybot_lvgl_font_20, kNeutral);
+    s_view->notice = make_label(s_view->guide, 72, 660, 880, 130, &mybot_lvgl_font_20, kMuted);
     /* Operational copy and a 32-byte SSID can wrap to two 26-pixel lines on
      * the smaller panel; source-scaled height alone would clip the second. */
     const int two_lines = mybot_lvgl_font_20.line_height * 2;
-    if (s_view.detail && lv_obj_get_height(s_view.detail) < two_lines)
-        lv_obj_set_height(s_view.detail, two_lines);
-    if (s_view.notice && lv_obj_get_height(s_view.notice) < two_lines)
-        lv_obj_set_height(s_view.notice, two_lines);
-    return s_view.divider && s_view.title && s_view.code && s_view.detail && s_view.notice;
+    if (s_view->detail && lv_obj_get_height(s_view->detail) < two_lines)
+        lv_obj_set_height(s_view->detail, two_lines);
+    if (s_view->notice && lv_obj_get_height(s_view->notice) < two_lines)
+        lv_obj_set_height(s_view->notice, two_lines);
+    return s_view->divider && s_view->title && s_view->code && s_view->detail && s_view->notice;
 }
 
 } // namespace
 
 int mybot_lvgl_view_create(lv_display_t *display) {
-    if (!display || s_view.root) {
+    if (!display || s_view) {
         return -1;
     }
     const int width = lv_display_get_horizontal_resolution(display);
@@ -500,31 +504,36 @@ int mybot_lvgl_view_create(lv_display_t *display) {
     if (width < 240 || height < 240) {
         return -1;
     }
+    s_view =
+        static_cast<View *>(heap_caps_calloc(1, sizeof(View), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+    if (!s_view) {
+        return -1;
+    }
     /* CoreS3's 320x240 panel gets a 288x252 cover at (16,-6). The cropped
      * pixels are empty source margins; all face geometry uses one scale.
      * The ESP32 panel adapter remains responsible for physical orientation. */
-    s_view.artwork_width = width * 9 / 10;
-    s_view.artwork_height = s_view.artwork_width * kArtworkHeight / kArtworkWidth;
-    s_view.current_ink = kNeutral;
-    s_view.root =
+    s_view->artwork_width = width * 9 / 10;
+    s_view->artwork_height = s_view->artwork_width * kArtworkHeight / kArtworkWidth;
+    s_view->current_ink = kNeutral;
+    s_view->root =
         make_panel(lv_display_get_screen_active(display), 0, 0, width, height, kBackground);
-    if (!s_view.root) {
+    if (!s_view->root) {
         mybot_lvgl_view_destroy();
         return -1;
     }
-    s_view.artwork = make_panel(s_view.root, (width - s_view.artwork_width) / 2,
-                                (height - s_view.artwork_height) / 2, s_view.artwork_width,
-                                s_view.artwork_height, kBackground, LV_OPA_TRANSP);
-    if (!s_view.artwork || !create_chrome() || !create_face() || !create_guide()) {
+    s_view->artwork = make_panel(s_view->root, (width - s_view->artwork_width) / 2,
+                                 (height - s_view->artwork_height) / 2, s_view->artwork_width,
+                                 s_view->artwork_height, kBackground, LV_OPA_TRANSP);
+    if (!s_view->artwork || !create_chrome() || !create_face() || !create_guide()) {
         mybot_lvgl_view_destroy();
         return -1;
     }
-    s_view.timer = lv_timer_create(timer_callback, kTransitionTickMs, nullptr);
-    if (!s_view.timer) {
+    s_view->timer = lv_timer_create(timer_callback, kTransitionTickMs, nullptr);
+    if (!s_view->timer) {
         mybot_lvgl_view_destroy();
         return -1;
     }
-    lv_timer_pause(s_view.timer);
+    lv_timer_pause(s_view->timer);
     const mybot_lcd_content_t initial = {MYBOT_LCD_SCREEN_STARTING, {}, 0};
     mybot_pixel_glasses_update(&initial, nullptr, nullptr);
     return 0;
@@ -543,7 +552,7 @@ void mybot_lvgl_view_update(const mybot_lcd_content_t *content) {
 
 void mybot_pixel_glasses_update(const mybot_lcd_content_t *content, const char *ssid,
                                 const mybot_display_runtime_status_t *status) {
-    if (!s_view.root || !content || content->screen < MYBOT_LCD_SCREEN_STARTING ||
+    if (!s_view || !s_view->root || !content || content->screen < MYBOT_LCD_SCREEN_STARTING ||
         content->screen >= MYBOT_LCD_SCREEN_COUNT) {
         return;
     }
@@ -572,13 +581,13 @@ void mybot_pixel_glasses_update(const mybot_lcd_content_t *content, const char *
         }
     }
     const bool workflow_changed =
-        !s_view.has_content || normalized.screen != s_view.previous.screen ||
-        std::strcmp(normalized.pair_code, s_view.previous.pair_code) != 0 ||
-        std::strcmp(copied_ssid, s_view.provisioning_ssid) != 0;
+        !s_view->has_content || normalized.screen != s_view->previous.screen ||
+        std::strcmp(normalized.pair_code, s_view->previous.pair_code) != 0 ||
+        std::strcmp(copied_ssid, s_view->provisioning_ssid) != 0;
     const bool status_changed =
-        !s_view.has_content || normalized.indicators != s_view.previous.indicators ||
-        copied_status.in_conversation != s_view.runtime_status.in_conversation ||
-        std::strcmp(copied_status.state, s_view.runtime_status.state) != 0;
+        !s_view->has_content || normalized.indicators != s_view->previous.indicators ||
+        copied_status.in_conversation != s_view->runtime_status.in_conversation ||
+        std::strcmp(copied_status.state, s_view->runtime_status.state) != 0;
     if (!workflow_changed && !status_changed) {
         return;
     }
@@ -590,40 +599,40 @@ void mybot_pixel_glasses_update(const mybot_lcd_content_t *content, const char *
         content->screen != MYBOT_LCD_SCREEN_IN_CONVERSATION) {
         show_guide(kScreens[content->screen]);
         if (provisioning) {
-            std::memcpy(s_view.provisioning_ssid, copied_ssid, sizeof(s_view.provisioning_ssid));
-            lv_label_set_text_static(s_view.detail, s_view.provisioning_ssid);
-            set_text(s_view.notice, kPortalNotice);
-            set_hidden(s_view.detail, !copied_ssid[0]);
+            std::memcpy(s_view->provisioning_ssid, copied_ssid, sizeof(s_view->provisioning_ssid));
+            lv_label_set_text_static(s_view->detail, s_view->provisioning_ssid);
+            set_text(s_view->notice, kPortalNotice);
+            set_hidden(s_view->detail, !copied_ssid[0]);
         }
         if (pairing_code) {
             /* The device service provides exactly six digits. Keep the code
              * at its fixed 32-pixel size rather than changing with length. */
-            std::memcpy(s_view.pair_code, normalized.pair_code, sizeof(s_view.pair_code));
-            lv_label_set_text_static(s_view.code, s_view.pair_code);
-            set_hidden(s_view.code, false);
+            std::memcpy(s_view->pair_code, normalized.pair_code, sizeof(s_view->pair_code));
+            lv_label_set_text_static(s_view->code, s_view->pair_code);
+            set_hidden(s_view->code, false);
         }
     }
-    s_view.previous = normalized;
-    s_view.runtime_status = copied_status;
-    std::memcpy(s_view.provisioning_ssid, copied_ssid, sizeof(s_view.provisioning_ssid));
-    s_view.has_content = true;
+    s_view->previous = normalized;
+    s_view->runtime_status = copied_status;
+    std::memcpy(s_view->provisioning_ssid, copied_ssid, sizeof(s_view->provisioning_ssid));
+    s_view->has_content = true;
 }
 
 int mybot_pixel_glasses_show_expression(mybot_expression_t expression) {
-    if (!s_view.root || !s_view.has_content ||
-        (s_view.previous.screen != MYBOT_LCD_SCREEN_READY &&
-         s_view.previous.screen != MYBOT_LCD_SCREEN_IN_CONVERSATION) ||
+    if (!s_view || !s_view->root || !s_view->has_content ||
+        (s_view->previous.screen != MYBOT_LCD_SCREEN_READY &&
+         s_view->previous.screen != MYBOT_LCD_SCREEN_IN_CONVERSATION) ||
         expression < MYBOT_EXPRESSION_NEUTRAL || expression >= MYBOT_EXPRESSION_COUNT)
         return -1;
-    if (!s_view.face_visible || expression != s_view.expression)
+    if (!s_view->face_visible || expression != s_view->expression)
         show_face(expression);
     return 0;
 }
 
 int mybot_pixel_glasses_replay_expression(mybot_expression_t expression) {
-    if (!s_view.root || !s_view.has_content ||
-        (s_view.previous.screen != MYBOT_LCD_SCREEN_READY &&
-         s_view.previous.screen != MYBOT_LCD_SCREEN_IN_CONVERSATION) ||
+    if (!s_view || !s_view->root || !s_view->has_content ||
+        (s_view->previous.screen != MYBOT_LCD_SCREEN_READY &&
+         s_view->previous.screen != MYBOT_LCD_SCREEN_IN_CONVERSATION) ||
         expression < MYBOT_EXPRESSION_NEUTRAL || expression >= MYBOT_EXPRESSION_COUNT)
         return -1;
     show_face(expression);
@@ -631,12 +640,17 @@ int mybot_pixel_glasses_replay_expression(mybot_expression_t expression) {
 }
 
 void mybot_lvgl_view_destroy(void) {
-    /* The same display owner serializes timer callbacks and destruction. */
-    if (s_view.timer) {
-        lv_timer_delete(s_view.timer);
+    /* The display owner holds the LVGL lock, excluding timers and drawing while
+     * retained points, event userdata and static-label buffers are released. */
+    if (!s_view) {
+        return;
     }
-    if (s_view.root) {
-        lv_obj_delete(s_view.root);
+    if (s_view->timer) {
+        lv_timer_delete(s_view->timer);
     }
-    s_view = View{};
+    if (s_view->root) {
+        lv_obj_delete(s_view->root);
+    }
+    heap_caps_free(s_view);
+    s_view = nullptr;
 }

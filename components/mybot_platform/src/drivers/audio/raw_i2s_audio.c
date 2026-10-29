@@ -8,6 +8,7 @@
 #include "driver/i2s_pdm.h"
 #include "driver/i2s_std.h"
 #include "esp_err.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -62,7 +63,7 @@ typedef struct {
     bool playback;
     bool enabled;
     bool stop_pending;
-    int32_t scratch[AUDIO_SCRATCH_FRAMES];
+    int32_t *scratch;
 } audio_context_t;
 
 typedef struct {
@@ -261,11 +262,25 @@ static i2s_std_config_t make_i2s_config(int rate, gpio_num_t bclk, gpio_num_t ws
     return config;
 }
 
-static audio_context_t *audio_context_create(const char *direction) {
-    audio_context_t *ctx = calloc(1, sizeof(audio_context_t));
+static void audio_context_release(audio_context_t *ctx) {
     if (ctx) {
-        ctx->direction = direction;
+        heap_caps_free(ctx->scratch);
+        free(ctx);
     }
+}
+
+static audio_context_t *audio_context_create(const char *direction) {
+    audio_context_t *ctx = heap_caps_calloc(1, sizeof(*ctx), MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    if (!ctx) {
+        return NULL;
+    }
+    ctx->scratch = heap_caps_calloc(AUDIO_SCRATCH_FRAMES, sizeof(*ctx->scratch),
+                                    MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (!ctx->scratch) {
+        audio_context_release(ctx);
+        return NULL;
+    }
+    ctx->direction = direction;
     return ctx;
 }
 
@@ -286,14 +301,14 @@ static int capture_init(void **out_ctx, int rate, int channels, int bits) {
     channel_config.dma_desc_num = 6;
     channel_config.dma_frame_num = 240;
     if (i2s_new_channel(&channel_config, NULL, &ctx->channel) != ESP_OK) {
-        free(ctx);
+        audio_context_release(ctx);
         return -1;
     }
 
 #if MYBOT_AUDIO_I2S_CAPTURE_PDM
     if (!SOC_I2S_SUPPORTS_PDM_RX) {
         i2s_del_channel(ctx->channel);
-        free(ctx);
+        audio_context_release(ctx);
         return -1;
     }
     const i2s_pdm_rx_config_t pdm_config = {
@@ -318,7 +333,7 @@ static int capture_init(void **out_ctx, int rate, int channels, int bits) {
 #endif
     if (result != ESP_OK) {
         i2s_del_channel(ctx->channel);
-        free(ctx);
+        audio_context_release(ctx);
         return -1;
     }
 
@@ -387,7 +402,7 @@ static int capture_read(void *opaque, void *buffer, int frames) {
 static int clear_playback_dma_locked(audio_context_t *ctx) {
     const size_t bytes_per_frame =
         sizeof(ctx->scratch[0]) * (MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS ? 2 : 1);
-    memset(ctx->scratch, 0, sizeof(ctx->scratch));
+    memset(ctx->scratch, 0, AUDIO_SCRATCH_FRAMES * sizeof(ctx->scratch[0]));
     while (ctx->dma_clear_frames < AUDIO_DMA_FRAMES) {
         size_t frames = AUDIO_DMA_FRAMES - ctx->dma_clear_frames;
         if (frames > AUDIO_MAX_FRAMES) {
@@ -476,7 +491,7 @@ static void audio_destroy(void *opaque) {
         return;
     }
     audio_unlock();
-    free(ctx);
+    audio_context_release(ctx);
 }
 
 static esp_err_t playback_sink_write(void *opaque, const int16_t *pcm, size_t frames,
@@ -529,7 +544,7 @@ static int playback_init(void **out_ctx, int rate, int channels, int bits) {
     channel_config.dma_frame_num = 240;
     channel_config.auto_clear_after_cb = true;
     if (i2s_new_channel(&channel_config, &ctx->channel, NULL) != ESP_OK) {
-        free(ctx);
+        audio_context_release(ctx);
         return -1;
     }
 
@@ -538,7 +553,7 @@ static int playback_init(void **out_ctx, int rate, int channels, int bits) {
         I2S_GPIO_UNUSED, MYBOT_AUDIO_I2S_PLAYBACK_BOTH_SLOTS != 0, false);
     if (i2s_channel_init_std_mode(ctx->channel, &std_config) != ESP_OK) {
         i2s_del_channel(ctx->channel);
-        free(ctx);
+        audio_context_release(ctx);
         return -1;
     }
     ctx->playback_buffer = mybot_pcm_playback_buffer_create(playback_sink_write, ctx);
