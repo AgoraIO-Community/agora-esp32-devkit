@@ -7,6 +7,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "freertos/idf_additions.h"
 #if CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR
 #include "mybot_platform/debug_stats.h"
 #endif
@@ -34,7 +35,8 @@ struct mybot_pcm_playback_buffer {
     mybot_pcm_write_fn write;
     void *write_context;
     int16_t *fifo;
-    int16_t scratch[WRITE_FRAMES];
+    int16_t *scratch;
+    TaskHandle_t task;
     StaticSemaphore_t mutex_storage;
     StaticSemaphore_t wake_storage;
     StaticSemaphore_t space_storage;
@@ -224,11 +226,10 @@ static void playback_worker(void *opaque) {
         }
     }
 
-    /* This is the final context access. A dynamically allocated FreeRTOS task
-     * owns its stack/TCB until deletion; destroy() only frees our separate data.
-     * No completion semaphore can still be accessed after the release store. */
+    /* No context access follows publication. The owner joins and deletes this
+     * task, avoiding the internal cleanup task needed by WithCaps self-delete. */
     __atomic_store_n(&buffer->exited, true, __ATOMIC_RELEASE);
-    vTaskDelete(NULL);
+    vTaskSuspend(NULL);
 }
 
 static void release_buffer(mybot_pcm_playback_buffer_t *buffer) {
@@ -244,7 +245,8 @@ static void release_buffer(mybot_pcm_playback_buffer_t *buffer) {
     if (buffer->mutex) {
         vSemaphoreDelete(buffer->mutex);
     }
-    free(buffer->fifo);
+    heap_caps_free(buffer->scratch);
+    heap_caps_free(buffer->fifo);
     free(buffer);
 }
 
@@ -263,17 +265,18 @@ mybot_pcm_playback_buffer_t *mybot_pcm_playback_buffer_create(mybot_pcm_write_fn
     buffer->idle = true;
     buffer->fifo =
         heap_caps_calloc(FIFO_FRAMES, sizeof(buffer->fifo[0]), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    if (!buffer->fifo) {
-        buffer->fifo = heap_caps_calloc(FIFO_FRAMES, sizeof(buffer->fifo[0]),
-                                        MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-    }
+    buffer->scratch = heap_caps_calloc(WRITE_FRAMES, sizeof(buffer->scratch[0]),
+                                       MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     buffer->mutex = xSemaphoreCreateMutexStatic(&buffer->mutex_storage);
     buffer->wake = xSemaphoreCreateBinaryStatic(&buffer->wake_storage);
     buffer->space = xSemaphoreCreateBinaryStatic(&buffer->space_storage);
     buffer->changed = xSemaphoreCreateBinaryStatic(&buffer->changed_storage);
-    if (!buffer->fifo || !buffer->mutex || !buffer->wake || !buffer->space || !buffer->changed ||
-        xTaskCreate(playback_worker, "pcm_playback", WORKER_STACK_BYTES, buffer, WORKER_PRIORITY,
-                    NULL) != pdPASS) {
+    if (!buffer->fifo || !buffer->scratch || !buffer->mutex || !buffer->wake || !buffer->space ||
+        !buffer->changed ||
+        xTaskCreateWithCaps(playback_worker, "pcm_playback", WORKER_STACK_BYTES, buffer,
+                            WORKER_PRIORITY, &buffer->task,
+                            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
+        ESP_LOGE(TAG, "event=playback_buffer action=create result=error memory=psram");
         release_buffer(buffer);
         return NULL;
     }
@@ -458,6 +461,7 @@ int mybot_pcm_playback_buffer_destroy(mybot_pcm_playback_buffer_t *buffer) {
     if (!buffer) {
         return 0;
     }
+    const int64_t deadline = esp_timer_get_time() + STOP_TIMEOUT_MS * 1000;
     if (!__atomic_load_n(&buffer->exited, __ATOMIC_ACQUIRE)) {
         lock_buffer(buffer);
         bool idle = buffer->idle;
@@ -469,7 +473,6 @@ int mybot_pcm_playback_buffer_destroy(mybot_pcm_playback_buffer_t *buffer) {
         buffer->terminate = true;
         unlock_buffer(buffer);
         (void)xSemaphoreGive(buffer->wake);
-        int64_t deadline = esp_timer_get_time() + STOP_TIMEOUT_MS * 1000;
         while (!__atomic_load_n(&buffer->exited, __ATOMIC_ACQUIRE)) {
             if (esp_timer_get_time() >= deadline) {
                 ESP_LOGE(TAG, "event=playback_buffer action=destroy result=timeout "
@@ -479,6 +482,16 @@ int mybot_pcm_playback_buffer_destroy(mybot_pcm_playback_buffer_t *buffer) {
             vTaskDelay(1);
         }
     }
+    while (eTaskGetState(buffer->task) != eSuspended) {
+        if (esp_timer_get_time() >= deadline) {
+            ESP_LOGE(TAG, "event=playback_buffer action=destroy result=timeout "
+                          "resources=retained reason=worker_suspend");
+            return -1;
+        }
+        vTaskDelay(1);
+    }
+    vTaskDeleteWithCaps(buffer->task);
+    buffer->task = NULL;
     release_buffer(buffer);
     return 0;
 }

@@ -140,10 +140,11 @@ the UI labels, not arbitrary conversation text.
 Touch and button events remain in each board's input driver. The UI does not add a new
 gesture, alter provisioning, or change the audio/video lifecycle. The backend uses one partial
 RGB565 DMA stripe of 16 rows (`width × 16 × 2` bytes) and a dedicated LVGL task on Core 1 at
-priority 1. Objects and drawing scratch space use PSRAM; the DMA stripe uses internal memory.
-CoreS3's stripe is 10,240 bytes, StickS3's is 4,320 bytes, and AMOLED 2.16's is 15,360 bytes,
-separate from task stacks and driver
-allocations. The hardware integration owns reset, offsets, color order, backlight, and teardown.
+priority 1. All adapters place the 7,168-byte LVGL stack, objects and drawing scratch space in
+PSRAM; the DMA stripe uses internal memory. CoreS3's stripe is 10,240 bytes, StickS3's is
+4,320 bytes, and AMOLED 2.16's is 15,360 bytes; driver allocations are additional. See the
+[PSRAM memory policy](PSRAM_MEMORY.md) for allocation boundaries and cleanup ownership. The
+hardware integration owns reset, offsets, color order, backlight, and teardown.
 
 Round profiles set `MYBOT_DISPLAY_ROUND=1`. The shared view then narrows the header, card and
 footer to a central safe rectangle instead of placing widgets in the panel corners. This layout

@@ -4,6 +4,7 @@
 #include "board_config.h"
 #include "display/display_panel.h"
 #include "display/lvgl_view.h"
+#include "esp_heap_caps.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -331,6 +332,8 @@ void lv_timer_delete(lv_timer_t *handle) {
 
 esp_err_t lvgl_port_init(const lvgl_port_cfg_t *config) {
     CHECK(!port_open && config->task_affinity == 1 && config->task_priority == 1);
+    CHECK(config->task_stack == 7168);
+    CHECK(config->task_stack_caps == (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
     /* A failed worker startup may still need to be joined. */
     port_open = true;
     return step("port_init");

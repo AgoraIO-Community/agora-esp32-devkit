@@ -3,6 +3,47 @@
 
 #include "board_config.h"
 
+#if INPUT_TEST_AMOLED175
+#define MYBOT_TOUCH_I2C_SPEED_HZ MYBOT_AMOLED175_I2C_SPEED_HZ
+#define MYBOT_TOUCH_RESET MYBOT_AMOLED175_TOUCH_RESET
+#define MYBOT_TOUCH_INTERRUPT MYBOT_AMOLED175_TOUCH_INTERRUPT
+#define MYBOT_TOUCH_RESET_LEVEL 0
+#define MYBOT_TOUCH_INTERRUPT_LEVEL 0
+#define MYBOT_TOUCH_SWAP_XY 0
+#define MYBOT_TOUCH_MIRROR_X 1
+#define MYBOT_TOUCH_MIRROR_Y 1
+#define MYBOT_BOOT_BUTTON_LONG_PRESS_MS MYBOT_AMOLED175_INPUT_LONG_PRESS_MS
+#define EXPECTED_TOUCH_ADDRESS ESP_LCD_TOUCH_IO_I2C_CST9217_ADDRESS
+#define EXPECTED_TASK_STACK 3072
+#define EXPECTED_TASK_PRIORITY 4
+#define mybot_cst816s_input_start mybot_amoled175_input_start
+#define mybot_cst816s_input_stop mybot_amoled175_input_stop
+#define mybot_cst816s_input_ops mybot_amoled175_input_ops
+#define mybot_board_touch_i2c_bus_handle mybot_amoled175_i2c_bus_handle
+#define esp_lcd_touch_new_i2c_cst816s esp_lcd_touch_new_i2c_cst9217
+#elif INPUT_TEST_VOCAT
+#define MYBOT_TOUCH_I2C_SPEED_HZ MYBOT_VOCAT_I2C_SPEED_HZ
+#define MYBOT_TOUCH_RESET MYBOT_VOCAT_TOUCH_RESET
+#define MYBOT_TOUCH_INTERRUPT MYBOT_VOCAT_TOUCH_INTERRUPT
+#define MYBOT_TOUCH_RESET_LEVEL 0
+#define MYBOT_TOUCH_INTERRUPT_LEVEL 0
+#define MYBOT_TOUCH_SWAP_XY 0
+#define MYBOT_TOUCH_MIRROR_X 0
+#define MYBOT_TOUCH_MIRROR_Y 0
+#define MYBOT_BOOT_BUTTON_LONG_PRESS_MS MYBOT_VOCAT_INPUT_LONG_PRESS_MS
+#define EXPECTED_TOUCH_ADDRESS ESP_LCD_TOUCH_IO_I2C_CST816S_ADDRESS
+#define EXPECTED_TASK_STACK 3072
+#define EXPECTED_TASK_PRIORITY 4
+#define mybot_cst816s_input_start mybot_vocat_input_start
+#define mybot_cst816s_input_stop mybot_vocat_input_stop
+#define mybot_cst816s_input_ops mybot_vocat_input_ops
+#define mybot_board_touch_i2c_bus_handle mybot_vocat_i2c_bus_handle
+#else
+#define EXPECTED_TOUCH_ADDRESS ESP_LCD_TOUCH_IO_I2C_CST816S_ADDRESS
+#define EXPECTED_TASK_STACK 4096
+#define EXPECTED_TASK_PRIORITY 5
+#endif
+
 #include <errno.h>
 #include <stdatomic.h>
 #include <stdio.h>
@@ -37,6 +78,8 @@ struct mock_task {
     pthread_t thread;
     task_function_t function;
     void *argument;
+    atomic_bool suspended;
+    atomic_bool delete_requested;
 };
 
 static struct mock_i2c_bus g_bus;
@@ -51,6 +94,11 @@ static bool g_fail_io_delete;
 static bool g_fail_touch_new;
 static bool g_fail_touch_delete;
 static bool g_fail_task_create;
+static atomic_bool g_hold_task;
+static atomic_bool g_task_entered;
+static atomic_bool g_hold_suspend;
+static atomic_bool g_suspend_entered;
+static atomic_uint g_tasks_live;
 static unsigned int g_button_delete_calls;
 static unsigned int g_provision_calls;
 static unsigned int g_state_calls;
@@ -69,7 +117,7 @@ esp_err_t esp_lcd_new_panel_io_i2c(i2c_master_bus_handle_t bus,
                                    const esp_lcd_panel_io_i2c_config_t *config,
                                    esp_lcd_panel_io_handle_t *out_io) {
     CHECK(bus == &g_bus && !g_io.open);
-    CHECK(config->dev_addr == ESP_LCD_TOUCH_IO_I2C_CST816S_ADDRESS);
+    CHECK(config->dev_addr == EXPECTED_TOUCH_ADDRESS);
     CHECK(config->scl_speed_hz == MYBOT_TOUCH_I2C_SPEED_HZ);
     CHECK(config->control_phase_bytes == 1 && config->dc_bit_offset == 0);
     CHECK(config->lcd_cmd_bits == 8 && config->lcd_param_bits == 0);
@@ -201,14 +249,19 @@ int mybot_board_handle_boot_long_press(void) {
 static void *task_trampoline(void *argument) {
     struct mock_task *task = argument;
     g_current_task = task;
+    atomic_store(&g_task_entered, true);
+    while (atomic_load(&g_hold_task)) {
+        vTaskDelay(1);
+    }
     task->function(task->argument);
     return NULL;
 }
 
-int xTaskCreate(task_function_t task, const char *name, uint32_t stack_size, void *argument,
-                unsigned int priority, TaskHandle_t *out_task) {
+int xTaskCreateWithCaps(task_function_t task, const char *name, uint32_t stack_size, void *argument,
+                        unsigned int priority, TaskHandle_t *out_task, unsigned int capabilities) {
     (void)name;
-    CHECK(stack_size == 4096 && priority == 5);
+    CHECK(stack_size == EXPECTED_TASK_STACK && priority == EXPECTED_TASK_PRIORITY);
+    CHECK(capabilities == (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
     if (g_fail_task_create) {
         g_fail_task_create = false;
         *out_task = NULL;
@@ -218,9 +271,9 @@ int xTaskCreate(task_function_t task, const char *name, uint32_t stack_size, voi
     CHECK(created);
     created->function = task;
     created->argument = argument;
-    CHECK(pthread_create(&created->thread, NULL, task_trampoline, created) == 0);
-    CHECK(pthread_detach(created->thread) == 0);
     *out_task = created;
+    atomic_fetch_add(&g_tasks_live, 1);
+    CHECK(pthread_create(&created->thread, NULL, task_trampoline, created) == 0);
     return pdPASS;
 }
 
@@ -228,13 +281,31 @@ TaskHandle_t xTaskGetCurrentTaskHandle(void) {
     return g_current_task;
 }
 
-void vTaskDelete(TaskHandle_t task) {
-    CHECK(task == NULL || task == g_current_task);
-    if (g_current_task) {
-        free(g_current_task);
-        g_current_task = NULL;
+eTaskState eTaskGetState(TaskHandle_t task) {
+    CHECK(task);
+    return atomic_load(&task->suspended) ? eSuspended : eRunning;
+}
+
+void vTaskSuspend(TaskHandle_t task) {
+    CHECK(task == NULL && g_current_task);
+    atomic_store(&g_suspend_entered, true);
+    while (atomic_load(&g_hold_suspend)) {
+        vTaskDelay(1);
+    }
+    atomic_store(&g_current_task->suspended, true);
+    while (!atomic_load(&g_current_task->delete_requested)) {
+        vTaskDelay(1);
     }
     pthread_exit(NULL);
+}
+
+void vTaskDeleteWithCaps(TaskHandle_t task) {
+    CHECK(task && task != g_current_task);
+    CHECK(atomic_load(&task->suspended));
+    atomic_store(&task->delete_requested, true);
+    CHECK(pthread_join(task->thread, NULL) == 0);
+    atomic_fetch_sub(&g_tasks_live, 1);
+    free(task);
 }
 
 void vTaskDelay(TickType_t ticks) {
@@ -267,9 +338,24 @@ int xSemaphoreTake(SemaphoreHandle_t semaphore, TickType_t ticks) {
         pthread_mutex_unlock(&semaphore->lock);
         return taken ? pdTRUE : 0;
     }
-    CHECK(ticks == portMAX_DELAY);
+    struct timespec deadline;
+    CHECK(clock_gettime(CLOCK_REALTIME, &deadline) == 0);
+    deadline.tv_sec += ticks / 1000;
+    deadline.tv_nsec += (long)(ticks % 1000) * 1000000L;
+    if (deadline.tv_nsec >= 1000000000L) {
+        ++deadline.tv_sec;
+        deadline.tv_nsec -= 1000000000L;
+    }
     while (!semaphore->given) {
-        CHECK(pthread_cond_wait(&semaphore->condition, &semaphore->lock) == 0);
+        const int result =
+            ticks == portMAX_DELAY
+                ? pthread_cond_wait(&semaphore->condition, &semaphore->lock)
+                : pthread_cond_timedwait(&semaphore->condition, &semaphore->lock, &deadline);
+        if (result == ETIMEDOUT) {
+            pthread_mutex_unlock(&semaphore->lock);
+            return 0;
+        }
+        CHECK(result == 0);
     }
     semaphore->given = false;
     pthread_mutex_unlock(&semaphore->lock);
@@ -301,6 +387,7 @@ static void fire_button(button_event_t event) {
 
 static void assert_released(void) {
     CHECK(!g_button.open && !g_touch.open && !g_io.open);
+    CHECK(atomic_load(&g_tasks_live) == 0);
 }
 
 static unsigned int g_event_count;
@@ -333,6 +420,14 @@ static void test_start_failures_and_retry(void) {
     assert_released();
     g_fail_task_create = true;
     CHECK(mybot_cst816s_input_start() < 0);
+    assert_released();
+
+    g_fail_task_create = true;
+    g_fail_touch_delete = true;
+    CHECK(mybot_cst816s_input_start() < 0);
+    CHECK(g_touch.open && g_io.open && !g_button.open);
+    CHECK(mybot_cst816s_input_start() < 0);
+    CHECK(mybot_cst816s_input_stop() == 0);
     assert_released();
 
     CHECK(mybot_cst816s_input_start() == 0);
@@ -477,12 +572,94 @@ static void test_destroy_waits_for_callback(void) {
     assert_released();
 }
 
+static void test_stop_waits_for_callback_and_retries(void) {
+    pthread_mutex_lock(&g_callback_lock);
+    g_callback_entered = false;
+    g_callback_release = false;
+    pthread_mutex_unlock(&g_callback_lock);
+    CHECK(mybot_cst816s_input_start() == 0);
+    void *context = NULL;
+    g_state = MYBOT_STATE_READY;
+    CHECK(mybot_cst816s_input_ops()->init(&context, blocking_event, &g_callback_entered) == 0);
+    pthread_t click;
+    CHECK(pthread_create(&click, NULL, click_thread, NULL) == 0);
+    wait_for_callback();
+
+    const TickType_t started = xTaskGetTickCount();
+    CHECK(mybot_cst816s_input_stop() < 0);
+    CHECK(xTaskGetTickCount() - started < 2000);
+    CHECK(g_button.open && g_touch.open && g_io.open);
+    CHECK(atomic_load(&g_tasks_live) == 0);
+    CHECK(mybot_cst816s_input_start() < 0);
+
+    pthread_mutex_lock(&g_callback_lock);
+    g_callback_release = true;
+    pthread_cond_broadcast(&g_callback_condition);
+    pthread_mutex_unlock(&g_callback_lock);
+    CHECK(pthread_join(click, NULL) == 0);
+    CHECK(mybot_cst816s_input_stop() == 0);
+    assert_released();
+}
+
+esp_err_t gpio_set_intr_type(gpio_num_t gpio, int interrupt_type) {
+    CHECK(gpio == MYBOT_TOUCH_INTERRUPT && interrupt_type == GPIO_INTR_ANYEDGE);
+    return ESP_OK;
+}
+
+int xSemaphoreGiveFromISR(SemaphoreHandle_t semaphore, BaseType_t *woken) {
+    *woken = pdFALSE;
+    return xSemaphoreGive(semaphore);
+}
+
+uint32_t ulTaskNotifyTake(BaseType_t clear, TickType_t ticks) {
+    CHECK(clear == pdTRUE);
+    vTaskDelay(ticks);
+    return 0;
+}
+
+static void wait_for_flag(atomic_bool *flag) {
+    const TickType_t started = xTaskGetTickCount();
+    while (!atomic_load(flag)) {
+        CHECK(xTaskGetTickCount() - started < 2000);
+        vTaskDelay(1);
+    }
+}
+
+static void test_stop_timeout_retry(void) {
+    atomic_store(&g_hold_task, true);
+    atomic_store(&g_task_entered, false);
+    CHECK(mybot_cst816s_input_start() == 0);
+    wait_for_flag(&g_task_entered);
+    const TickType_t started = xTaskGetTickCount();
+    CHECK(mybot_cst816s_input_stop() < 0);
+    CHECK(xTaskGetTickCount() - started < 2000);
+    CHECK(g_button.open && g_touch.open && g_io.open);
+    CHECK(atomic_load(&g_tasks_live) == 1);
+    CHECK(mybot_cst816s_input_start() < 0);
+    atomic_store(&g_hold_task, false);
+    CHECK(mybot_cst816s_input_stop() == 0);
+    assert_released();
+
+    atomic_store(&g_hold_suspend, true);
+    atomic_store(&g_suspend_entered, false);
+    CHECK(mybot_cst816s_input_start() == 0);
+    CHECK(mybot_cst816s_input_stop() < 0);
+    wait_for_flag(&g_suspend_entered);
+    CHECK(g_button.open && g_touch.open && g_io.open);
+    CHECK(atomic_load(&g_tasks_live) == 1);
+    atomic_store(&g_hold_suspend, false);
+    CHECK(mybot_cst816s_input_stop() == 0);
+    assert_released();
+}
+
 int main(void) {
     test_start_failures_and_retry();
     test_cleanup_retry();
+    test_stop_timeout_retry();
     test_callback_lifecycle();
     test_destroy_waits_for_callback();
-    printf("CST816S/Boot input host fault-injection tests passed (%u button deletes)\n",
+    test_stop_waits_for_callback_and_retries();
+    printf("Touch/Boot input PSRAM lifecycle fault-injection tests passed (%u button deletes)\n",
            g_button_delete_calls);
     return 0;
 }

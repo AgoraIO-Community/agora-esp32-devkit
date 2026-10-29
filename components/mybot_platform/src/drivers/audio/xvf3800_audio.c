@@ -8,6 +8,7 @@
 
 #include "driver/i2s_std.h"
 #include "esp_err.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -290,11 +291,14 @@ static int stream_init(void **out_context, int rate, int channels, int bits,
     }
     *out_context = NULL;
 
-    audio_stream_context_t *context = calloc(1, sizeof(*context));
+    audio_stream_context_t *context =
+        heap_caps_calloc(1, sizeof(*context), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!context) {
         return -1;
     }
-    context->scratch = calloc(AUDIO_MAX_FRAMES * AUDIO_WIRE_CHANNELS, sizeof(*context->scratch));
+    context->scratch =
+        heap_caps_calloc(AUDIO_MAX_FRAMES * AUDIO_WIRE_CHANNELS, sizeof(*context->scratch),
+                         MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!context->scratch) {
         free(context);
         return -1;

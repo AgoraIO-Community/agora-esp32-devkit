@@ -19,3 +19,23 @@ if command -v timeout >/dev/null 2>&1; then
 else
     "$test_build_dir/test_cst816s_input"
 fi
+
+for board in esp32-s3-touch-amoled-1.75 esp32-s3-touch-amoled-1.75c esp-vocat; do
+    if [ "$board" = esp-vocat ]; then
+        test_variant=INPUT_TEST_VOCAT
+        input_source="$repo_root/components/mybot_platform/boards/esp-vocat/vocat_input.c"
+    else
+        test_variant=INPUT_TEST_AMOLED175
+        input_source="$repo_root/components/mybot_platform/boards/esp32-s3-touch-amoled-1.75-common/amoled175_input.c"
+    fi
+    "${CC:-cc}" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -pthread \
+        -D"$test_variant"=1 -I"$test_dir/mocks" \
+        -I"$repo_root/components/mybot_platform/boards/$board" \
+        "$test_dir/test_cst816s_input.c" "$input_source" \
+        -o "$test_build_dir/test_$board"
+    if command -v timeout >/dev/null 2>&1; then
+        timeout 20 "$test_build_dir/test_$board"
+    else
+        "$test_build_dir/test_$board"
+    fi
+done

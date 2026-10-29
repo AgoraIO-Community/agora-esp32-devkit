@@ -31,8 +31,8 @@ CoreS3-SE 没有 GC0308，不属于视频支持范围。音频帧长保持当前
 所有 CoreS3 构建均使用 LVGL，不需要单独开启 UI。
 复用已有构建目录时，运行 `idf.py -B build/cores3-video reconfigure build`，让主项目的隐藏 DMA
 默认值重新生成；确认该目录的 `sdkconfig` 中为 `CONFIG_CAM_CTRL_DVP_DMA_BUFFER_SIZE=8192`。
-CoreS3 profile 还要求 `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`，以支持 PSRAM 中的 UI
-任务栈；板级 defaults 已开启。已有配置若保存为 `n`，需在 menuconfig 中开启。
+平台[PSRAM 内存策略](PSRAM_MEMORY.zh-CN.md)自动选择
+`CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`，支持应用工作任务与 UI 的 PSRAM 栈。
 
 ## 硬件与内存
 
@@ -50,8 +50,8 @@ CoreS3 profile 还要求 `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`，以支�
 第三方 Kconfig 和驱动保持原样。对于 320×240 YUYV，驱动选择可整除 153,600 字节整帧的
 两个 3,840 字节半缓冲，实际分配 7,680 字节（7.5 KiB）连续内部 DMA 内存，另有描述符和
 3 KiB 采集任务栈。此前 16,384 字节配置实际分配 15,360 字节（15 KiB）。对比固件时先核对
-生成配置中的 DMA 大小；JPEG 任务栈为 6 KiB。两张 PSRAM 帧缓冲仍保留，轮流使用，
-同时最多只有一张已提交给驱动。
+生成配置中的 DMA 大小；JPEG 任务使用 6 KiB PSRAM 栈，第三方采集任务栈仍在内部 RAM。
+两张 PSRAM 帧缓冲仍保留，轮流使用，同时最多只有一张已提交给驱动。
 
 `no mem for CAM DVP DMA receive buffer` 表示 RTC 连接后启动采集时，驱动无法分配所需的
 连续内部 DMA 缓冲。空闲 PSRAM 不能满足这项分配；即使内部剩余总量大于请求，最大的
@@ -77,7 +77,8 @@ JPEG 任务优先级为 3，不固定 CPU 核心，不额外创建编码辅助�
 返回前始终保留 JPEG 缓冲。每次出队最多等待 100 ms，超时继续等待原来的在途缓冲，不会
 重复入队；一秒内持续无帧则打印错误并停止流。这也限制了底层对坏帧的自动重试时间，
 5 fps 指正常采样，不代表每次失败的硬件重试都受此限制。停止最多等待 3 秒，让工作任务和在途
-回调退出；超时后保留资源并返回失败，由 SDK 重试。确认停止后才销毁。摄像头销毁不会删除
+回调退出；超时后保留资源并返回失败，由 SDK 重试。worker 发布完成后挂起，owner 确认挂起
+并通过 `vTaskDeleteWithCaps` 删除后才释放资源；等待挂起超时也保留完成状态供重试。确认停止后才销毁。摄像头销毁不会删除
 Board 常驻 I2C 总线。
 
 声明码率范围为 64–512 kbit/s，初始 288 kbit/s。JPEG 质量初始 60，收到带宽反馈后在

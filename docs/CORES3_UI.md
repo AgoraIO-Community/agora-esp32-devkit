@@ -117,10 +117,12 @@ saved configuration values. Build validation is recorded separately below.
 
 The existing LVGL task runs on Core 1 at priority 1. Its 7,168-byte stack now uses PSRAM through
 the existing port's `task_stack_caps`, moving 7 KiB of stack storage out of internal RAM. The
-CoreS3 profile requires `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y`; board defaults enable it.
+platform memory policy selects `CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y` automatically.
 Objects and drawing scratch space also use PSRAM. SPI transfers retain a 320 × 16 RGB565 stripe,
 or 10,240 bytes of internal DMA memory; driver/synchronization allocations are additional memory.
-Partial redraws avoid a full-screen page cache or decoded full-face buffer.
+The view state, both shape banks and retained label strings are allocated together in PSRAM and
+freed after their LVGL objects. Partial redraws avoid a full-screen page cache or decoded
+full-face buffer. See the [PSRAM memory policy](PSRAM_MEMORY.md) for the complete inventory.
 
 The display initialization log includes `ui_stack_bytes=7168 ui_stack=psram`. Moving the stack
 reduces internal memory use but does not guarantee the largest free DMA block required by the

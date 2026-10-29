@@ -7,8 +7,10 @@
 
 #include "platform/board_actions.h"
 #include "button_gpio.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/idf_additions.h"
 #include "freertos/task.h"
 #include "iot_button.h"
 #include "xvf3800_hardware.h"
@@ -215,8 +217,9 @@ int mybot_xvf3800_buttons_start(void) {
     }
 
     if (create_boot_button() < 0 ||
-        xTaskCreate(xvf3800_button_task, "xvf3800_btn", XVF3800_BUTTON_TASK_STACK_SIZE, NULL,
-                    XVF3800_BUTTON_TASK_PRIORITY, &s_context.xvf3800_task) != pdPASS) {
+        xTaskCreateWithCaps(xvf3800_button_task, "xvf3800_btn", XVF3800_BUTTON_TASK_STACK_SIZE,
+                            NULL, XVF3800_BUTTON_TASK_PRIORITY, &s_context.xvf3800_task,
+                            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
         if (s_context.boot) {
             (void)iot_button_delete(s_context.boot);
             s_context.boot = NULL;

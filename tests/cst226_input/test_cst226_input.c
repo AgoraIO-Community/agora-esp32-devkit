@@ -35,6 +35,8 @@ struct mock_task {
     pthread_t thread;
     task_function_t function;
     void *argument;
+    atomic_bool suspended;
+    atomic_bool delete_requested;
 };
 
 static struct mock_i2c_bus g_bus;
@@ -199,11 +201,13 @@ static void *task_trampoline(void *argument) {
     return NULL;
 }
 
-int xTaskCreate(task_function_t task, const char *name, uint32_t stack_size, void *argument,
-                unsigned int priority, TaskHandle_t *out_task) {
+int xTaskCreateWithCaps(task_function_t task, const char *name, uint32_t stack_size, void *argument,
+                        unsigned int priority, TaskHandle_t *out_task, unsigned int capabilities) {
     (void)name;
     CHECK(stack_size == 4096 && priority == 5);
+    CHECK(capabilities == (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
     if (g_fail_task_create) {
+        g_fail_task_create = false;
         *out_task = NULL;
         return 0;
     }
@@ -211,9 +215,8 @@ int xTaskCreate(task_function_t task, const char *name, uint32_t stack_size, voi
     CHECK(created);
     created->function = task;
     created->argument = argument;
-    CHECK(pthread_create(&created->thread, NULL, task_trampoline, created) == 0);
-    CHECK(pthread_detach(created->thread) == 0);
     *out_task = created;
+    CHECK(pthread_create(&created->thread, NULL, task_trampoline, created) == 0);
     return pdPASS;
 }
 
@@ -221,13 +224,26 @@ TaskHandle_t xTaskGetCurrentTaskHandle(void) {
     return g_current_task;
 }
 
-void vTaskDelete(TaskHandle_t task) {
-    CHECK(task == NULL || task == g_current_task);
-    if (g_current_task) {
-        free(g_current_task);
-        g_current_task = NULL;
+eTaskState eTaskGetState(TaskHandle_t task) {
+    CHECK(task);
+    return atomic_load(&task->suspended) ? eSuspended : eRunning;
+}
+
+void vTaskSuspend(TaskHandle_t task) {
+    CHECK(task == NULL && g_current_task);
+    atomic_store(&g_current_task->suspended, true);
+    while (!atomic_load(&g_current_task->delete_requested)) {
+        vTaskDelay(1);
     }
     pthread_exit(NULL);
+}
+
+void vTaskDeleteWithCaps(TaskHandle_t task) {
+    CHECK(task && task != g_current_task);
+    CHECK(atomic_load(&task->suspended));
+    atomic_store(&task->delete_requested, true);
+    CHECK(pthread_join(task->thread, NULL) == 0);
+    free(task);
 }
 
 void vTaskDelay(TickType_t ticks) {
@@ -260,9 +276,24 @@ int xSemaphoreTake(SemaphoreHandle_t semaphore, TickType_t ticks) {
         pthread_mutex_unlock(&semaphore->lock);
         return taken ? pdTRUE : 0;
     }
-    CHECK(ticks == portMAX_DELAY);
+    struct timespec deadline;
+    CHECK(clock_gettime(CLOCK_REALTIME, &deadline) == 0);
+    deadline.tv_sec += ticks / 1000;
+    deadline.tv_nsec += (long)(ticks % 1000) * 1000000L;
+    if (deadline.tv_nsec >= 1000000000L) {
+        ++deadline.tv_sec;
+        deadline.tv_nsec -= 1000000000L;
+    }
     while (!semaphore->given) {
-        CHECK(pthread_cond_wait(&semaphore->condition, &semaphore->lock) == 0);
+        const int result =
+            ticks == portMAX_DELAY
+                ? pthread_cond_wait(&semaphore->condition, &semaphore->lock)
+                : pthread_cond_timedwait(&semaphore->condition, &semaphore->lock, &deadline);
+        if (result == ETIMEDOUT) {
+            pthread_mutex_unlock(&semaphore->lock);
+            return 0;
+        }
+        CHECK(result == 0);
     }
     semaphore->given = false;
     pthread_mutex_unlock(&semaphore->lock);

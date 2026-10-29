@@ -15,6 +15,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "freertos/idf_additions.h"
 
 #include <fcntl.h>
 #include <inttypes.h>
@@ -48,7 +49,7 @@ typedef struct {
     bool device_ready;
     bool initialized;
     bool streaming;
-    bool task_created;
+    TaskHandle_t task;
     bool buffers_clean;
     bool stop_requested;
     uint32_t target_bps;
@@ -415,11 +416,11 @@ done:
                  captured, sent, rejected);
     }
     xSemaphoreGive(s_video.stopped);
-    vTaskDelete(NULL);
+    vTaskSuspend(NULL);
 }
 
 static int video_init(void **out_context, mybot_video_frame_handler_t handler, void *user_data) {
-    if (!out_context || !handler || s_video.initialized || s_video.task_created) {
+    if (!out_context || !handler || s_video.initialized || s_video.task) {
         return -1;
     }
     *out_context = NULL;
@@ -452,7 +453,7 @@ static int video_init(void **out_context, mybot_video_frame_handler_t handler, v
 }
 
 static int video_start(void *opaque) {
-    if (opaque != &s_video || !s_video.initialized || s_video.task_created) {
+    if (opaque != &s_video || !s_video.initialized || s_video.task) {
         return -1;
     }
     if (!s_video.buffers_clean && prepare_buffers() < 0) {
@@ -462,10 +463,11 @@ static int video_start(void *opaque) {
     portENTER_CRITICAL(&s_lock);
     s_video.stop_requested = false;
     portEXIT_CRITICAL(&s_lock);
-    if (xTaskCreate(video_worker, "cores3_video", 6144, NULL, 3, NULL) != pdPASS) {
+    if (xTaskCreateWithCaps(video_worker, "cores3_video", 6144, NULL, 3, &s_video.task,
+                            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT) != pdPASS) {
+        ESP_LOGE(TAG, "event=video action=start result=error memory=psram");
         return -1;
     }
-    s_video.task_created = true;
     return 0;
 }
 
@@ -476,12 +478,24 @@ static int video_stop(void *opaque) {
     portENTER_CRITICAL(&s_lock);
     s_video.stop_requested = true;
     portEXIT_CRITICAL(&s_lock);
-    if (s_video.task_created) {
+    if (s_video.task) {
+        const int64_t deadline = esp_timer_get_time() + VIDEO_STOP_TIMEOUT_MS * 1000;
         if (xSemaphoreTake(s_video.stopped, pdMS_TO_TICKS(VIDEO_STOP_TIMEOUT_MS)) != pdTRUE) {
             ESP_LOGW(TAG, "event=video action=stop result=pending");
             return -1;
         }
-        s_video.task_created = false;
+        /* The worker must leave the semaphore/kernel path before deletion. A
+         * timeout restores completion so a later stop can retry the join. */
+        while (eTaskGetState(s_video.task) != eSuspended) {
+            if (esp_timer_get_time() >= deadline) {
+                xSemaphoreGive(s_video.stopped);
+                ESP_LOGW(TAG, "event=video action=stop result=pending reason=worker_suspend");
+                return -1;
+            }
+            vTaskDelay(1);
+        }
+        vTaskDeleteWithCaps(s_video.task);
+        s_video.task = NULL;
     }
     if (stop_stream() < 0) {
         return -1;
