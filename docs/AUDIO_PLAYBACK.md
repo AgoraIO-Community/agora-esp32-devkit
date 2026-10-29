@@ -26,8 +26,10 @@ An explicit drain also releases the prebuffer so a short tail can finish. It wri
 240 frames (15 ms) at a time; the I2S driver's wait for available DMA space paces subsequent
 writes. All current sinks use six DMA buffers of 240 frames, totaling 90 ms at 16 kHz.
 
-The FIFO prefers PSRAM and falls back to internal RAM. Each playback stream also owns a
-4-KiB task stack, a 480-byte PCM scratch buffer, conversion state, and synchronization objects.
+Each playback stream places its 7,680-byte FIFO, 4-KiB task stack and separate 480-byte PCM
+scratch buffer in PSRAM, with no internal FIFO fallback. Board conversion scratch and eligible
+stream contexts also use PSRAM; synchronization objects and hardware DMA stay internal. Exact
+capacities are listed in the [PSRAM memory policy](PSRAM_MEMORY.md).
 The writer runs at priority 5 without fixed core affinity. Buffering adds latency; verify
 conversation responsiveness and Cloud AEC as well as clean audio.
 
@@ -65,6 +67,8 @@ has physically played those frames.
 Stopping cancels queued PCM and waits for the writer's in-flight call before touching hardware.
 If that wait fails, resources remain allocated for cleanup retry. Restart resets the FIFO and
 prebuffer state, so audio from a previous conversation cannot remain in the software queue.
+Destroy waits for worker completion and suspension, then the owner calls `vTaskDeleteWithCaps`
+before releasing the stack and buffers. Timeout preserves resources for a later destroy retry.
 
 Codec-based boards mute or close the output before allowing old DMA data to clear. TX clocks
 remain active when capture still needs them. Raw-I2S boards (Zhengchen, Xingzhi Cube, Bread, and

@@ -134,6 +134,8 @@ duration, Cloud AEC, and AI QoS. The device service endpoint is selected with th
 CPU, heap, and playback diagnostics can be enabled with
 `CONFIG_MYBOT_DEBUG_RESOURCE_MONITOR=y`; they are disabled by default. See
 [buffered audio playback](docs/AUDIO_PLAYBACK.md) for playback counters and interpretation.
+Application data and worker stacks follow the [PSRAM memory policy](docs/PSRAM_MEMORY.md);
+hardware DMA, kernel objects and the flash-writing main stack retain internal RAM.
 
 ## Validation
 
@@ -146,6 +148,7 @@ power sequencing, audio quality, Wi-Fi recovery or other real-device results.
 - [Board profiles](components/mybot_platform/boards/README.md)
 - [Validation matrix](docs/VALIDATION.md)
 - [Board porting](docs/BOARD_PORTING.md)
+- [PSRAM memory policy](docs/PSRAM_MEMORY.md)
 - [Buffered audio playback](docs/AUDIO_PLAYBACK.md)
 - [Platform LVGL UI](docs/PLATFORM_UI.md)
 - [CoreS3 LVGL UI](docs/CORES3_UI.md)

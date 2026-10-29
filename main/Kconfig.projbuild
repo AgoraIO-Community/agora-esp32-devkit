@@ -1,5 +1,15 @@
 menu "mybot"
 
+    config MYBOT_PSRAM_ALLOCATIONS
+        bool
+        default y
+        depends on SPIRAM && (SPIRAM_USE_CAPS_ALLOC || SPIRAM_USE_MALLOC)
+        select FREERTOS_TASK_CREATE_ALLOW_EXT_MEM
+        select NVS_ALLOCATE_CACHE_IN_SPIRAM
+        help
+            Platform data and worker stacks use PSRAM. Keep kernel objects,
+            hardware DMA buffers and flash-writing task stacks in internal RAM.
+
     choice MYBOT_LANGUAGE
         prompt "Product language"
         default MYBOT_LANGUAGE_ZH_CN

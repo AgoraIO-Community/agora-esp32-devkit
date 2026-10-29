@@ -32,6 +32,9 @@ set(MYBOT_EMBEDDED_AUDIO_ASSETS
 )
 
 if(NOT CMAKE_BUILD_EARLY_EXPANSION)
+    if(NOT CONFIG_MYBOT_PSRAM_ALLOCATIONS OR NOT CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM)
+        message(FATAL_ERROR "mybot requires PSRAM allocations and external task stack support")
+    endif()
     if(CONFIG_MYBOT_LVGL_UI AND MYBOT_BOARD_HEADLESS)
         message(FATAL_ERROR "MYBOT_LVGL_UI requires a board with a display panel")
     endif()

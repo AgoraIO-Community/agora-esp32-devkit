@@ -1,0 +1,17 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+#pragma once
+#define CONFIG_CAM_CTRL_DVP_DMA_BUFFER_SIZE 8192
+#define GPIO_NUM_NC -1
+#define MYBOT_CAMERA_D0 0
+#define MYBOT_CAMERA_D1 1
+#define MYBOT_CAMERA_D2 2
+#define MYBOT_CAMERA_D3 3
+#define MYBOT_CAMERA_D4 4
+#define MYBOT_CAMERA_D5 5
+#define MYBOT_CAMERA_D6 6
+#define MYBOT_CAMERA_D7 7
+#define MYBOT_CAMERA_VSYNC 8
+#define MYBOT_CAMERA_HREF 9
+#define MYBOT_CAMERA_PCLK 10
+#define MYBOT_CAMERA_XCLK 11
+#define MYBOT_CAMERA_XCLK_HZ 20000000

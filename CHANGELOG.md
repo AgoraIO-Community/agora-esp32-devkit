@@ -128,6 +128,14 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Place eligible platform data and worker stacks in PSRAM across display, audio, video, input
+  and optional diagnostics; select ESP-IDF external-stack support and PSRAM-preferred NVS cache
+  automatically. Remove the PCM FIFO internal-memory fallback, retain internal DMA/kernel/atomic
+  controls and the flash-writing main stack, and join suspended workers before freeing their
+  PSRAM stacks with timeout-safe cleanup retries. Document exact capacities and regression
+  commands in the [PSRAM memory policy](docs/PSRAM_MEMORY.md); current validation evidence
+  remains in [VALIDATION.md](docs/VALIDATION.md).
+
 - Extend the shared board skeleton with an optional secondary power rail for profiles that keep
   codec and system power on separate GPIOs.
 - Centralize generic hardware sequencing, round-screen safe-area layout, dual-I2C selection,

@@ -100,8 +100,8 @@ typedef struct {
     int pending_frames;
     uint32_t sent_frames;
     int result;
-    int16_t playback_frame[TEST_FRAMES];
-    int16_t capture_frame[TEST_FRAMES];
+    int16_t *playback_frame;
+    int16_t *capture_frame;
     int64_t previous_write_us;
     int64_t next_deadline_us;
     test_stats_t stats;
@@ -348,10 +348,19 @@ static int run_phase(test_phase_t phase) {
         .result = -1,
     };
     test->done = xSemaphoreCreateBinaryStatic(&test->done_storage);
+    test->playback_frame = heap_caps_calloc(TEST_FRAMES, sizeof(*test->playback_frame),
+                                            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (phase.capture) {
+        test->capture_frame = heap_caps_calloc(TEST_FRAMES, sizeof(*test->capture_frame),
+                                               MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    }
     ESP_LOGI(TAG, "event=phase phase=%s action=begin audio_seconds=60 capture=%d block_frames=%d",
              phase.name, phase.capture, TEST_FRAMES);
     int result = -1;
     const int64_t started = esp_timer_get_time();
+    if (!test->done || !test->playback_frame || (phase.capture && !test->capture_frame)) {
+        goto cleanup;
+    }
     if (phase.capture && test->capture->init(&test->capture_ctx, TEST_RATE, 1, 16) < 0) {
         goto cleanup;
     }
@@ -411,6 +420,10 @@ cleanup:
                  phase.name);
         return -2;
     }
+    heap_caps_free(test->capture_frame);
+    heap_caps_free(test->playback_frame);
+    test->capture_frame = NULL;
+    test->playback_frame = NULL;
     /* A capture read may have been in flight when playback signalled completion. */
     test_stats_t stats = report_progress(test);
     if (test->result < 0) {
