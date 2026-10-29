@@ -99,11 +99,11 @@ real-device validation.
 
 ## Build, flash and validation / 构建、烧录与验证
 
-Activate ESP-IDF v5.5.2 from the repository root:
+Activate ESP-IDF v6.1 from the repository root:
 
 ```sh
 . /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 ```
 
 Build both languages for one profile:

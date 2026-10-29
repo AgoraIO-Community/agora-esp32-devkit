@@ -25,7 +25,7 @@ CoreS3 将 PCM 接收到有界 FIFO，容量为 3,840 个采样点（7,680 字�
 
 ## 构建与运行
 
-激活 ESP-IDF v5.5.2 环境后，在仓库根目录使用独立构建目录：
+激活 ESP-IDF v6.1 环境后，在仓库根目录使用独立构建目录：
 
 ```sh
 idf.py -B build/cores3-audio-test \

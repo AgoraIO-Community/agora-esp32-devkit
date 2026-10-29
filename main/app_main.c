@@ -12,8 +12,8 @@
 #include "esp_netif_sntp.h"
 #include "esp_psram.h"
 #include "esp_timer.h"
-#include "mbedtls/md.h"
 #include "nvs_flash.h"
+#include "psa/crypto.h"
 #include "mybot_platform/board.h"
 #include "mybot_platform/display_status.h"
 #if CONFIG_MYBOT_AUDIO_PLAYBACK_TEST
@@ -78,14 +78,32 @@ static void publish_display_state(void) {
 static int build_device_id(char *device_id, size_t capacity, const uint8_t mac[6]) {
     uint8_t digest[32];
     char digest_hex[DEVICE_ID_DIGEST_BYTES * 2 + 1];
-    const mbedtls_md_info_t *sha256 = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+    psa_key_id_t key_id = 0;
+    size_t digest_length = 0;
     /* The digest keeps the ID stable without placing the raw MAC in requests or logs.
      * The compiled key is an identifier-obfuscation key, not an authentication secret. */
-    if (!device_id || capacity == 0 || !mac || !sha256 ||
-        mbedtls_md_hmac(sha256, (const unsigned char *)k_device_id_hmac_key,
-                        sizeof(k_device_id_hmac_key) - 1, mac, 6, digest) != 0) {
+    if (!device_id || capacity == 0 || !mac) {
         return -1;
     }
+
+    psa_set_key_type(&attributes, PSA_KEY_TYPE_HMAC);
+    psa_set_key_algorithm(&attributes, PSA_ALG_HMAC(PSA_ALG_SHA_256));
+    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_MESSAGE);
+    psa_status_t status = psa_import_key(&attributes, (const uint8_t *)k_device_id_hmac_key,
+                                         sizeof(k_device_id_hmac_key) - 1, &key_id);
+    psa_reset_key_attributes(&attributes);
+    if (status != PSA_SUCCESS) {
+        return -1;
+    }
+
+    status = psa_mac_compute(key_id, PSA_ALG_HMAC(PSA_ALG_SHA_256), mac, 6, digest, sizeof(digest),
+                             &digest_length);
+    psa_destroy_key(key_id);
+    if (status != PSA_SUCCESS || digest_length != sizeof(digest)) {
+        return -1;
+    }
+
     for (size_t i = 0; i < DEVICE_ID_DIGEST_BYTES; ++i) {
         snprintf(&digest_hex[i * 2], 3, "%02X", digest[i]);
     }

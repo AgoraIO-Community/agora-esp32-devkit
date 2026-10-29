@@ -18,11 +18,11 @@ Contributions are welcome. Firmware versions and public behavior follow Semantic
 5. Update user documentation and `CHANGELOG.md` when behavior changes.
 6. Record dependency revisions in `VENDORED_SOURCES.md` and retain all required license notices.
 
-Activate ESP-IDF v5.5.2 and build before opening a pull request:
+Activate ESP-IDF v6.1 and build before opening a pull request:
 
 ```sh
 . /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 idf.py -B build/contribution \
   -DMYBOT_BOARD=zhengchen-1.54tft-ml307 \
   -DSDKCONFIG=build/contribution/sdkconfig \

@@ -126,8 +126,10 @@ Firmware integration differences are limited to the active ESP32-S3 build:
 
 - The AOSL ESP32-S3 HAL uses FreeRTOS delays, byte-sized task stacks, PSRAM allocation, and IPv4
   DSCP/TOS support required by the bundled RTSA package.
+- `esp-wifi-connect` declares the MIT-licensed `espressif/cjson` 1.7.19~2 managed dependency
+  because ESP-IDF 6.1 no longer supplies cJSON as a built-in component.
 - Component Registry manifests and download-cache checksum metadata are omitted because dependencies
-  are local or supplied by ESP-IDF v5.5.2.
+  are local or supplied by ESP-IDF v6.1.
 - The codec-device source set contains only the common adapters and ES8311, ES8388, ES7243E,
   ES7210, and AW88298 devices used by supported boards; codec-setting errors are propagated to
   platform callers.

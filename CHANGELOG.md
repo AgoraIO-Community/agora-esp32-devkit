@@ -128,6 +128,12 @@ Versioning and Conventional Commits.
 
 ### Changed
 
+- Move the build baseline to ESP-IDF v6.1. Replace the removed built-in cJSON component with the
+  pinned `espressif/cjson` managed dependency, migrate device-ID HMAC generation to PSA Crypto,
+  and retain Newlib for compatibility with the prebuilt Agora RTSA archive. GenjuTech 1.54
+  Chinese/English and CoreS3 video Chinese builds pass local
+  reconfigure/build/size/merge-bin validation.
+
 - Place eligible platform data and worker stacks in PSRAM across display, audio, video, input
   and optional diagnostics; select ESP-IDF external-stack support and PSRAM-preferred NVS cache
   automatically. Remove the PCM FIFO internal-memory fallback, retain internal DMA/kernel/atomic
