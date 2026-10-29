@@ -74,7 +74,7 @@ port. Never move a task that performs flash writes to PSRAM without auditing the
 
 ## Verification commands and device regression
 
-With ESP-IDF 5.5.2 active, a fresh CoreS3 development build can use:
+With ESP-IDF 6.1 active, a fresh CoreS3 development build can use:
 
 ```sh
 idf.py -B build/cores3-psram \

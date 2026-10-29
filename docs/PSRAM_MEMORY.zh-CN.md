@@ -66,7 +66,7 @@ PCM、视频和可停止输入的清理在等待任务或回调超时时保留�
 
 ## 验证命令与真机回归
 
-加载 ESP-IDF 5.5.2 后，可用下列命令创建 CoreS3 开发构建：
+加载 ESP-IDF 6.1 后，可用下列命令创建 CoreS3 开发构建：
 
 ```sh
 idf.py -B build/cores3-psram \

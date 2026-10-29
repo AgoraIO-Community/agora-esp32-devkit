@@ -29,7 +29,7 @@ boards.
 
 ## Build and run
 
-Activate ESP-IDF v5.5.2, then run from the repository root with a separate build directory:
+Activate ESP-IDF v6.1, then run from the repository root with a separate build directory:
 
 ```sh
 idf.py -B build/cores3-audio-test \

@@ -17,7 +17,7 @@
 
 ```sh
 . /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 idf.py -B build/release \
   -DMYBOT_BOARD=zhengchen-1.54tft-ml307 \
   -DSDKCONFIG=build/release/sdkconfig \

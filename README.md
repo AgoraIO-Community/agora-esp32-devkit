@@ -9,7 +9,7 @@
 ESP32-S3 boards. The project owns board initialization, Wi-Fi provisioning, persistent storage,
 HTTPS transport, audio, input, display, and the firmware lifecycle around the SDK.
 
-The development baseline is **ESP-IDF v5.5.2**. Seventy-two compile-time board profiles are
+The development baseline is **ESP-IDF v6.1**. Seventy-two compile-time board profiles are
 supported (64 display and 8 headless); the board, Flash, PSRAM, partition table, and hardware
 drivers are selected with `MYBOT_BOARD`. See the
 [board documentation index](components/mybot_platform/boards/README.md) for hardware details,
@@ -73,13 +73,13 @@ implement modem or 4G networking. Only `m5stack-core-s3` currently exposes camer
 
 ## Build
 
-Install ESP-IDF v5.5.2 using the
-[official setup guide](https://docs.espressif.com/projects/esp-idf/en/v5.5.2/esp32s3/get-started/index.html),
+Install ESP-IDF v6.1 using the
+[official setup guide](https://docs.espressif.com/projects/esp-idf/en/v6.1/esp32s3/get-started/index.html),
 then activate it in the current shell:
 
 ```sh
 . /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 ```
 
 Build one board with an isolated build directory and sdkconfig:

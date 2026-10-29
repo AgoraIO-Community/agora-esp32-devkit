@@ -16,11 +16,11 @@
 5. 用户可见行为变化时同步更新文档与 `CHANGELOG.md`。
 6. 在 `VENDORED_SOURCES.md` 记录依赖版本，并保留所有必要的许可证声明。
 
-提交 pull request 前，激活 ESP-IDF v5.5.2 并构建：
+提交 pull request 前，激活 ESP-IDF v6.1 并构建：
 
 ```sh
 . /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 idf.py -B build/contribution \
   -DMYBOT_BOARD=zhengchen-1.54tft-ml307 \
   -DSDKCONFIG=build/contribution/sdkconfig \
