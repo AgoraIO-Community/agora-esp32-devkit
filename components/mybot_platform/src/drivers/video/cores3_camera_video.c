@@ -239,6 +239,17 @@ static bool wait_for_capture_slot(int64_t deadline_us) {
     return false;
 }
 
+static void log_capture_memory(const char *stage) {
+    const uint32_t dma_caps = MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL;
+    ESP_LOGI(TAG,
+             "event=video_memory stage=%s dma_buffer_max=%d dma_free=%zu dma_largest=%zu "
+             "internal_free=%zu psram_free=%zu",
+             stage, CONFIG_CAM_CTRL_DVP_DMA_BUFFER_SIZE, heap_caps_get_free_size(dma_caps),
+             heap_caps_get_largest_free_block(dma_caps),
+             heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT),
+             heap_caps_get_free_size(MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+}
+
 static void video_worker(void *argument) {
     (void)argument;
     unsigned int captured = 0, encoded = 0, sent = 0, rejected = 0, dropped = 0, capture_errors = 0;
@@ -264,7 +275,9 @@ static void video_worker(void *argument) {
     }
     capture_pending = true;
     const enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    log_capture_memory("before_stream_on");
     if (should_stop() || ioctl(s_video.fd, VIDIOC_STREAMON, &type) < 0) {
+        log_capture_memory("stream_on_not_started");
         ESP_LOGW(TAG, "event=video action=stream_on result=not_started");
         goto done;
     }

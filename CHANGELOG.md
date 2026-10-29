@@ -172,8 +172,8 @@ Versioning and Conventional Commits.
   RTM-to-LCD indicator handling and device-service response parsing.
 - Request CoreS3 DVP capture at most five times per second, holding capture buffers between
   samples so idle periods stop DMA and copying. The sensor retains its 20 fps timing and JPEG
-  uplink remains capped at 1 fps. Increase the DVP DMA configuration to 16,384 bytes
-  (15 KiB allocated for QVGA YUYV), and reduce shared UI activity animation to 5 fps.
+  uplink remains capped at 1 fps. Use an 8,192-byte DVP DMA configuration
+  (7.5 KiB allocated for QVGA YUYV), and reduce shared UI activity animation to 5 fps.
 - Count in-flight SPI callbacks across consecutive CoreS3 LVGL UI flushes so teardown waits
   for all pending transfers.
 
@@ -224,6 +224,17 @@ Current build coverage, real-device results and unsupported features are tracked
 
 ### Fixed
 
+- Move CoreS3's 7,168-byte LVGL task stack to PSRAM through the existing port's stack-capability
+  setting, preserving the internal display DMA stripe. Require external-stack support in the board
+  profile and log `ui_stack_bytes=7168 ui_stack=psram` during display initialization. This saves
+  7 KiB of internal stack storage; real-device audio/video/UI,
+  provisioning and volume-persistence NVS regressions remain to be verified.
+- Reduce CoreS3's contiguous internal DMA buffer requirement from 15 KiB to 7.5 KiB with a
+  project Kconfig default override without changing vendored driver code. Log the configured DMA
+  bound and free/largest internal DMA memory before stream startup and when streaming does not
+  start. A device still failed with 13,187 bytes free but a largest block of 5,120 bytes; this
+  footprint reduction alone did not resolve the allocation failure. The smaller buffer increases
+  DMA events per active frame and requires concurrent audio/UI validation.
 - Restrict batch-builder cleanup to dedicated, owned generated directories. Reject repository
   ancestors, source directories, symlink components, traversal and overlapping roots before any
   cleanup; preserve unmarked existing data and anchor child deletion to directory descriptors.
