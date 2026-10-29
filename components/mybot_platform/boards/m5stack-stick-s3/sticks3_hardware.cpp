@@ -60,6 +60,7 @@ static esp_err_t initialize_backlight(void) {
             {
                 .output_invert = 0,
             },
+        .deconfigure = false,
     };
     result = ledc_channel_config(&channel_config);
     if (result == ESP_OK) {
