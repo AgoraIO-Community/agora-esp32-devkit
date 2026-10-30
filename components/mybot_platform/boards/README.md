@@ -2,7 +2,7 @@
 
 These documents describe the board profiles implemented by `agora-esp32-devkit`. Pins, power sequencing,
 drivers and build constraints are defined by the checked-in `board.cmake`, `board_config.h` and
-`sdkconfig.defaults` files. Use ESP-IDF v5.5.2 and select a board with `MYBOT_BOARD`.
+`sdkconfig.defaults` files. Use ESP-IDF v6.1 and select a board with `MYBOT_BOARD`.
 
 以下说明对应本工程已实现的 72 个板型，其中 64 个带屏、8 个无屏。硬件配置、输入行为和
 构建约束以当前板级代码为准；验证状态统一见
@@ -98,11 +98,11 @@ real-device validation.
 
 ## Build, flash and validation / 构建、烧录与验证
 
-在工程根目录激活 ESP-IDF v5.5.2，并指定板型：
+在工程根目录激活 ESP-IDF v6.1，并指定板型：
 
 ```sh
 . /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 python3 scripts/build_all.py --board m5stack-core-s3 --language both
 ```
 

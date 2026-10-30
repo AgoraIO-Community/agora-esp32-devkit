@@ -106,10 +106,10 @@ jobs:
           done
 
   idf-build:
-    name: idf-5.5.2-${{ matrix.board }}-${{ matrix.language }}-ptime-${{ matrix.ptime }}-video-${{ matrix.video || 'off' }}-ui-${{ matrix.ui || 'default' }}
+    name: idf-6.1-${{ matrix.board }}-${{ matrix.language }}-ptime-${{ matrix.ptime }}-video-${{ matrix.video || 'off' }}-ui-${{ matrix.ui || 'default' }}
     runs-on: ubuntu-24.04
     container:
-      image: espressif/idf:v5.5.2
+      image: espressif/idf:v6.1
     defaults:
       run:
         shell: bash
@@ -271,7 +271,7 @@ jobs:
       - name: Verify toolchain
         run: |
           source /opt/esp/idf/export.sh >/dev/null
-          test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+          test "$(idf.py --version)" = "ESP-IDF v6.1"
       - name: Build ESP32-S3 firmware
         run: |
           source /opt/esp/idf/export.sh >/dev/null
@@ -298,7 +298,7 @@ jobs:
     name: extended-${{ matrix.board }}-${{ matrix.language }}
     runs-on: ubuntu-24.04
     container:
-      image: espressif/idf:v5.5.2
+      image: espressif/idf:v6.1
     defaults:
       run:
         shell: bash

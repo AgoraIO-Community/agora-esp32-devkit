@@ -67,7 +67,7 @@ ANNOYED, REFUSE, PROCESSING, ERROR, SLEEP
 
 ## 编译与烧录
 
-使用ESP-IDF v5.5.2。标准构建脚本选择CoreS3与中英文，默认 `--video auto` 根据既有板级
+使用ESP-IDF v6.1。标准构建脚本选择CoreS3与中英文，默认 `--video auto` 根据既有板级
 能力开启CoreS3视频：
 
 ```sh

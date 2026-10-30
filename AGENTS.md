@@ -6,7 +6,7 @@ unrelated worktree changes, and report validation results with the final handoff
 
 ## Project boundary
 
-`agora-esp32-devkit` is an ESP-IDF 5.5.2 firmware project for ESP32-S3. Its platform code lives in
+`agora-esp32-devkit` is an ESP-IDF 6.1 firmware project for ESP32-S3. Its platform code lives in
 `components/mybot_platform`; the runtime inputs are grouped under `components/mybot_stack`:
 
 ```text
@@ -134,7 +134,7 @@ Before declaring a board ready:
 
 ```sh
 source /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 python3 scripts/build_all.py --board <board-id> --language both
 git diff --check
 ```

@@ -77,8 +77,8 @@ def idf_command() -> str:
     if not idf:
         raise RuntimeError("idf.py is not in PATH; source the ESP-IDF export script first")
     version = subprocess.run([idf, "--version"], check=True, capture_output=True, text=True).stdout.strip()
-    if version != "ESP-IDF v5.5.2":
-        raise RuntimeError(f"expected ESP-IDF v5.5.2, got {version}")
+    if version != "ESP-IDF v6.1":
+        raise RuntimeError(f"expected ESP-IDF v6.1, got {version}")
     return idf
 
 

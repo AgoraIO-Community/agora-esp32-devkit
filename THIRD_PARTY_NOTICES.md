@@ -9,6 +9,7 @@ It does not replace third-party terms. This file is informational and is not leg
 | AOSL (`84e0860`) | Bundled license: Apache-2.0 text plus additional deployment restrictions | `components/mybot_stack/aosl` |
 | Agora RTSA Lite for ESP32-S3 1.10.1 (build 1270872) | Separate Agora distribution terms | `components/mybot_stack/agora_rtc` |
 | esp-wifi-connect 3.2.2 | MIT | `components/esp-wifi-connect` |
+| cJSON 1.7.19~2 | MIT | Managed dependency `espressif/cjson`, declared by `components/esp-wifi-connect/idf_component.yml` |
 | Espressif audio codec 2.5.0 | Espressif Modified MIT and file-specific terms | `components/esp_audio_codec` |
 | Espressif codec device 1.5.11 | Apache-2.0 | `components/esp_codec_dev` |
 | Espressif video 2.3.0 (DVP subset) | Espressif MIT; Linux UAPI headers retain file-specific BSD/GPL-with-syscall-exception terms | `components/esp_video` |

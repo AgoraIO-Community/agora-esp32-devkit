@@ -8,7 +8,7 @@ Describe the implementation and compatibility impact.
 
 ## Validation
 
-- [ ] ESP-IDF v5.5.2 build completed for affected board profiles
+- [ ] ESP-IDF v6.1 build completed for affected board profiles
 - [ ] Firmware size checked
 - [ ] Real hardware checked when platform behavior changed
 - [ ] Documentation and changelog updated
