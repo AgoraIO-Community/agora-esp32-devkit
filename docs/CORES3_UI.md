@@ -78,7 +78,7 @@ animation behavior. No new theme or expression-selection touch gesture is introd
 
 ## Build and flash
 
-Use ESP-IDF v5.5.2. The normal builder selects CoreS3 and both languages, and its default
+Use ESP-IDF v6.1. The normal builder selects CoreS3 and both languages, and its default
 `--video auto` policy enables CoreS3 video through the existing board capability:
 
 ```sh

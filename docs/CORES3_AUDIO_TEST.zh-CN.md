@@ -26,7 +26,7 @@ agent-studio-device-firmware SDK、16 kHz 采样率及 codec 配置保持不变�
 
 ## 构建与运行
 
-激活 ESP-IDF v5.5.2 环境后，在仓库根目录使用独立构建目录：
+激活 ESP-IDF v6.1 环境后，在仓库根目录使用独立构建目录：
 
 ```sh
 idf.py -B build/cores3-audio-test \

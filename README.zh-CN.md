@@ -11,7 +11,7 @@
 工程负责板级初始化、Wi-Fi 配网、持久化存储、HTTPS、音频、输入、显示，以及 SDK 外围的
 固件生命周期。
 
-当前开发基线为 **ESP-IDF v5.5.2**，支持 72 个编译期 Board profile（64 个带屏、8 个无屏）。
+当前开发基线为 **ESP-IDF v6.1**，支持 72 个编译期 Board profile（64 个带屏、8 个无屏）。
 通过 `MYBOT_BOARD` 选择板型、Flash、PSRAM、分区表和硬件驱动。具体硬件配置、输入操作、
 构建命令和限制见[板卡说明索引](components/mybot_platform/boards/README.md)。
 
@@ -70,12 +70,12 @@
 
 ## 构建
 
-按照[官方安装指南](https://docs.espressif.com/projects/esp-idf/zh_CN/v5.5.2/esp32s3/get-started/index.html)
-安装 ESP-IDF v5.5.2，并在当前 shell 中激活：
+按照[官方安装指南](https://docs.espressif.com/projects/esp-idf/zh_CN/v6.1/esp32s3/get-started/index.html)
+安装 ESP-IDF v6.1，并在当前 shell 中激活：
 
 ```sh
 . /path/to/esp-idf/export.sh
-test "$(idf.py --version)" = "ESP-IDF v5.5.2"
+test "$(idf.py --version)" = "ESP-IDF v6.1"
 ```
 
 使用独立构建目录和 sdkconfig 构建单个板型：

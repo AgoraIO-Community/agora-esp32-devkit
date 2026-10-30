@@ -15,7 +15,7 @@ The adapter is
 
 ## Build and enable
 
-Activate ESP-IDF v5.5.2, then run from the repository root with an isolated configuration:
+Activate ESP-IDF v6.1, then run from the repository root with an isolated configuration:
 
 ```sh
 idf.py -B build/cores3-video \
