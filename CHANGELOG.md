@@ -150,14 +150,17 @@ Versioning and Conventional Commits.
 - Centralize build and flash commands in the board index and current validation status in
   `docs/VALIDATION.md`; remove repeated status paragraphs, volatile build timings and per-board
   command copies from board and topic documentation.
+- Update the SDK 1.3.0 snapshot to official commit `1cd46b0`. The SDK completes framed HTTP
+  responses without waiting for the peer to close, restores the pending pairing code after
+  a Wi-Fi reconnect, and preserves stored credentials when a KV read fails. The firmware
+  retries incomplete SDK shutdown before provisioning or tearing down the network.
 - Refresh the SDK snapshot to `baf41ba` and register the new shared URL and HTTP-header sources.
   Adopt bounded URL validation and printable header checks, remove unused outbound RTM, media-mute
   and LCD emotion paths, and update the CoreS3 adapter and host tests to the current LCD contract.
 - Update the local Chinese and English Wi-Fi provisioning prompts, retaining 20 ms mono Opus/Ogg
   and recording checksums and decoded frame counts.
-- Refresh the SDK snapshot to `3f9a1ad` (version 1.3.0) and update all 22 Chinese/English pairing
-  prompt and digit recordings from its PCM assets. Encode 20 ms mono Opus/Ogg for the existing
-  firmware decoder and record source/output hashes.
+- Update all 22 Chinese and English pairing prompts and digit recordings. Retain 20 ms mono
+  Opus/Ogg for the firmware decoder and verify the encoded files with checksums.
 - Sync the SDK snapshot to the v1.3.0 release (`58f0ef9`) and report version 1.3.0 from
   the ESP-IDF wrapper. Changes since the previous snapshot are release metadata and comments.
 - Sync the SDK snapshot to `39d5ed1` (1.2.0 plus post-release fixes), accepting cloud
